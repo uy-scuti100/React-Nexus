@@ -1,6 +1,4 @@
-import { Post } from "@/types";
 import { X, PencilLine, Trash2 } from "lucide-react";
-import supabase from "@/lib/supabaseClient";
 import toast from "react-hot-toast";
 import {
    Dialog,
@@ -10,10 +8,12 @@ import {
    DialogHeader,
    DialogTitle,
    DialogTrigger,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
-import { useFetchUser } from "@/hooks/useFetchUser";
+} from "../../components/ui/dialog";
+import { Button } from "../../components/ui/button";
+import { useNavigate } from "react-router-dom";
+import { Post } from "../../../types";
+import { useFetchUser } from "../../hooks/useFetchUser";
+import supabase from "../../lib/supabaseClient";
 
 type Props = {
    isEditable: boolean;
@@ -58,7 +58,7 @@ const CategoryAndEdit = ({
    tempPostImage,
    setTempPostImage,
 }: Props) => {
-   const router = useRouter();
+   const navigate = useNavigate();
    const handleEnableEdit = () => {
       handleIsEditable(!isEditable);
       setTempTitle(title);
@@ -94,7 +94,7 @@ const CategoryAndEdit = ({
          toast.error("Failed to delete !");
          console.error(error);
       } finally {
-         router.push("/home");
+         navigate("/posts");
       }
    };
 

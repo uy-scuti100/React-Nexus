@@ -2,12 +2,13 @@
 import { Bell, ChevronDown, Search } from "lucide-react";
 import SideNav from "./SideNav";
 import { useState } from "react";
-import { Link, redirect } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Write from "./Write";
 import { useFetchUser } from "../../../hooks/useFetchUser";
 
 const Navbar = () => {
    const [sidenav, setSidenav] = useState(false);
+   const navigate = useNavigate();
 
    const { user } = useFetchUser();
    const toggleSideNav = () => {
@@ -18,7 +19,7 @@ const Navbar = () => {
       <nav className="fixed z-50 flex items-center self-center justify-between w-full px-6 py-6 pt-6 mx-auto bg-white border-b border-black/20 dark:bg-background">
          <div
             className="text-3xl cursor-pointer md:text-4xl logo"
-            onClick={() => redirect("/home")}>
+            onClick={() => navigate("/posts")}>
             Nexus
          </div>
 

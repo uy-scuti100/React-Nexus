@@ -1,16 +1,13 @@
-"use client";
-import { Textarea } from "@/components/ui/textarea";
-import { useFetchUser } from "@/hooks/useFetchUser";
-import supabase from "@/lib/supabaseClient";
-import { Comment } from "@/types";
 import { Edit, Reply, Trash } from "lucide-react";
-import { useTheme } from "next-themes";
-import Image from "next/image";
 import { useState, useEffect, ChangeEvent } from "react";
 import toast from "react-hot-toast";
-
-const dayjs = require("dayjs");
-const relativeTime = require("dayjs/plugin/relativeTime");
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+import { Comment } from "../../../types";
+import { useTheme } from "../../components/providers/theme/theme-provider";
+import { useFetchUser } from "../../hooks/useFetchUser";
+import supabase from "../../lib/supabaseClient";
+import { Textarea } from "../../components/ui/textarea";
 dayjs.extend(relativeTime);
 
 const CommentCard = ({
@@ -225,7 +222,7 @@ const CommentCard = ({
          <div className="pb-3 mb-4">
             <div className="w-full p-4 border rounded-xl">
                <div key={comment?.id} className="flex items-start gap-3 pb-4">
-                  <Image
+                  <img
                      src={comment?.comment_author_pic}
                      alt="Comment Author"
                      className="w-12 h-12 rounded-full"
@@ -246,7 +243,7 @@ const CommentCard = ({
                      </div>
                      {isEditing ? (
                         <div className="flex flex-col gap-2">
-                           <textarea
+                           <Textarea
                               autoFocus={true}
                               style={{
                                  height: "50px",

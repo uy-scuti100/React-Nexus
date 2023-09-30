@@ -36,7 +36,7 @@ const Sidebar = (props: SidebarProp) => {
             className="hidden w-full my-8 md:block"
             alt="advert-2"
             placeholder="blur"
-            src="/public/ad2.jpg"
+            src="/ad2.jpg"
             width={500}
             height={1000}
          />

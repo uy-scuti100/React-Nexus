@@ -219,7 +219,7 @@ const PostForm = () => {
                   disabled={loading}
                   variant="outline"
                   size="sm"
-                  onClick={toggleJotter}>
+                  onClick={() => window.history.back()}>
                   <ChevronLeft className="w-6 h-6" />{" "}
                   <span className="text-lg">Back</span>
                </Button>
@@ -258,7 +258,7 @@ const PostForm = () => {
                                        style={{ display: "none" }}
                                     />
                                     {postImage instanceof File && (
-                                       <Image
+                                       <img
                                           src={URL.createObjectURL(postImage)}
                                           alt="Preview"
                                           width={400}

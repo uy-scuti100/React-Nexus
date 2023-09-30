@@ -1,6 +1,5 @@
-import React from "react";
 import CommentCard from "./CommentCard";
-import { Comment } from "@/types";
+import { Comment } from "../../../types";
 
 interface CommentListProps {
    comments: Comment[];

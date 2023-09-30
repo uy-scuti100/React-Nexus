@@ -1,11 +1,11 @@
 //;
 import React, { useState, useEffect } from "react";
 import { Button } from "../../ui/button";
-import { useUser } from "@/hooks/useUser";
-import { useHashtag } from "@/hooks/useHashtag";
+import { useUser } from "../../../hooks/useUser";
+import { useHashtag } from "../../../hooks/useHashtag";
 import "./registration.css";
-import supabase from "@/lib/supabaseClient";
-import { redirect } from "next/navigation";
+import { useNavigate } from "react-router-dom";
+import supabase from "../../../lib/supabaseClient";
 
 interface HashtagProp {
    name: string | null | undefined;
@@ -20,6 +20,7 @@ const HashtagForm = () => {
    const fetchedHashtags = hashtags;
    const { user } = useUser();
    const userId = user?.id;
+   const navigate = useNavigate();
 
    // Fetch user's current hashtags
    useEffect(() => {
@@ -31,7 +32,11 @@ const HashtagForm = () => {
                .eq("user_id", userId);
 
             if (!error && userHashtagsData) {
-               setUserHashtags(userHashtagsData.map((item) => item.hashtag_id));
+               setUserHashtags(
+                  userHashtagsData.map(
+                     (item: { hashtag_id: string }) => item.hashtag_id
+                  )
+               );
             }
          } catch (error: any) {
             console.error("Error fetching user's hashtags:", error.message);
@@ -49,7 +54,7 @@ const HashtagForm = () => {
       setLoading(true);
       try {
          // Map selected hashtags to the appropriate format
-         const hashtagsToInsert = selectedHashtags.map((hashtag) => ({
+         const hashtagsToInsert = selectedHashtags.map((hashtag: string) => ({
             user_id: userId, // Replace with the actual user ID
             hashtag_id: hashtag,
             name: hashtags?.find((h) => h.id === hashtag)?.name || "",
@@ -64,7 +69,7 @@ const HashtagForm = () => {
             console.error("Error inserting hashtags:", error.message);
          } else {
             console.log("Hashtags inserted successfully:", data);
-            window.location.href = "/home";
+            navigate("/posts");
          }
       } catch (error: any) {
          console.error("Error:", error.message);

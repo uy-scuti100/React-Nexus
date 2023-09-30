@@ -1,11 +1,10 @@
-//;
-
-import { Button } from "../../ui/button";
-import { useHashtag } from "@/hooks/useHashtag";
 import { Plus } from "lucide-react";
-import Link from "next/link";
+import { Link } from "react-router-dom";
+import { Button } from "../../components/ui/button";
+import { Hashtag } from "../../../types";
+import { useHashtag } from "../../hooks/useHashtag";
 
-const Category = () => {
+const HashtagComp = () => {
    const { isError, isLoading, hashtags } = useHashtag();
 
    return (
@@ -13,10 +12,10 @@ const Category = () => {
          <div>
             <Plus />
          </div>
-         {hashtags?.map((hashtag) => {
+         {hashtags?.map((hashtag: Hashtag) => {
             const { name, id } = hashtag;
             return (
-               <Link href={`/hashtags/${id}`} key={id}>
+               <Link to={`/hashtags/${id}`} key={id}>
                   <Button className="px-2 py-2 transition-transform duration-300 rounded hover:scale-105 w-max whitespace-nowrap ">
                      {name}
                   </Button>
@@ -27,4 +26,4 @@ const Category = () => {
    );
 };
 
-export default Category;
+export default HashtagComp;

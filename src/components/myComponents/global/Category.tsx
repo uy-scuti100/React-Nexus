@@ -5,11 +5,10 @@ import { useCategory } from "../../../hooks/useCategory";
 
 const Category = () => {
    const { isError, isLoading, categories } = useCategory();
-   const params = useParams();
-   const paramsId = params.categoriesId;
+   const { id } = useParams();
+   const paramsId = id;
    const pathname = window.location.pathname;
    const path = pathname.split("/")[1];
-   // console.log(path);
 
    return (
       <div className="flex items-center gap-6 px-6 py-4 overflow-x-auto border-b border-black/20">

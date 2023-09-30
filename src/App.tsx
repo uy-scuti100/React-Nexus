@@ -6,6 +6,8 @@ import Post from "./pages/post/Page";
 import Search from "./pages/search/Page";
 import Posts from "./pages/posts/Page";
 import Write from "./pages/write/Page";
+import Category from "./pages/categories/Page";
+import Hashtag from "./pages/hashtags/Page";
 
 const Layout = () => {
    return (
@@ -43,6 +45,14 @@ const router = createBrowserRouter([
          {
             path: "/write",
             element: <Write />,
+         },
+         {
+            path: "/categories/:id",
+            element: <Category />,
+         },
+         {
+            path: "/hashtag/:id",
+            element: <Hashtag />,
          },
       ],
    },

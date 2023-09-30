@@ -17,7 +17,7 @@ import SocialLinks from "../../components/myComponents/global/SocialLinks";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import ReactMarkdown from "react-markdown";
-import { Post } from "../../../types";
+import { Comment, Post } from "../../../types";
 
 dayjs.extend(relativeTime);
 
@@ -100,7 +100,7 @@ const formats = [
 // });
 
 const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
-   const postImageUrl = process.env.NEXT_PUBLIC_SUPABASE_IMAGE_URL;
+   const postImageUrl = import.meta.env.VITE_REACT_SUPABASE_IMAGE_URL;
    const [tempPostImage, setTempPostImage] = useState<string | File | null>(
       post?.image
    );

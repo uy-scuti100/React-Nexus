@@ -69,7 +69,7 @@ export default function OnBoard() {
                   </div>
                   <div className="flex-1">
                      <img
-                        src="/public/onboard.svg"
+                        src="/onboard.svg"
                         height={500}
                         width={600}
                         alt="svg"

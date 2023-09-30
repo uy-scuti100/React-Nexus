@@ -2,7 +2,10 @@
 
 import React, { ReactNode, useContext } from "react";
 import { X } from "lucide-react";
-import { ModalContext, ModalContextProp } from "@/state/context/modalContext";
+import {
+   ModalContext,
+   ModalContextProp,
+} from "../../../state/context/modalContext";
 
 export default function PopUpProvider({ children }: { children: ReactNode }) {
    const { openModal, toggleWelcomeFormModal, toggleJoinFormModal } =

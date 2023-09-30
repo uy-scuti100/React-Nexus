@@ -1,7 +1,5 @@
-import { Post } from "@/types";
-import Image from "next/image";
-import Link from "next/link";
-import React from "react";
+import { Link } from "react-router-dom";
+import { Post } from "../../../../types";
 
 type Props = {
    className?: string;
@@ -28,23 +26,24 @@ const Card = ({
       <div className={className}>
          <Link
             className="basis-full hover:opacity-70"
-            href={`${process.env.NEXT_PUBLIC_URL}/post/${post?.id}`}>
+            to={`${process.env.NEXT_PUBLIC_URL}/post/${post?.id}`}>
             <div className={`relative w-auto mb-3 ${imageHeight}`}>
-               <Image
-                  fill
+               <img
                   alt="tech"
                   placeholder="blur"
                   src={image}
-                  sizes="(max-width: 480px) 100vw,
-                  (max-width: 768px) 75vw,
-                  (max-width: 1060px) 50vw,
-                  33vw"
-                  style={{ objectFit: "cover" }}
+                  style={{
+                     objectFit: "cover",
+                     maxWidth: "100%",
+                     maxHeight: "100%",
+                     width: "100%",
+                     height: "100%",
+                  }}
                />
             </div>
          </Link>
          <div className="basis-full">
-            <Link href={`${process.env.NEXT_PUBLIC_URL}/post/${post?.id}`}>
+            <Link to={`${process.env.NEXT_PUBLIC_URL}/post/${post?.id}`}>
                <h4
                   className={`font-bold hover:text-accent-green
             ${isSmallCard ? "text-base" : "text-lg"}
