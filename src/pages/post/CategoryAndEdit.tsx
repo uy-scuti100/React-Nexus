@@ -1,19 +1,12 @@
 import { X, PencilLine, Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
-import {
-   Dialog,
-   DialogContent,
-   DialogDescription,
-   DialogFooter,
-   DialogHeader,
-   DialogTitle,
-   DialogTrigger,
-} from "../../components/ui/dialog";
+
 import { Button } from "../../components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Post } from "../../../types";
 import { useFetchUser } from "../../hooks/useFetchUser";
 import supabase from "../../lib/supabaseClient";
+import { useState } from "react";
 
 type Props = {
    isEditable: boolean;
@@ -59,6 +52,7 @@ const CategoryAndEdit = ({
    setTempPostImage,
 }: Props) => {
    const navigate = useNavigate();
+   const [showDialog, setShowDialog] = useState(false);
    const handleEnableEdit = () => {
       handleIsEditable(!isEditable);
       setTempTitle(title);
@@ -77,6 +71,10 @@ const CategoryAndEdit = ({
 
    const { user } = useFetchUser();
    const userId = user?.id;
+
+   const handleShowDialog = () => {
+      setShowDialog(true);
+   };
 
    const handleDelete = async () => {
       try {
@@ -108,38 +106,48 @@ const CategoryAndEdit = ({
                {isEditable ? (
                   <div className="flex justify-between gap-3">
                      <button onClick={handleCancelEdit}>
-                        <X className="w-6 h-6 text-accent-red" />
+                        <X className="w-6 h-6 cursor-pointer text-accent-red" />
                      </button>
                   </div>
                ) : (
                   <div className="flex items-center gap-8 pb-8">
                      <button onClick={handleEnableEdit}>
-                        <PencilLine className="w-6 h-6 text-accent-red" />
+                        <PencilLine className="w-6 h-6 cursor-pointer text-accent-red" />
                      </button>
-                     <Dialog>
-                        <DialogTrigger>
-                           <Trash2 className="w-6 h-6 text-red-700" />
-                        </DialogTrigger>
-                        <DialogContent>
-                           <DialogHeader className="pt-5">
-                              <DialogTitle>
-                                 Are you sure you want to delete this post?
-                              </DialogTitle>
-                              <DialogDescription className="pt-3">
-                                 This action cannot be undone. This will
-                                 permanently delete your post.
-                              </DialogDescription>
-                           </DialogHeader>
-                           <DialogFooter className="pt-5">
-                              <Button
-                                 type="button"
-                                 variant="destructive"
-                                 onClick={handleDelete}>
-                                 delete
-                              </Button>
-                           </DialogFooter>
-                        </DialogContent>
-                     </Dialog>
+                     <div onClick={handleShowDialog}>
+                        <Trash2 className="w-6 h-6 text-red-700 cursor-pointer" />
+                     </div>
+                     {showDialog && (
+                        <div className="fixed inset-0 z-50 h-screen backdrop-blur">
+                           <div className="fixed grid w-full max-w-lg gap-4 p-6 duration-200 transform -translate-x-1/2 -translate-y-1/2 border shadow-lg left-1/2 top-1/2 bg-background animate-in fade-in-0">
+                              <div
+                                 onClick={() => setShowDialog(false)}
+                                 className="absolute cursor-pointer right-2 top-2">
+                                 <X className="w-6 h-6" />
+                              </div>
+                              <div>
+                                 <div className="pt-5">
+                                    <h1 className="text-lg font-semibold leading-none tracking-tight">
+                                       Are you sure you want to delete this
+                                       post?
+                                    </h1>
+                                    <p className="pt-3 text-sm text-muted-foreground">
+                                       This action cannot be undone. This will
+                                       permanently delete your post.
+                                    </p>
+                                 </div>
+                                 <footer className="flex justify-end pt-5">
+                                    <Button
+                                       type="button"
+                                       variant="destructive"
+                                       onClick={handleDelete}>
+                                       delete
+                                    </Button>
+                                 </footer>
+                              </div>
+                           </div>
+                        </div>
+                     )}
                   </div>
                )}
             </div>
