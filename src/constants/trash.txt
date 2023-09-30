@@ -1,0 +1,149 @@
+// //;
+
+//
+
+// import React, { useEffect, useState } from "react";
+// import supabase from "@/app/api/supabaseClient";
+// import Image from "next/image";
+// import { useDispatch } from "react-redux";
+// import { Button } from "../../ui/button";
+// import { useRouter } from "next/navigation";
+// import Navbar from "../../myComponents/Navbar";
+// import { toast } from "react-hot-toast";
+
+// const WelcomePage = () => {
+//    // const currentUser = useSelector((state: RootState) => state.authSlice.user);
+//    const [isSubmitting, setIsSubmitting] = useState(false);
+//    const [email, setEmail] = useState<string | undefined>("");
+//    const [user, setUser] = useState<User | null>(null);
+//    const [image, setImage] = useState("");
+//    const [name, setName] = useState("");
+//    const [userId, setUserId] = useState("");
+//    const dispatch = useDispatch();
+//    const router = useRouter();
+
+//    const logOff = async () => {
+//       setIsSubmitting(true);
+//       try {
+//          const { error } = await supabase.auth.signOut();
+
+//          if (error) {
+//             console.error("Error signing out:", error);
+//          } else {
+//             toast.success("logged out successfully!");
+//             window.location.href = "/onboard";
+//          }
+//       } catch (error) {
+//          console.error("Error signing out:", error);
+//       }
+//    };
+
+//    return (
+//       <main>
+//          <Navbar />
+//          <div className="pt-150px">
+//             <h1>Welcome!</h1>
+//             <Image
+//                src={image}
+//                alt="user-image"
+//                width={200}
+//                height={200}
+//                className="object-cover rounded-full"
+//                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 70vw, 33vw"
+//             />
+//             <p>
+//                Thank you for creating an account {name}. Please check your inbox
+//                at {email} and click the link we sent to complete your account
+//                set-up.
+//             </p>
+//             <Button>Click here to resend the email</Button>
+//             <Button
+//                disabled={isSubmitting}
+//                variant="destructive"
+//                onClick={logOff}>
+//                logout
+//             </Button>
+//             current user: {email}
+//             current user: {userId}
+//          </div>
+//       </main>
+//    );
+// };
+
+// export default WelcomePage;
+
+// import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs";
+// import { NextResponse } from "next/server";
+
+// import type { NextRequest } from "next/server";
+
+// export async function middleware(req: NextRequest) {
+//    const res = NextResponse.next();
+//    const supabase = createMiddlewareClient({ req, res });
+
+//    const {
+//       data: { user },
+//    } = await supabase.auth.getUser();
+
+//    // if user is signed in and the current path is / redirect the user to /account
+//    if (user && req.nextUrl.pathname === "/") {
+//       return NextResponse.redirect(new URL("/account", req.url));
+//    }
+
+//    // if user is not signed in and the current path is not / redirect the user to /
+//    if (!user && req.nextUrl.pathname !== "/") {
+//       return NextResponse.redirect(new URL("/", req.url));
+//    }
+
+//    return res;
+// }
+
+// export const config = {
+//    matcher: ["/", "/account"],
+// };
+
+
+   // // useEffect(() => {
+   // //    const fetchUserHashtags = async () => {
+   // //       try {
+   // //          if (userId) {
+   // //             // Fetch user-related hashtags
+   // //             const { data, error } = await supabase
+   // //                .from("user_hashtags")
+   // //                .select("hashtag_id")
+   // //                .eq("user_id", userId);
+
+   // //             if (error) {
+   // //                console.error("Error fetching user hashtags:", error.message);
+   // //             } else {
+   // //                const hashtagIds = data.map(
+   // //                   (userHashtag) => userHashtag.hashtag_id
+   // //                );
+
+   // //                // Fetch the names of user-related hashtags from the hashtags table
+   // //                const { data: hashtagsData, error: hashtagsError } =
+   // //                   await supabase
+   // //                      .from("hashtags")
+   // //                      .select("name")
+   // //                      .in("id", hashtagIds);
+
+   // //                if (hashtagsError) {
+   // //                   console.error(
+   // //                      "Error fetching hashtag names:",
+   // //                      hashtagsError.message
+   // //                   );
+   // //                } else {
+   // //                   setUserHashtags(
+   // //                      hashtagsData.map((hashtag) => hashtag.name)
+   // //                   );
+   // //                }
+   // //             }
+   // //          }
+   // //       } catch (error: any) {
+   // //          console.error("Error:", error.message);
+   // //       }
+   // //    };
+
+   //    // Call the fetchUserHashtags function when the component mounts
+   //    fetchUserHashtags();
+   // }, [userId]); // Only run this effect when userId changes

@@ -1,0 +1,142 @@
+@import url("https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&family=Exo+2:ital,wght@0,400;0,500;0,600;1,700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+   font-family: "Inter", sans-serif;
+}
+
+@layer base {
+   :root {
+      --background: 0 0% 100%;
+      --foreground: 240 10% 3.9%;
+      --card: 0 0% 100%;
+      --card-foreground: 240 10% 3.9%;
+      --popover: 0 0% 100%;
+      --popover-foreground: 240 10% 3.9%;
+      --primary: 0 0% 9%;
+      --primary-foreground: 355.7 100% 97.3%;
+      --secondary: 240 4.8% 95.9%;
+      --secondary-foreground: 240 5.9% 10%;
+      --muted: 240 4.8% 95.9%;
+      --muted-foreground: 240 3.8% 46.1%;
+      --accent: 240 4.8% 95.9%;
+      --accent-foreground: 240 5.9% 10%;
+      --destructive: 0 84.2% 60.2%;
+      --destructive-foreground: 0 0% 98%;
+      --border: 240 5.9% 90%;
+      --input: 240 5.9% 90%;
+      --ring: 247, 33%, 31%;
+      --radius: 0.5rem;
+      --eccentric: 359, 49%, 49%;
+      --wh-10: 240 5.9% 90%;
+      --wh-50: 240 5.9% 98%;
+      --wh-100: 240 5.9% 79%;
+      --wh-300: 240 5.9% 58%;
+      --wh-500: 240 5.9% 35%;
+      --wh-900: 240 5.9% 6%;
+      --accent-red: 29 79% 60%;
+      --accent-orange: 44 89% 69%;
+      --accent-green: 104 55% 81%;
+   }
+
+   .dark {
+      --background: 20 14.3% 4.1%;
+      --foreground: 0 0% 95%;
+      --card: 24 9.8% 10%;
+      --card-foreground: 0 0% 95%;
+      --popover: 0 0% 9%;
+      --popover-foreground: 0 0% 95%;
+      --primary: 0 0% 9%;
+      --primary-foreground: 355.7 100% 97.3%;
+      --secondary: 240 3.7% 15.9%;
+      --secondary-foreground: 0 0% 98%;
+      --muted: 0 0% 15%;
+      --muted-foreground: 240 5% 64.9%;
+      --accent: 12 6.5% 15.1%;
+      --accent-foreground: 0 0% 98%;
+      --destructive: 0 62.8% 30.6%;
+      --destructive-foreground: 0 85.7% 97.3%;
+      --border: 240 3.7% 15.9%;
+      --input: 240 3.7% 15.9%;
+      --ring: 247, 33%, 31%;
+      --eccentric: 359, 49%, 49%;
+   }
+}
+
+@layer base {
+   * {
+      @apply border-border;
+   }
+   body {
+      @apply transition-colors duration-500 bg-background text-foreground;
+   }
+}
+
+@layer components {
+   .logo {
+      font-family: "Comic Neue", cursive;
+   }
+   .wally {
+      font-family: Walsheim;
+   }
+   .dark.ql-toolbar button {
+      color: white;
+   }
+
+   .dark.ql-toolbar button:hover {
+      background-color: #555;
+   }
+   .parent-comment {
+      padding: 12px; /* Add padding for spacing */
+      background-color: #f7f7f7; /* Background color for parent comments */
+      border-radius: 8px; /* Rounded corners for parent comments */
+      margin-bottom: 12px; /* Margin between comments */
+      position: relative; /* For child comment border positioning */
+   }
+
+   /* Style for child comments */
+   .child-comment {
+      border-left: 2px solid #1da1f2; /* Left border for child comments */
+      padding-left: 14px; /* Add extra left padding */
+      margin-left: 2px; /* Slight indentation for child comments */
+      position: relative; /* For child comment border positioning */
+   }
+   .collapse-line {
+      border: none;
+      background: none;
+      padding: 0;
+      width: 15px;
+      margin-top: 0.5rem;
+      position: relative;
+      cursor: pointer;
+      outline: none;
+      transform: translateX(-50%);
+   }
+
+   .collapse-line:hover::before,
+   .collapse-line:focus-visible::before {
+      background-color: hsl(235, 100%, 60%);
+   }
+
+   .collapse-line::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 1px;
+      background-color: hsl(235, 50%, 74%);
+      transition: background-color 100ms ease-in-out;
+   }
+}
+
+@media screen and (max-width: 768px) {
+   .largeimage {
+      height: 100px;
+      width: 100px;
+   }
+}
