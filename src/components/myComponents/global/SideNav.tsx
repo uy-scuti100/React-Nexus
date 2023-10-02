@@ -24,7 +24,7 @@ export default function SideNav({ className }: { className: string }) {
          <div className="p-4">
             <ul className="flex flex-col gap-8">
                <Link to="/write">
-                  <li className="flex items-center gap-4 transition duration-300 cursor-pointer hover:opacity-75">
+                  <li className="flex items-center gap-4 cursor-pointer hover:opacity-75">
                      <svg
                         width="24"
                         height="24"
@@ -41,7 +41,7 @@ export default function SideNav({ className }: { className: string }) {
                      <span>Write</span>
                   </li>
                </Link>
-               <li className="flex items-center gap-4 transition duration-300 cursor-pointer hover:opacity-75">
+               <li className="flex items-center gap-4 cursor-pointer hover:opacity-75">
                   {" "}
                   <svg
                      width="24"
@@ -61,7 +61,7 @@ export default function SideNav({ className }: { className: string }) {
                   </svg>
                   <span>Profile</span>
                </li>
-               <li className="flex items-center gap-4 transition duration-300 cursor-pointer hover:opacity-75">
+               <li className="flex items-center gap-4 cursor-pointer hover:opacity-75">
                   <svg
                      width="24"
                      height="24"
@@ -80,13 +80,13 @@ export default function SideNav({ className }: { className: string }) {
                </li>
 
                <div className="w-full border-b border-black/20 dark:border-white/70" />
-               <li className="flex items-center gap-4 transition duration-300 cursor-pointer hover:opacity-75">
+               <li className="flex items-center gap-4 cursor-pointer hover:opacity-75">
                   <svg
                      width="24"
                      height="24"
                      viewBox="0 0 24 24"
                      aria-label="clap"
-                     className="transition duration-300-colors dark:fill-white ">
+                     className="-colors dark:fill-white ">
                      <path
                         fill-rule="evenodd"
                         clip-rule="evenodd"
@@ -94,19 +94,19 @@ export default function SideNav({ className }: { className: string }) {
                   </svg>{" "}
                   <span>Liked Posts</span>
                </li>
-               <li className="flex items-center gap-4 transition duration-300 cursor-pointer hover:opacity-75">
+               <li className="flex items-center gap-4 cursor-pointer hover:opacity-75">
                   <Settings strokeWidth={1.25} />
                   <span>Settings</span>
                </li>
 
                <div className="w-full border-b border-black/20 dark:border-white/70" />
                <li
-                  className="flex items-center gap-4 transition duration-300 cursor-pointer hover:opacity-75"
+                  className="flex items-center gap-4 cursor-pointer hover:opacity-75"
                   onClick={logOff}>
                   <LogOut strokeWidth={1.25} />
                   <span>Log Out</span>
                </li>
-               <li className="transition duration-300 hover:opacity-75">
+               <li className="hover:opacity-75">
                   <ModeToggle />
                </li>
             </ul>

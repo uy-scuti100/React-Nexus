@@ -142,7 +142,7 @@ const PostForm = () => {
             .select("*");
 
          if (error) {
-            console.log("There was an error fetching data", error.message);
+            console.error("There was an error fetching data", error.message);
          }
          setCats(categories);
       };
@@ -214,8 +214,10 @@ const PostForm = () => {
 
    return (
       <>
-         <div className="bg-background max-w-[1104px] px-6 mx-auto pt-24 py-6">
-            <div className="flex items-center justify-start mb-6">
+         <div className="bg-background max-w-[1104px] px-6 mx-auto pt-5 py-6">
+            <div
+               className="flex items-center justify-start mb-6"
+               onClick={() => window.history.back()}>
                <Button disabled={loading} variant="outline" size="sm">
                   <ChevronLeft className="w-6 h-6" />{" "}
                   <span className="text-lg">Back</span>
@@ -290,7 +292,7 @@ const PostForm = () => {
                         name="category_id"
                         render={({ field }) => (
                            <FormItem>
-                              <FormLabel>Category</FormLabel>
+                              <FormLabel>Topic</FormLabel>
                               <Select
                                  disabled={loading}
                                  onValueChange={field.onChange}
@@ -300,7 +302,7 @@ const PostForm = () => {
                                     <SelectTrigger>
                                        <SelectValue
                                           defaultValue={field.value}
-                                          placeholder="Select a category"
+                                          placeholder="Select a topic"
                                        />
                                     </SelectTrigger>
                                  </FormControl>
@@ -349,8 +351,8 @@ const PostForm = () => {
                                     <>
                                        <ReactQuill
                                           modules={modules}
-                                          theme="snow"
                                           formats={formats}
+                                          theme="snow"
                                           style={{ height: 300 }}
                                           {...field}
                                           placeholder="write your note"

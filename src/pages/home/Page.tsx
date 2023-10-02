@@ -67,6 +67,17 @@ const Page = () => {
                         .eq("id", userId)
                         .select();
                   }
+                  if (userProfileData.username === null) {
+                     await supabase
+                        .from("profiles")
+                        .update([
+                           {
+                              username: user.user_name,
+                           },
+                        ])
+                        .eq("id", userId)
+                        .select();
+                  }
                }
             }
             setLoading(false);

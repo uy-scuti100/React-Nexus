@@ -5,7 +5,7 @@ import Content from "./Content";
 const Post = () => {
    const pathname = window.location.pathname;
    const id = pathname.split("/")[2];
-   console.log(id);
+   // console.log(id);
    const { post, isError, isLoading } = useFetchSinglePost(id);
    if (isLoading) {
       return <div>Loading</div>;

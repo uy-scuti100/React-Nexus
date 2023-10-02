@@ -6,7 +6,7 @@ const page = () => {
    const { user } = useFetchUser();
 
    return (
-      <div>
+      <div className=" bg-[#F5F5F5] dark:bg-black">
          <Navbar />
          <Account />
       </div>

@@ -13,6 +13,7 @@ export async function fetchUser(): Promise<User | null> {
             id: user.id || null,
             avatarUrl: user.user_metadata?.avatar_url || null,
             fullName: user.user_metadata?.full_name || null,
+            user_name: user.user_metadata?.user_name || null,
          };
 
          return userData;

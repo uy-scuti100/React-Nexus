@@ -210,8 +210,10 @@ const PostCard = ({
             <div className="py-4 text-2xl font-bold capitalize">{title}</div>
          </Link>
          <div className="w-full px-6 border-b border-black/10 dark:border-white/10" />
-         <div className="flex items-center justify-between py-3 text-xs">
-            <div className="flex items-center gap-3 capitalize">
+         <div className="flex items-center justify-between py-3">
+            <Link
+               to={`/account/${profile_id}`}
+               className="flex items-center gap-3 capitalize">
                <img
                   src={author_image}
                   width={24}
@@ -219,14 +221,15 @@ const PostCard = ({
                   alt="user-profile-img"
                   className="border border-accent w-[24px] h-[24px]  cursor-pointer"
                />
-               <div className="flex items-center gap-2 text-lg">
+               <div className="flex items-center gap-2">
                   <p>{author} </p>
                   <span>
                      {isAuthorized && <BadgeCheck className="w-4 h-4" />}
                   </span>
                </div>
-            </div>
-            <div className="text-lg text-wh-300">
+            </Link>
+
+            <div className="text-wh-300">
                {/* <p suppressHydrationWarning>
                   {dateFormatter.format(Date.parse(created_at))}
                </p>{" "} */}

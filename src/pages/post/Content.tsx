@@ -302,6 +302,7 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
             return;
          } else {
             toast.success("Post Updated Successfully !");
+            window.location.reload();
          }
       }
       setIsEditing(false);
@@ -640,6 +641,7 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
                            modules={modules}
                            formats={formats}
                            theme="snow"
+                           // style={{ height: 300 }}
                            className="h-[80vh]"
                            value={content} // or defaultValue={content}
                            onChange={(value) => setContent(value)}
