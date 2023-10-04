@@ -40,12 +40,15 @@ interface Category {
    created_at: Date;
    name: string;
 }
+const titleMaxLength = 60;
+const snippetMaxLength = 200;
+const contentMinLength = 1;
 
 type NoteFormValues = z.infer<typeof formSchema>;
 const formSchema = z.object({
-   title: z.string().min(1),
-   snippet: z.string().min(1),
-   content: z.string().min(1),
+   title: z.string().min(contentMinLength).max(titleMaxLength),
+   snippet: z.string().min(contentMinLength).max(snippetMaxLength),
+   content: z.string().min(contentMinLength),
    image: z.string(),
    category_id: z.string(),
 });

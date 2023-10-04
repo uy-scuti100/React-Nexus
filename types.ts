@@ -8,16 +8,20 @@ export interface User {
    bio?: string | null | undefined;
    display_name?: string | null | undefined;
    isVerified?: boolean;
+   show_email?: boolean;
    display_pic?: string | null | undefined;
    location?: string | null | undefined;
    website?: string | null | undefined;
    skills_and_languages?: string | null | undefined;
-   created_at?: string | null | undefined; // You can use a string for the timestamp
+   created_at?: string | null | undefined;
    currently_learning?: string | null | undefined;
    currently_building?: string | null | undefined;
    banner_pic?: string | null | undefined;
    availability: string | null | undefined;
    username: string | null | undefined
+   pronouns: string | null | undefined
+   work: string | null | undefined
+   education: string | null | undefined
 }
 
 

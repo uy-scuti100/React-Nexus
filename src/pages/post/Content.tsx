@@ -6,7 +6,13 @@ import "highlight.js/styles/atom-one-dark.css";
 import ReactQuill from "react-quill";
 import CategoryAndEdit from "./CategoryAndEdit";
 import rehypeRaw from "rehype-raw";
-import { BadgeCheck, Camera, Disc3, MessageCircle } from "lucide-react";
+import {
+   BadgeCheck,
+   CalendarIcon,
+   Camera,
+   Disc3,
+   MessageCircle,
+} from "lucide-react";
 import CommentList from "./CommentList";
 import toast from "react-hot-toast";
 import supabase from "../../lib/supabaseClient";
@@ -18,8 +24,23 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import ReactMarkdown from "react-markdown";
 import { Comment, Post } from "../../../types";
+import { Link } from "react-router-dom";
+import {
+   HoverCard,
+   HoverCardContent,
+   HoverCardTrigger,
+} from "../../components/ui/hover-card";
+import {
+   Avatar,
+   AvatarFallback,
+   AvatarImage,
+} from "../../components/ui/avatar";
 
 dayjs.extend(relativeTime);
+
+const dateFormatter = new Intl.DateTimeFormat(undefined, {
+   dateStyle: "medium",
+});
 
 hljs.configure({
    // optionally configure hljs
@@ -43,7 +64,6 @@ const modules = {
       },
    },
    clipboard: {
-      // toggle to add extra line breaks when pasting HTML:
       matchVisual: false,
    },
    toolbar: [
@@ -126,6 +146,9 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
    const [bookmarkCount, setBookmarkCount] = useState(
       post?.bookmark_count || 0
    );
+   const [bio, setBio] = useState("");
+   const [username, setUsername] = useState("");
+   const [joinedDate, setJoinedDate] = useState("");
    const [comments, setComments] = useState<Comment[]>([]);
    const [commentCount, setCommentCount] = useState(post?.comment_count || 0);
    const [likeCount, setLikeCount] = useState(post?.likes_count || 0);
@@ -146,16 +169,21 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
          try {
             const { data: profiles, error } = await supabase
                .from("profiles")
-               .select("isVerified")
+               .select("*")
                .eq("id", profile_id)
                .single();
 
             if (error) {
                console.error("Error fetching profile:", error);
             } else {
+               const bio = profiles?.bio;
+               const joinedDate = profiles?.created_at;
+               const username = profiles?.username;
                const isAuthorized = profiles?.isVerified === true;
-
+               setBio(bio);
+               setUsername(username);
                setIsAuthorized(isAuthorized);
+               setJoinedDate(joinedDate);
             }
          } catch (error) {
             console.error("An error occurred:", error);
@@ -531,7 +559,9 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
                         )}
                      </div>
                   ) : (
-                     <h3 className="mt-3 mb-6 text-3xl font-bold">{title}</h3>
+                     <h3 className="mt-3 mb-6 text-3xl font-bold capitalize">
+                        {title}
+                     </h3>
                   )}
 
                   {/* SNIPPET */}
@@ -553,14 +583,105 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
                   )}
                   <div className="flex justify-between gap-3">
                      <div className="flex items-center gap-2">
-                        <h5 className="text-lg font-semibold ">
-                           By {post?.author}
-                        </h5>
+                        <HoverCard>
+                           <HoverCardTrigger asChild>
+                              <Link to={`/account/${profile_id}`}>
+                                 <h5 className="text-lg font-semibold ">
+                                    <span className="font-medium opacity-70">
+                                       {" "}
+                                       By
+                                    </span>{" "}
+                                    {post?.author}
+                                 </h5>
+                              </Link>
+                           </HoverCardTrigger>
+                           <HoverCardContent className="w-[380px]">
+                              <div className="flex justify-between space-x-4">
+                                 <Link to={`/account/${profile_id}`}>
+                                    <Avatar>
+                                       <AvatarImage src={post.author_image} />
+                                       <AvatarFallback className="uppercase">
+                                          {post.author.substring(0, 2)}
+                                       </AvatarFallback>
+                                    </Avatar>
+                                 </Link>
+                                 <div className="space-y-1">
+                                    <div className="flex justify-between gap-5">
+                                       <Link to={`/account/${profile_id}`}>
+                                          <h4 className="font-semibold">
+                                             {post.author}
+                                          </h4>
+                                       </Link>
+                                       <button
+                                          type="submit"
+                                          className="px-4 py-1 font-semibold bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black">
+                                          Follow
+                                       </button>
+                                    </div>
+                                    <Link to={`/account/${profile_id}`}>
+                                       <h4 className="text-xs opacity-90">
+                                          @{username}
+                                       </h4>
+                                    </Link>
+                                    <p className="text-sm">{bio}</p>
+                                    <div className="flex justify-between py-2 text-sm">
+                                       <p>
+                                          following{" "}
+                                          <span className="font-extrabold">
+                                             1004
+                                          </span>
+                                       </p>
+                                       <p>
+                                          followers{" "}
+                                          <span className="font-extrabold">
+                                             11k
+                                          </span>
+                                       </p>
+                                    </div>
+                                    <div className="flex items-center pt-2">
+                                       <CalendarIcon className="w-4 h-4 mr-2 opacity-70" />
+                                       <span className="text-xs text-muted-foreground">
+                                          <p suppressHydrationWarning>
+                                             {joinedDate && (
+                                                <div className="flex items-center gap-2">
+                                                   <p>
+                                                      Joined on{" "}
+                                                      {dateFormatter.format(
+                                                         new Date(joinedDate)
+                                                      )}
+                                                   </p>
+                                                   <p
+                                                      suppressHydrationWarning
+                                                      className="text-[10px]">
+                                                      {" "}
+                                                      (
+                                                      {dayjs().diff(
+                                                         joinedDate,
+                                                         "seconds",
+                                                         true
+                                                      ) < 30
+                                                         ? "just now"
+                                                         : dayjs(
+                                                              joinedDate
+                                                           ).fromNow()}
+                                                      )
+                                                   </p>
+                                                </div>
+                                             )}
+                                          </p>
+                                       </span>
+                                    </div>
+                                 </div>
+                                 <div></div>
+                              </div>
+                           </HoverCardContent>
+                        </HoverCard>
+
                         <span>
                            {isAuthorized && <BadgeCheck className="w-4 h-4" />}
                         </span>
                      </div>
-                     <h6 className="text-lg text-wh-300">
+                     <h6 className=" text-wh-300">
                         <p suppressHydrationWarning>
                            {dayjs().diff(post?.created_at, "seconds", true) < 30
                               ? "just now"

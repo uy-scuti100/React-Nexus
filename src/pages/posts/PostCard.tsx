@@ -1,4 +1,4 @@
-import { BadgeCheck, MessageCircle } from "lucide-react";
+import { BadgeCheck, CalendarIcon, MessageCircle } from "lucide-react";
 import { Badge } from "../../components/ui/badge";
 import { useState, useEffect } from "react";
 import { useTheme } from "../../components/providers/theme/theme-provider";
@@ -7,8 +7,21 @@ import supabase from "../../lib/supabaseClient";
 import { Link } from "react-router-dom";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import {
+   HoverCard,
+   HoverCardContent,
+   HoverCardTrigger,
+} from "../../components/ui/hover-card";
+import {
+   Avatar,
+   AvatarFallback,
+   AvatarImage,
+} from "../../components/ui/avatar";
 
 dayjs.extend(relativeTime);
+const dateFormatter = new Intl.DateTimeFormat(undefined, {
+   dateStyle: "medium",
+});
 
 interface PostCardProp {
    author: string;
@@ -52,6 +65,9 @@ const PostCard = ({
    const { user } = useFetchUser();
    const userId = user?.id;
    const postId = id;
+   const [bio, setBio] = useState("");
+   const [username, setUsername] = useState("");
+   const [joinedDate, setJoinedDate] = useState("");
 
    //    date formatting
    // const date = new Date(created_at);
@@ -67,26 +83,28 @@ const PostCard = ({
    useEffect(() => {
       const fetchData = async () => {
          try {
-            if (profile_id) {
-               // Check if profile_id is not null
-               const { data: profiles, error } = await supabase
-                  .from("profiles")
-                  .select("isVerified")
-                  .eq("id", profile_id)
-                  .single();
+            const { data: profiles, error } = await supabase
+               .from("profiles")
+               .select("*")
+               .eq("id", profile_id)
+               .single();
 
-               if (error) {
-                  console.error("Error fetching profile:", error.message);
-               } else {
-                  const isAuthorized = profiles?.isVerified === true;
-                  setIsAuthorized(isAuthorized);
-               }
+            if (error) {
+               console.error("Error fetching profile:", error);
+            } else {
+               const bio = profiles?.bio;
+               const joinedDate = profiles?.created_at;
+               const username = profiles?.username;
+               const isAuthorized = profiles?.isVerified === true;
+               setBio(bio);
+               setUsername(username);
+               setIsAuthorized(isAuthorized);
+               setJoinedDate(joinedDate);
             }
          } catch (error) {
             console.error("An error occurred:", error);
          }
       };
-
       fetchData();
    }, [profile_id]);
 
@@ -211,23 +229,99 @@ const PostCard = ({
          </Link>
          <div className="w-full px-6 border-b border-black/10 dark:border-white/10" />
          <div className="flex items-center justify-between py-3">
-            <Link
-               to={`/account/${profile_id}`}
-               className="flex items-center gap-3 capitalize">
-               <img
-                  src={author_image}
-                  width={24}
-                  height={24}
-                  alt="user-profile-img"
-                  className="border border-accent w-[24px] h-[24px]  cursor-pointer"
-               />
-               <div className="flex items-center gap-2">
-                  <p>{author} </p>
-                  <span>
-                     {isAuthorized && <BadgeCheck className="w-4 h-4" />}
-                  </span>
-               </div>
-            </Link>
+            <HoverCard>
+               <HoverCardTrigger asChild>
+                  <Link
+                     to={`/account/${profile_id}`}
+                     className="flex items-center gap-3 capitalize">
+                     <img
+                        src={author_image}
+                        width={24}
+                        height={24}
+                        alt="user-profile-img"
+                        className="border border-accent w-[24px] h-[24px]  cursor-pointer"
+                     />
+                     <div className="flex items-center gap-2">
+                        <p>{author} </p>
+                        <span>
+                           {isAuthorized && <BadgeCheck className="w-4 h-4" />}
+                        </span>
+                     </div>
+                  </Link>
+               </HoverCardTrigger>
+               <HoverCardContent className="w-[380px]">
+                  <div className="flex justify-between space-x-4">
+                     <Link to={`/account/${profile_id}`}>
+                        <Avatar>
+                           <AvatarImage src={author_image} />
+                           <AvatarFallback className="uppercase">
+                              {author.substring(0, 2)}
+                           </AvatarFallback>
+                        </Avatar>
+                     </Link>
+                     <div className="space-y-1">
+                        <div className="flex justify-between gap-5">
+                           <Link to={`/account/${profile_id}`}>
+                              <h4 className="font-semibold">{author}</h4>
+                           </Link>
+                           {profile_id !== userId && (
+                              <button
+                                 type="submit"
+                                 className="px-4 py-1 font-semibold bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black">
+                                 Follow
+                              </button>
+                           )}
+                        </div>
+                        <Link to={`/account/${profile_id}`}>
+                           <h4 className="text-xs opacity-90">@{username}</h4>
+                        </Link>
+                        <p className="pt-2 text-sm">{bio}</p>
+                        <div className="flex justify-between py-2 text-sm">
+                           <p>
+                              following{" "}
+                              <span className="font-extrabold">1004</span>
+                           </p>
+                           <p>
+                              followers{" "}
+                              <span className="font-extrabold">11k</span>
+                           </p>
+                        </div>
+                        <div className="flex items-center pt-2">
+                           <CalendarIcon className="w-4 h-4 mr-2 opacity-70" />
+                           <span className="text-xs text-muted-foreground">
+                              <p suppressHydrationWarning>
+                                 {joinedDate && (
+                                    <div className="flex items-center gap-2">
+                                       <p>
+                                          Joined on{" "}
+                                          {dateFormatter.format(
+                                             new Date(joinedDate)
+                                          )}
+                                       </p>
+                                       <p
+                                          suppressHydrationWarning
+                                          className="text-[10px]">
+                                          {" "}
+                                          (
+                                          {dayjs().diff(
+                                             joinedDate,
+                                             "seconds",
+                                             true
+                                          ) < 30
+                                             ? "just now"
+                                             : dayjs(joinedDate).fromNow()}
+                                          )
+                                       </p>
+                                    </div>
+                                 )}
+                              </p>
+                           </span>
+                        </div>
+                     </div>
+                     <div></div>
+                  </div>
+               </HoverCardContent>
+            </HoverCard>
 
             <div className="text-wh-300">
                {/* <p suppressHydrationWarning>

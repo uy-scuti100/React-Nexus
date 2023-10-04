@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import Navbar from "../../components/myComponents/global/Navbar";
 import { useFetchSinglePost } from "../../hooks/useFetchSinglePost";
 import Content from "./Content";
@@ -5,10 +6,22 @@ import Content from "./Content";
 const Post = () => {
    const pathname = window.location.pathname;
    const id = pathname.split("/")[2];
-   // console.log(id);
+   const navigate = useNavigate();
    const { post, isError, isLoading } = useFetchSinglePost(id);
+
    if (isLoading) {
       return <div>Loading</div>;
+   }
+
+   if (isError) {
+      // Check if post is null to handle the case where it doesn't exist
+      if (post === null) {
+         navigate("/posts");
+         return <div>Post not found</div>;
+      }
+
+      // Handle other errors here
+      return <div>Error fetching post</div>;
    }
 
    return (

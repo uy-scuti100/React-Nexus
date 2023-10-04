@@ -147,3 +147,40 @@
    //    // Call the fetchUserHashtags function when the component mounts
    //    fetchUserHashtags();
    // }, [userId]); // Only run this effect when userId changes
+
+
+
+
+
+
+
+   // <ul className="flex flex-col gap-7">
+//                {userHashtags?.map((hashtag: HashtagProp, i: number) => {
+//                   const { name, hashtag_id } = hashtag;
+//                   return (
+//                      <Button key={i} to={`/hashtags/${hashtag_id}`}>
+//                         <li className={`${buttonVariants}`}>{name}</li>
+//                      </Button>
+//                   );
+//                })}
+//             </ul>
+//             <div className="py-20">
+//                <Button onClick={logOff} disabled={loggingOut}>
+//                   Log Out
+//                </Button>
+// </div>
+
+// const logOff = async () => {
+//    setLoggingOut(true);
+//    try {
+//       const { error } = await supabase.auth.signOut();
+
+//       if (error) {
+//          console.error("Error signing out:", error);
+//       } else {
+//          navigate("/");
+//       }
+//    } catch (error) {
+//       console.error("Error signing out:", error);
+//    }
+// };

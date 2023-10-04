@@ -157,7 +157,17 @@ export default function HomeCard() {
             })}
 
             {/* {isLoading && <div>Loading...</div>} */}
-            {error && <div>Error: {error}</div>}
+            {error && (
+               <div className="fixed inset-0 flex items-center justify-center bg-white">
+                  <div className="relative w-full md:w-[500px] h-[500px]">
+                     <img
+                        src="/internalerror.svg"
+                        alt="loading-image"
+                        className="object-cover"
+                     />
+                  </div>
+               </div>
+            )}
          </div>
       </>
    );

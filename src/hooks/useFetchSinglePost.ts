@@ -4,7 +4,7 @@ import { fetchSinglePostById } from "../lib/singlePostUtil";
 export const useFetchSinglePost = (
    postId: string
 ): {
-   post: any; // Make post property optional
+   post: any | null;
    isLoading: boolean;
    isError: boolean;
 } => {
@@ -12,12 +12,12 @@ export const useFetchSinglePost = (
       `post-${postId}`,
       () => fetchSinglePostById(postId),
       {
-         refreshInterval: 1800000, // 30 minutes
+         refreshInterval: 1800000,
       }
    );
 
    return {
-      post, // It can be undefined
+      post: post || null,
       isLoading: !post && !error,
       isError: !!error,
    };

@@ -118,7 +118,7 @@ const CategoryAndEdit = ({
                         <Trash2 className="w-6 h-6 text-red-700 cursor-pointer" />
                      </div>
                      {showDialog && (
-                        <div className="fixed inset-0 z-50 h-screen backdrop-blur">
+                        <div className="fixed inset-0 z-50 h-screen mx-5 backdrop-blur">
                            <div className="fixed grid w-full max-w-lg gap-4 p-6 duration-200 transform -translate-x-1/2 -translate-y-1/2 border shadow-lg left-1/2 top-1/2 bg-background animate-in fade-in-0">
                               <div
                                  onClick={() => setShowDialog(false)}

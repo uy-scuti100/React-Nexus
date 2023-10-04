@@ -16,7 +16,7 @@ const Navbar = () => {
    };
 
    return (
-      <nav className="fixed z-50 flex items-center self-center justify-between w-full px-6 py-6 pt-6 mx-auto bg-white border-b border-black/20 dark:bg-background">
+      <nav className="fixed z-40 flex items-center self-center max-w-[1440px] justify-between w-full px-6 py-6 pt-6 bg-white border-b border-black/20 dark:bg-background ">
          <div
             className="text-3xl cursor-pointer md:text-4xl logo"
             onClick={() => navigate("/posts")}>
@@ -47,7 +47,7 @@ const Navbar = () => {
                   width={40}
                   height={40}
                   alt="user-profile-img"
-                  className="rounded-full border border-accent w-[40px] h-[40px]  hover:scale-110 transition duration-300 cursor-pointer"
+                  className="rounded-full border border-accent w-[40px] h-[40px]  hover:scale-110 transition duration-300 cursor-pointer object-cover"
                   onClick={toggleSideNav}
                />
                {user && (
@@ -60,7 +60,10 @@ const Navbar = () => {
                )}
             </div>
          </div>
-         <SideNav className={`${sidenav ? "right-0" : "-right-full"}`} />
+         <SideNav
+            className={`${sidenav ? "right-0" : "-right-full"}`}
+            toggleSideNav={toggleSideNav}
+         />
       </nav>
    );
 };
