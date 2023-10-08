@@ -10,7 +10,7 @@ export const useCategory = (): {
       "categories",
       fetchCategories,
       {
-         refreshInterval: 1800000, // 30 minutes
+         revalidateOnMount: true
       }
    );
 
@@ -22,6 +22,10 @@ export const useCategory = (): {
       isError: !!error,
    };
 };
+
+
+
+
 
 // {
 //    revalidateOnFocus: false, // Disable revalidation on window focus (optional)

@@ -9,7 +9,7 @@ export const useFetchUser = (): {
    isError: boolean;
 } => {
    const { data: user, error } = useSWR("currentUser", fetchSingleUser, {
-      refreshInterval: 1800000, // 30 minutes
+      revalidateOnMount: true
    });
 
    return {

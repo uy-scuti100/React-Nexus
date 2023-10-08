@@ -1,10 +1,13 @@
 import Navbar from "../../components/myComponents/global/Navbar";
+import PostCardSkeleton from "../../components/myComponents/skeletons/PostCardSkeleton";
 
 const Page = () => {
    return (
       <main>
          <Navbar />
-         <div className="pt-32">hello world</div>
+         <div className="pt-32 px-6">
+            <PostCardSkeleton />
+         </div>
       </main>
    );
 };

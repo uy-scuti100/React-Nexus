@@ -13,7 +13,7 @@ export const useFetchCategoryPost = (
       categoryId ? `categoryPosts-${categoryId}` : null,
       () => fetchCategoryPost(categoryId),
       {
-         refreshInterval: 1800000, // 30 minutes
+        revalidateOnMount: true
       }
    );
 
@@ -24,8 +24,3 @@ export const useFetchCategoryPost = (
    };
 };
 
-// {
-//    revalidateOnFocus: false, // Disable revalidation on window focus (optional)
-//    revalidateOnReconnect: false, // Disable revalidation on reconnect (optional)
-//    refreshInterval: 600000, // Set revalidation time in milliseconds (e.g., 1 minute)
-// }

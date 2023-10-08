@@ -8,6 +8,7 @@ import { useTheme } from "../../components/providers/theme/theme-provider";
 import { useFetchUser } from "../../hooks/useFetchUser";
 import supabase from "../../lib/supabaseClient";
 import { Textarea } from "../../components/ui/textarea";
+import { Link, useNavigate } from "react-router-dom";
 dayjs.extend(relativeTime);
 
 const CommentCard = ({
@@ -36,6 +37,7 @@ const CommentCard = ({
    const { user } = useFetchUser();
    const userId = user?.id;
    const commentId = comment?.id;
+   const navigate = useNavigate();
    /////////////////////////////////////////////////////////
 
    // useEffect(() => {
@@ -54,6 +56,10 @@ const CommentCard = ({
 
    //    fetchCommentContent();
    // }, [commentId]);
+
+   const goHome = () => {
+      navigate("/");
+   };
 
    const handleEditClick = (contentToEdit: string) => {
       // Set the temporary content to the content of the comment being edited
@@ -222,13 +228,15 @@ const CommentCard = ({
          <div className="pb-3 mb-4">
             <div className="w-full p-4 border rounded-xl">
                <div key={comment?.id} className="flex items-start gap-3 pb-4">
-                  <img
-                     src={comment?.comment_author_pic}
-                     alt="Comment Author"
-                     className="w-12 h-12 rounded-full"
-                     width={48}
-                     height={48}
-                  />
+                  <Link to={`/account/${comment.profile_id}`}>
+                     <img
+                        src={comment?.comment_author_pic}
+                        alt="Comment Author"
+                        className="w-12 h-12 rounded-full"
+                        width={48}
+                        height={48}
+                     />
+                  </Link>
                   <div className="flex flex-col flex-1 ">
                      <div className="flex items-center justify-between mb-1">
                         <p className="font-semibold">
@@ -244,7 +252,6 @@ const CommentCard = ({
                      {isEditing ? (
                         <div className="flex flex-col gap-2">
                            <Textarea
-                              autoFocus={true}
                               style={{
                                  height: "50px",
                                  resize: "none",
@@ -265,12 +272,12 @@ const CommentCard = ({
                            <div className="flex items-center justify-end ">
                               <button
                                  onClick={handleRevertClick}
-                                 className="px-5 py-2 mt-5 mr-3 font-semibold bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black ">
+                                 className="px-5 py-2 mt-5 mr-3 font-semibold text-black bg-accent-red hover:bg-wh-500 dark:text-black ">
                                  Revert
                               </button>
                               <button
                                  onClick={handleSaveClick}
-                                 className="px-5 py-2 mt-5 font-semibold bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black">
+                                 className="px-5 py-2 mt-5 font-semibold text-black bg-accent-red hover:bg-wh-500 dark:text-black">
                                  Save
                               </button>
                            </div>
@@ -284,7 +291,7 @@ const CommentCard = ({
                </div>
                <div className="flex items-center justify-end gap-5">
                   <div className="flex items-center gap-1">
-                     <button onClick={toggleLike}>
+                     <button onClick={user ? toggleLike : goHome}>
                         {isLiked ? (
                            <svg
                               aria-label="Unlike"
@@ -320,7 +327,7 @@ const CommentCard = ({
                   </div>
                   <div
                      className="flex items-center gap-1 cursor-pointer"
-                     onClick={toggleReplyForm}>
+                     onClick={user ? toggleReplyForm : goHome}>
                      <Reply className="w-6 h-6 opacity-70" />
                      <p>{commentCounts > 0 ? <p>{commentCounts}</p> : ""}</p>
                   </div>
@@ -342,10 +349,9 @@ const CommentCard = ({
                </div>
             </div>
             {showReplyForm && (
-               <form onSubmit={handleReplySubmit}>
+               <form onSubmit={user ? handleReplySubmit : goHome}>
                   <div className="pl-8 mt-4">
                      <Textarea
-                        autoFocus
                         placeholder="Reply to this comment..."
                         style={{
                            height: "100px",
@@ -396,7 +402,7 @@ const CommentCard = ({
                </div>
                {areChildrenHidden && (
                   <button
-                     className="px-5 py-2 my-5 font-semibold bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black"
+                     className="px-5 py-2 my-5 font-semibold text-black bg-accent-red hover:bg-wh-500 dark:text-black"
                      onClick={() => setAreChildrenHidden(false)}>
                      Show replies
                   </button>

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button } from "../../components/ui/button";
+import { button } from "../../components/ui/button";
 import {
    Card,
    CardContent,
@@ -283,7 +283,7 @@ export function Settings({
             <TabsContent value="account">
                <Card className="py-6 md:px-3">
                   <CardTitle className="pb-3 ml-6 text-lg text-accent-orange hover:text-foreground">
-                     @{prop.username}
+                     {prop.username}
                   </CardTitle>
 
                   <CardContent className="space-y-2">
@@ -321,7 +321,7 @@ export function Settings({
                                  }
                                  e.target.value = value;
                                  setTempUsername(e.target.value);
-                                 console.log(tempUsername);
+                                 // console.log(tempUsername);
                               }}
                            />
                         </div>
@@ -407,12 +407,12 @@ export function Settings({
                      </div>
                   </CardContent>
                   <CardFooter>
-                     <Button
+                     <button
                         disabled={loading}
                         onClick={handleUpdateAccount}
-                        className="w-full">
+                        className="w-full px-5 py-2 mt-5 font-semibold md:hidden md:w-auto bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black">
                         {loading ? "Saving changes" : "Save changes"}
-                     </Button>
+                     </button>
                   </CardFooter>
                </Card>
             </TabsContent>
@@ -477,12 +477,12 @@ export function Settings({
                      </span>
                   </CardContent>
                   <CardFooter>
-                     <Button
+                     <button
                         disabled={loading}
                         onClick={handleUpdateAccount}
-                        className="w-full">
+                        className="w-full px-5 py-2 mt-5 font-semibold md:hidden md:w-auto bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black">
                         {loading ? "Saving changes" : "Save changes"}
-                     </Button>
+                     </button>
                   </CardFooter>
                </Card>
             </TabsContent>
@@ -568,12 +568,12 @@ export function Settings({
                      </span>
                   </CardContent>
                   <CardFooter>
-                     <Button
+                     <button
                         disabled={loading}
                         onClick={handleUpdateAccount}
-                        className="w-full">
+                        className="w-full px-5 py-2 mt-5 font-semibold md:hidden md:w-auto bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black">
                         {loading ? "Saving changes" : "Save changes"}
-                     </Button>
+                     </button>
                   </CardFooter>
                </Card>
             </TabsContent>
@@ -627,12 +627,12 @@ export function Settings({
                      </span>
                   </CardContent>
                   <CardFooter>
-                     <Button
+                     <button
                         disabled={loading}
                         onClick={handleUpdateAccount}
-                        className="w-full">
+                        className="w-full px-5 py-2 mt-5 font-semibold md:hidden md:w-auto bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black">
                         {loading ? "Saving changes" : "Save changes"}
-                     </Button>
+                     </button>
                   </CardFooter>
                </Card>
             </TabsContent>

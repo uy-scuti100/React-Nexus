@@ -8,7 +8,7 @@ import Posts from "./pages/posts/Page";
 import Write from "./pages/write/Page";
 import Category from "./pages/categories/Page";
 import Hashtag from "./pages/hashtags/Page";
-// import Edit from "./pages/settings/Page";
+import Settings from "./pages/settings/Page";
 
 const Layout = () => {
    return (
@@ -55,10 +55,10 @@ const router = createBrowserRouter([
             path: "/hashtag/:id",
             element: <Hashtag />,
          },
-         // {
-         //    path: "/settings/:id",
-         //    element: <Edit />,
-         // },
+         {
+            path: "/settings",
+            element: <Settings />,
+         },
       ],
    },
 ]);

@@ -12,7 +12,7 @@ export const useFetchSinglePost = (
       `post-${postId}`,
       () => fetchSinglePostById(postId),
       {
-         refreshInterval: 1800000,
+         revalidateOnMount: true
       }
    );
 

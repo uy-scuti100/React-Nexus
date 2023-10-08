@@ -1,11 +1,17 @@
 import { Post } from "../../../types";
+import PostCardSkeleton from "../../components/myComponents/skeletons/PostCardSkeleton";
 import PostCard from "../posts/PostCard";
 
 const CategoryCard = ({
    categoryPosts,
+   isLoading,
 }: {
    categoryPosts: Post[] | null | undefined;
+   isLoading: boolean;
 }) => {
+   const skeletonElements = Array.from({ length: 5 }, (_, index) => (
+      <PostCardSkeleton key={index} />
+   ));
    return (
       <div className="flex flex-col w-full gap-5">
          {categoryPosts?.map((post: Post, i: number) => {
@@ -44,6 +50,9 @@ const CategoryCard = ({
                />
             );
          })}
+         {isLoading && (
+            <div className="flex flex-col w-full gap-5">{skeletonElements}</div>
+         )}
       </div>
    );
 };

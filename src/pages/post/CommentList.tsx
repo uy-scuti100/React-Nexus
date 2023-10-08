@@ -1,5 +1,6 @@
 import CommentCard from "./CommentCard";
 import { Comment } from "../../../types";
+import { useEffect } from "react";
 
 interface CommentListProps {
    comments: Comment[];
@@ -14,6 +15,10 @@ const CommentList: React.FC<CommentListProps> = ({
    commentCount,
    updateCommentCount,
 }: CommentListProps) => {
+   useEffect(() => {
+      fetchComments();
+   }, []);
+
    return (
       <div>
          {comments?.map((comment, i) => (

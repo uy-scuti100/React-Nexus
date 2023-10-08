@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "../../ui/button";
 import { useUser } from "../../../hooks/useUser";
-import { useHashtag } from "../../../hooks/useHashtag";
+import { useHashtag } from "../../../hooks/useHashtags";
 import "./registration.css";
 import { useNavigate } from "react-router-dom";
 import supabase from "../../../lib/supabaseClient";

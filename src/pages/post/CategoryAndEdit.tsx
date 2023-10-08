@@ -2,7 +2,7 @@ import { X, PencilLine, Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
 
 import { Button } from "../../components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Post } from "../../../types";
 import { useFetchUser } from "../../hooks/useFetchUser";
 import supabase from "../../lib/supabaseClient";
@@ -98,9 +98,11 @@ const CategoryAndEdit = ({
 
    return (
       <div className="flex items-center justify-between">
-         <h4 className="px-5 py-2 text-sm font-bold bg-accent-orange tex-wh-900">
-            {post?.category_name}
-         </h4>
+         <Link to={`/categories/${post.category_id}`}>
+            <h4 className="px-5 py-2 text-sm font-bold bg-accent-orange tex-wh-900">
+               {post?.category_name}
+            </h4>
+         </Link>
          {post?.profile_id === userId && (
             <div className="mt-4">
                {isEditable ? (

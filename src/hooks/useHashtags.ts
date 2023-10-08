@@ -1,3 +1,30 @@
+
+
+// import useSWR from "swr";
+// import { fetchHashtags } from "../lib/hashtagUtils";
+
+
+
+// export const useHashtags = () => {
+//    const { data: hashtags, error } = useSWR("hashtags", fetchHashtags, {
+//       initialData: window.__INITIAL_DATA__.hashtags || null, // Use the initial data if available
+//       revalidateOnMount: true, // Revalidate data when the component mounts
+//    });
+
+//    const isLoading = !hashtags && !error;
+//    const isError = !!error;
+
+//    return {
+//       hashtags,
+//       isLoading,
+//       isError,
+//    };
+// };
+
+
+
+
+
 import useSWR from "swr";
 import { fetchHashtags } from "../lib/hashtagUtils";
 
@@ -10,7 +37,7 @@ export const useHashtag = (): {
       "hashtags",
       fetchHashtags,
       {
-         refreshInterval: 1800000, // 30 minutes
+         revalidateOnMount: true
       }
    );
 

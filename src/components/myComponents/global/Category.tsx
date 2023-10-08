@@ -3,6 +3,12 @@ import { Plus } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { useCategory } from "../../../hooks/useCategory";
 
+export const CategorySkeleton = () => {
+   return (
+      <div className="h-10 px-10 duration-300 bg-gray-300 roundedhover:scale-105 animate-pulse "></div>
+   );
+};
+
 const Category = () => {
    const { isError, isLoading, categories } = useCategory();
    const { id } = useParams();
@@ -10,8 +16,12 @@ const Category = () => {
    const pathname = window.location.pathname;
    const path = pathname.split("/")[1];
 
+   const skeletonElements = Array.from({ length: 10 }, (_, index) => (
+      <CategorySkeleton key={index} />
+   ));
+
    return (
-      <div className="flex items-center gap-6 px-6 py-4 overflow-x-auto border-b border-black/20">
+      <div className="flex items-center gap-6 py-4 overflow-x-auto">
          <div>
             <Plus />
          </div>
@@ -37,6 +47,11 @@ const Category = () => {
                </Link>
             );
          })}
+         {isLoading && (
+            <div className="flex items-center gap-6 px-6 py-4">
+               {skeletonElements}
+            </div>
+         )}
       </div>
    );
 };

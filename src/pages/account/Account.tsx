@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import supabase from "../../lib/supabaseClient";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { Button } from "../../components/ui/button";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -25,6 +25,7 @@ import { useFetchUser } from "../../hooks/useFetchUser";
 import PostCard from "../posts/PostCard";
 import { motion } from "framer-motion";
 import { Settings } from "./Settings";
+import PostCardSkeleton from "../../components/myComponents/skeletons/PostCardSkeleton";
 interface PostCardProps {
    author: string;
    id: string;
@@ -46,9 +47,6 @@ interface HashtagProp {
    hashtag_id: string;
    name: string;
 }
-// interface HashtagIdProp {
-//    hashtag_id: string[];
-// }
 
 const dateFormatter = new Intl.DateTimeFormat(undefined, {
    dateStyle: "medium",
@@ -95,7 +93,8 @@ const Account = () => {
    const [commentCount, setCommentCount] = useState<number | null | undefined>(
       null
    );
-
+   const [totalCount, setTotalCount] = useState<number | null>(null);
+   const [isFetching, setIsFetching] = useState<boolean>(false);
    const [error, setError] = useState<string | null>(null);
    const [isLoading, setIsLoading] = useState(false);
    const [showFollowersModal, setShowFollowersModal] = useState(false);
@@ -104,9 +103,39 @@ const Account = () => {
    const [followerProfiles, setFollowerProfiles] = useState<Array<User>>([]);
    const [followingProfiles, setFollowingProfiles] = useState<Array<User>>([]);
    const [followerIds, setFollowerIds] = useState<Array<string>>([]);
+   const [isFollowingPending, setIsFollowingPending] = useState(false);
    const [followingIds, setFollowingIds] = useState<Array<string>>([]);
+   const navigate = useNavigate();
+   const [isFetchingFollowers, setIsFetchingFollowers] = useState(false);
+
+   useEffect(() => {
+      // Function to fetch the total count of user's posts based on paramsId
+      const fetchTotalCount = async () => {
+         if (paramsId) {
+            try {
+               const { data, error } = await supabase
+                  .from("posts")
+                  .select("count", { count: "exact" })
+                  .eq("profile_id", paramsId as string);
+
+               if (error) {
+                  throw new Error("Failed to fetch total count");
+               }
+
+               setTotalCount(data[0]?.count || 0);
+            } catch (error) {
+               console.error(error);
+            }
+         }
+      };
+
+      if (paramsId) {
+         fetchTotalCount();
+      }
+   }, [paramsId]);
 
    // #useEffect to fetch followers profiles
+
    useEffect(() => {
       async function fetchFollowerProfiles() {
          const { data: followerProfilesData, error: followerProfilesError } =
@@ -179,6 +208,8 @@ const Account = () => {
             {
                follower_id: currentUserId,
                following_id: paramsId,
+               follower_username: currentUser?.username,
+               following_username: username,
             },
          ]);
 
@@ -189,6 +220,9 @@ const Account = () => {
       }
    };
 
+   const goHome = () => {
+      navigate("/");
+   };
    // funtion to manage following count
    useEffect(() => {
       async function fetchCounts() {
@@ -213,10 +247,8 @@ const Account = () => {
          }
       }
 
-      if (currentUserId) {
-         fetchCounts();
-      }
-   }, [currentUserId, paramsId]);
+      fetchCounts();
+   }, [paramsId]);
 
    // New useEffect to fetch and set follower and following IDs
    useEffect(() => {
@@ -258,7 +290,6 @@ const Account = () => {
             const { data: profilePosts, error } = await supabase
                .from("posts")
                .select("*")
-               .range(0, 9)
                .eq("profile_id", id as string);
             if (profilePosts) {
                setPosts(profilePosts);
@@ -274,10 +305,10 @@ const Account = () => {
          }
       };
 
-      if (user?.id) {
+      if (id) {
          fetchProfilePosts();
       }
-   }, [user]);
+   }, [id]);
 
    useEffect(() => {
       if (user) {
@@ -404,22 +435,58 @@ const Account = () => {
    const handleShowSettings = () => {
       setShowSettings((prev) => !prev);
    };
+
+   const fetchMorePosts = async () => {
+      setIsFetching(true);
+      const from = Number(posts.length);
+      try {
+         const { data, error } = await supabase
+            .from("posts")
+            .select("*")
+            .range(from, from + 10)
+            .eq("profile_id", paramsId);
+
+         if (data) {
+            setPosts((prevPosts) => [...prevPosts, ...data]);
+         } else if (error) {
+            setError(error.message);
+            console.error(
+               "Error fetching user's profile posts:",
+               error.message
+            );
+         }
+      } catch (error) {
+         setError("An error occurred while fetching user's profile posts.");
+         console.error("Unexpected error:", error);
+      } finally {
+         setIsFetching(false);
+      }
+   };
    return (
       <main className="pt-24">
          <div className="relative flex w-full h-52">
-            <img
-               src={bannerPic as string}
-               alt="banner"
-               className="object-cover w-full h-full"
-            />
+            {bannerPic ? (
+               <img
+                  src={bannerPic as string}
+                  alt="banner"
+                  className="object-cover w-full h-full"
+               />
+            ) : (
+               <div className="w-full h-full duration-1000 animate-pulse bg-wh-300"></div>
+            )}
+
             <div className="absolute flex items-end justify-center w-full p-4 -bottom-20 ">
-               <div className=" w-36 h-36 overflow-hidden border-[5px] border-white/40 rounded-full">
-                  <img
-                     src={avatar}
-                     alt={`${name}'s profile image`}
-                     className="object-cover w-full h-full"
-                  />
-               </div>
+               {avatar ? (
+                  <div className=" w-36 h-36 overflow-hidden border-[5px] border-white/40 rounded-full">
+                     <img
+                        src={avatar}
+                        alt={`${name}'s profile image`}
+                        className="object-cover w-full h-full"
+                     />
+                  </div>
+               ) : (
+                  <div className="duration-[2s] border-4 border-black rounded-full animate-pulse dark:border-white bg-wh-300 w-36 h-36"></div>
+               )}
             </div>
          </div>
 
@@ -432,13 +499,22 @@ const Account = () => {
                </button>
             )}
          </div>
-         <div className="px-3 mt-24 mb-8 ">
-            {currentUserId !== paramsId && (
-               <button
-                  onClick={handleFollow}
-                  className="w-full px-5 py-2 mt-5 font-semibold md:hidden md:w-auto bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black">
-                  {isFollowing ? "Unfollow" : "Follow"}
-               </button>
+         <div className="px-3 mt-24 mb-8">
+            {currentUserId ? (
+               currentUserId !== paramsId && (
+                  <button
+                     onClick={handleFollow}
+                     className="w-full px-5 py-2 mt-5 font-semibold md:hidden md:w-auto bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black">
+                     {isFollowing ? "Unfollow" : "Follow"}
+                  </button>
+               )
+            ) : (
+               <a href="/">
+                  {/* Replace "/" with the desired redirect URL */}
+                  <button className="w-full px-5 py-2 mt-5 font-semibold md:hidden md:w-auto bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black">
+                     Follow
+                  </button>
+               </a>
             )}
          </div>
 
@@ -467,12 +543,16 @@ const Account = () => {
                   </button>
                )}
             </div>
-
-            {username && !username.startsWith("@") ? (
-               <p className="pb-3 opacity-75"> @{username}</p>
+            {username ? (
+               username && !username.startsWith("@") ? (
+                  <p className="pb-3 opacity-75"> @{username}</p>
+               ) : (
+                  <p className="pb-3 opacity-75"> {username}</p>
+               )
             ) : (
-               <p className="pb-3 opacity-75"> {username}</p>
+               <div className="w-3/4 h-6 mb-3 duration-300 animate-pulse bg-wh-300"></div>
             )}
+
             <div className="flex gap-3 py-2">
                <p
                   className="font-bold cursor-pointer"
@@ -493,7 +573,7 @@ const Account = () => {
                            <div
                               onClick={() => setShowFollowersModal(false)}
                               className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
-                              <X className="w-4 h-4" />
+                              <X className="w-4 h-4 cursor-pointer" />
                               <span className="sr-only">Close</span>
                            </div>
                            <div className="text-left">
@@ -502,8 +582,8 @@ const Account = () => {
                               <div className="pb-2">Followers</div>
                               <div className="w-full px-6 border-b border-black/10 dark:border-white/10" />
                            </div>
-                           <div className="gap-2 py-4 overflow-auto">
-                              {followerProfiles.length > 0 ? (
+                           <div className="gap-2 py-4 overflow-auto" key={id}>
+                              {followerProfiles.length ? (
                                  <div
                                     key={id}
                                     className="flex flex-col max-h-[500px] gap-5"
@@ -516,38 +596,54 @@ const Account = () => {
                                           id,
                                        } = follower;
                                        return (
-                                          <Link
-                                             to={`/account/${id}`}
-                                             onClick={() =>
-                                                setShowFollowersModal(false)
-                                             }>
+                                          <div className="flex items-center justify-between">
+                                             <Link
+                                                to={`/account/${id}`}
+                                                onClick={() =>
+                                                   setShowFollowersModal(false)
+                                                }>
+                                                <div
+                                                   className="flex items-center rounded"
+                                                   key={id}>
+                                                   <div>
+                                                      <img
+                                                         src={
+                                                            display_pic as string
+                                                         }
+                                                         alt={`${display_name}'s display image`}
+                                                         className="rounded-full w-[50px] h-[50px] mr-2"
+                                                      />
+                                                   </div>
+                                                   <div className="flex flex-col pl-5 transition hover:bg-foreground/5">
+                                                      <h1 className="text-lg">
+                                                         {display_name}
+                                                      </h1>
+                                                      <p className="text-sm opacity-50">
+                                                         {username}
+                                                      </p>
+                                                   </div>
+                                                </div>
+                                             </Link>
                                              <div
-                                                className="flex items-center rounded"
-                                                key={id}>
-                                                <div>
-                                                   <img
-                                                      src={
-                                                         display_pic as string
-                                                      }
-                                                      alt={`${display_name}'s display image`}
-                                                      className="rounded-full w-[50px] h-[50px] mr-2"
-                                                   />
-                                                </div>
-                                                <div className="flex flex-col w-full pl-5 transition hover:bg-foreground/5">
-                                                   <h1 className="text-lg">
-                                                      {display_name}
-                                                   </h1>
-                                                   <p className="text-sm opacity-50">
-                                                      {username}
-                                                   </p>
-                                                </div>
+                                                onClick={
+                                                   currentUser
+                                                      ? handleFollow
+                                                      : goHome
+                                                }>
+                                                <button className="w-full px-3 py-2 text-xs font-semibold md:px-5 md:w-auto bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black">
+                                                   {isFollowing
+                                                      ? "Unfollow"
+                                                      : "Follow"}
+                                                </button>
                                              </div>
-                                          </Link>
+                                          </div>
                                        );
                                     })}
                                  </div>
                               ) : (
-                                 <div>{name} has no followers yet</div>
+                                 <div className="text-lg animate-pulse">
+                                    Fetching....... please wait
+                                 </div>
                               )}
                            </div>
                         </div>
@@ -563,7 +659,7 @@ const Account = () => {
                            <div
                               onClick={() => setShowFollowingModal(false)}
                               className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
-                              <X className="w-4 h-4" />
+                              <X className="w-4 h-4 cursor-pointer" />
                               <span className="sr-only">Close</span>
                            </div>
                            <div className="text-left">
@@ -586,41 +682,52 @@ const Account = () => {
                                           id,
                                        } = follower;
                                        return (
-                                          <Link
-                                             to={`/account/${id}`}
-                                             onClick={() =>
-                                                setShowFollowingModal(false)
-                                             }>
+                                          <div className="flex items-center justify-between">
+                                             <Link
+                                                to={`/account/${id}`}
+                                                onClick={() =>
+                                                   setShowFollowingModal(false)
+                                                }>
+                                                <div
+                                                   className="flex items-center rounded"
+                                                   key={id}>
+                                                   <div>
+                                                      <img
+                                                         src={
+                                                            display_pic as string
+                                                         }
+                                                         alt={`${display_name}'s display image`}
+                                                         className="rounded-full w-[50px] h-[50px] mr-2"
+                                                      />
+                                                   </div>
+                                                   <div className="flex flex-col pl-5 transition hover:bg-foreground/5">
+                                                      <h1 className="text-lg">
+                                                         {display_name}
+                                                      </h1>
+                                                      <p className="text-sm opacity-50">
+                                                         {username}
+                                                      </p>
+                                                   </div>
+                                                </div>
+                                             </Link>
                                              <div
-                                                className="flex items-center rounded"
-                                                key={id}>
-                                                <div>
-                                                   <img
-                                                      src={
-                                                         display_pic as string
-                                                      }
-                                                      alt={`${display_name}'s display image`}
-                                                      className="rounded-full w-[50px] h-[50px] mr-2"
-                                                   />
-                                                </div>
-                                                <div className="flex flex-col w-full pl-5 transition hover:bg-foreground/5">
-                                                   <h1 className="text-lg">
-                                                      {display_name}
-                                                   </h1>
-                                                   <p className="text-sm opacity-50">
-                                                      {username}
-                                                   </p>
-                                                </div>
+                                                onClick={
+                                                   currentUser
+                                                      ? handleFollow
+                                                      : goHome
+                                                }>
+                                                <button className="w-full px-3 py-2 text-xs font-semibold md:px-5 md:w-auto bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black">
+                                                   {isFollowing
+                                                      ? "Unfollow"
+                                                      : "Follow"}
+                                                </button>
                                              </div>
-                                          </Link>
+                                          </div>
                                        );
                                     })}
                                  </div>
                               ) : (
-                                 <div>
-                                    {name} is not following anybody at the
-                                    moment
-                                 </div>
+                                 <div>Not following anybody at the moment</div>
                               )}
                            </div>
                         </div>
@@ -630,19 +737,32 @@ const Account = () => {
             </div>
 
             <div className="w-full px-6 border-b border-black/10 dark:border-white/10" />
-            <p className="pt-6 pb-12 text-lg leading-8 md:text-center">{bio}</p>
+            {bio ? (
+               <p className="pt-6 pb-12 text-lg leading-8 md:text-center">
+                  {bio}
+               </p>
+            ) : (
+               <div className="w-full h-20 mb-6 duration-300 animate-pulse bg-wh-300"></div>
+            )}
 
             <div className="w-full px-6 border-b border-black/10 dark:border-white/10" />
 
             <div className="flex flex-col gap-8 py-8 md:flex-row md:flex-wrap md:justify-center">
-               <div className="flex gap-4">
-                  <MapPin className="w-6 h-6 opacity-75" />
-                  <p>{location}</p>
-               </div>
+               {location ? (
+                  <div className="flex gap-4">
+                     <MapPin className="w-6 h-6 opacity-75" />
+                     <p>{location}</p>
+                  </div>
+               ) : (
+                  <div className="flex gap-4">
+                     <MapPin className="w-6 h-6 opacity-75" />
+                     <p className="w-1/4 h-6 mb-3 duration-300 animate-pulse bg-wh-300"></p>
+                  </div>
+               )}
                <div className="flex gap-4">
                   <CalendarPlus className="w-6 h-6 opacity-75" />
-                  <p>
-                     {joinedDate && (
+                  {joinedDate ? (
+                     <p>
                         <div className="flex items-center gap-2">
                            <p>
                               Joined on{" "}
@@ -659,74 +779,133 @@ const Account = () => {
                               )
                            </p>
                         </div>
-                     )}
-                  </p>
+                     </p>
+                  ) : (
+                     <div className="w-1/4 h-6 mb-3 duration-300 animate-pulse bg-wh-300"></div>
+                  )}
                </div>
-               {showEmail && (
-                  <Link to={`mailto:${email}`} className="flex gap-4">
-                     <Mail className="w-6 h-6 opacity-75" />
-                     <p>{email}</p>
-                  </Link>
-               )}
+
+               {showEmail ? (
+                  email ? (
+                     <Link to={`mailto:${email}`} className="flex gap-4">
+                        <Mail className="w-6 h-6 opacity-75" />
+                        <p>{email}</p>
+                     </Link>
+                  ) : (
+                     <div className="flex gap-4">
+                        <Mail className="w-6 h-6 opacity-75" />
+                        <div className="w-1/4 h-6 mb-3 duration-300 animate-pulse bg-wh-300" />
+                     </div>
+                  )
+               ) : null}
                <div className="flex gap-4">
                   <ExternalLink className="w-6 h-6 opacity-75" />
-                  <a href={website as string} target="_blank">
-                     {website}
-                  </a>
+                  {website ? (
+                     <a href={website as string} target="_blank">
+                        {website}
+                     </a>
+                  ) : (
+                     <div className="w-1/4 h-6 mb-3 duration-300 animate-pulse bg-wh-300"></div>
+                  )}
                </div>
             </div>
             <div className="w-full px-6 border-b border-black/10 dark:border-white/10" />
             <div className="flex flex-col gap-8 py-8 md:flex-row md:flex-wrap md:justify-center">
                <div className="flex gap-4">
                   <User2 className="w-6 h-6 opacity-75" />
-                  <p>{pronouns}</p>
+                  {pronouns ? (
+                     <p>{pronouns}</p>
+                  ) : (
+                     <div className="w-1/4 h-6 mb-3 duration-300 animate-pulse bg-wh-300"></div>
+                  )}
                </div>
                <div className="flex gap-4">
                   <Briefcase className="w-6 h-6 opacity-75" />
-                  <p>{work}</p>
+                  {work ? (
+                     <p>{work}</p>
+                  ) : (
+                     <div className="w-1/4 h-6 mb-3 duration-300 animate-pulse bg-wh-300"></div>
+                  )}
                </div>
                <div className="flex gap-4">
                   <GraduationCap className="w-6 h-6 opacity-75" />
-                  <p>{education}</p>
+                  {education ? (
+                     <p>{education}</p>
+                  ) : (
+                     <div className="w-1/4 h-6 mb-3 duration-300 animate-pulse bg-wh-300"></div>
+                  )}
                </div>
             </div>
+
             {/* mobile only */}
             <div
                className={`px-3 pt-8 mx-2 mb-4 transition-all duration-700 ease-in rounded bg-background text-foreground opacity-0 h-0 md:hidden ${
                   showMoreDetails && "opacity-100 h-auto"
                }`}>
                <h3 className="font-bold">Skills/Languages: </h3>
-               <div className="py-4 my-3 text-sm italic border-y border-black/10 dark:border-white/10">
-                  {skills}
-               </div>
+               {skills ? (
+                  <div className="py-4 my-3 text-sm italic border-y border-black/10 dark:border-white/10">
+                     {skills}
+                  </div>
+               ) : (
+                  <div className="w-3/4 h-6 mb-3 duration-300 animate-pulse bg-wh-300"></div>
+               )}
+
                <h3 className="font-bold">Currently learning: </h3>
-               <div className="py-4 my-3 text-sm italic border-y border-black/10 dark:border-white/10">
-                  {learning}
-               </div>
+               {learning ? (
+                  <div className="py-4 my-3 text-sm italic border-y border-black/10 dark:border-white/10">
+                     {learning}
+                  </div>
+               ) : (
+                  <div className="w-3/4 h-6 mb-3 duration-300 animate-pulse bg-wh-300"></div>
+               )}
+
                <h3 className="font-bold">Currently building</h3>
-               <div className="py-4 my-3 text-sm italic border-y border-black/1 dark:border-white/10">
-                  {building}
-               </div>
+               {building ? (
+                  <div className="py-4 my-3 text-sm italic border-y border-black/1 dark:border-white/10">
+                     {building}
+                  </div>
+               ) : (
+                  <div className="w-3/4 h-6 mb-3 duration-300 animate-pulse bg-wh-300"></div>
+               )}
+
                <h3 className="font-bold">Available for: </h3>
-               <div className="py-4 my-3 text-sm italic border-y border-black/10 dark:border-white/10">
-                  {availability}
-               </div>
+               {availability ? (
+                  <div className="py-4 my-3 text-sm italic border-y border-black/10 dark:border-white/10">
+                     {availability}
+                  </div>
+               ) : (
+                  <div className="w-3/4 h-6 mb-3 duration-300 animate-pulse bg-wh-300"></div>
+               )}
 
                <div className="flex flex-col pt-3 gap-7">
                   <p className="flex items-center gap-3">
                      <ScrollText className="opacity-70" />
-                     <p>{postCount} posts published</p>
+                     <p>
+                        {postCount
+                           ? `${postCount} posts published`
+                           : "Loading..."}
+                     </p>
                   </p>
                   <p className="flex items-center gap-3">
                      <MessageSquare className="opacity-70" />
-                     <p>{commentCount} comment(s) written</p>
+                     <p>
+                        {commentCount
+                           ? `${commentCount} comment(s) written`
+                           : "Loading..."}
+                     </p>
                   </p>
                   <p className="flex items-center gap-3">
                      <Hash className="opacity-70" />
-                     <p>{tagsCount} tags followed</p>
+                     <p>
+                        {tagsCount
+                           ? `${tagsCount} tags followed`
+                           : "Loading..."}
+                     </p>
                   </p>
                </div>
             </div>
+
             <div onClick={handleShowMore}>
                <Button
                   variant="outline"
@@ -740,102 +919,128 @@ const Account = () => {
          </div>
          <div className="relative max-w-5xl grid-cols-3 gap-4 py-6 pb-32 md:grid md:mx-4 lg:mx-auto ">
             <div className="col-span-1 px-1 mx-2 mb-4 md:mx-0 text-foreground md:sticky md:top-[100px] hidden md:block ml-3">
-               <div className="flex flex-col gap-4 p-3 mb-4 rounded bg-background ">
+               <div className="flex flex-col gap-4 p-3 mb-4 rounded bg-background">
                   <h3 className="font-bold">Skills/Languages: </h3>
-                  <div className="py-4 my-3 text-sm italic border-y border-black/10 dark:border-white/10">
-                     {skills}
-                  </div>
+                  {skills ? (
+                     <div className="py-4 my-3 text-sm italic border-y border-black/10 dark:border-white/10">
+                        {skills}
+                     </div>
+                  ) : (
+                     <div className="w-3/4 h-6 mb-3 duration-300 animate-pulse bg-wh-300"></div>
+                  )}
                </div>
                <div className="flex flex-col gap-4 p-3 mb-4 rounded bg-background">
                   <h3 className="font-bold">Currently learning: </h3>
-                  <div className="py-4 my-3 text-sm italic border-y border-black/10 dark:border-white/10">
-                     {learning}
-                  </div>
+                  {learning ? (
+                     <div className="py-4 my-3 text-sm italic border-y border-black/10 dark:border-white/10">
+                        {learning}
+                     </div>
+                  ) : (
+                     <div className="w-3/4 h-6 mb-3 duration-300 animate-pulse bg-wh-300"></div>
+                  )}
                </div>
                <div className="flex flex-col gap-4 p-3 mb-4 rounded bg-background">
                   <h3 className="font-bold">Currently building</h3>
-                  <div className="py-4 my-3 text-sm italic border-y border-black/10 dark:border-white/10">
-                     {building}
-                  </div>
+                  {building ? (
+                     <div className="py-4 my-3 text-sm italic border-y border-black/10 dark:border-white/10">
+                        {building}
+                     </div>
+                  ) : (
+                     <div className="w-3/4 h-6 mb-3 duration-300 animate-pulse bg-wh-300"></div>
+                  )}
                </div>
                <div className="flex flex-col gap-4 p-3 mb-4 rounded bg-background">
                   <h3 className="font-bold">Available for: </h3>
-                  <div className="py-4 my-3 text-sm italic border-y border-black/10 dark:border-white/10">
-                     {availability}
-                  </div>
+                  {availability ? (
+                     <div className="py-4 my-3 text-sm italic border-y border-black/10 dark:border-white/10">
+                        {availability}
+                     </div>
+                  ) : (
+                     <div className="w-3/4 h-6 mb-3 duration-300 animate-pulse bg-wh-300"></div>
+                  )}
                </div>
 
                <div className="flex flex-col p-3 pt-3 mb-4 rounded gap-7 bg-background">
                   <p className="flex items-center gap-3">
                      <ScrollText className="opacity-70" />
-                     <p>{postCount} post(s) published</p>
+                     <p>
+                        {postCount
+                           ? `${postCount} post(s) published`
+                           : "Loading..."}
+                     </p>
                   </p>
                   <p className="flex items-center gap-3">
                      <MessageSquare className="opacity-70" />
-                     <p>{commentCount} comment(s) written</p>
+                     <p>
+                        {commentCount
+                           ? `${commentCount} comment(s) written`
+                           : "Loading..."}
+                     </p>
                   </p>
                   <p className="flex items-center gap-3">
                      <Hash className="opacity-70" />
-                     <p>{tagsCount} hashtags followed</p>
+                     <p>
+                        {tagsCount
+                           ? `${tagsCount} hashtags followed`
+                           : "Loading..."}
+                     </p>
                   </p>
                </div>
             </div>
             <div className="col-span-2 px-3 pt-10 pb-24 mr-3 rounded bg-background">
-               {/* {posts.length && (
-                  <h1 className="pb-3 text-lg font-bold">{username}'s posts</h1>
-               )} */}
                {posts.length > 0 ? (
-                  posts.map((post, index) => {
-                     const {
-                        author,
-                        id,
-                        image,
-                        snippet,
-                        author_verification,
-                        title,
-                        created_at,
-                        profile_id,
-                        category_name,
-                        author_image,
-                        bookmark_count,
-                        likes_count,
-                        comment_count,
-                     } = post;
-
-                     return (
-                        <motion.div
+                  posts.map((post, index) => (
+                     <motion.div
+                        key={post.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{
+                           duration: 0.4,
+                           ease: [0.25, 0.25, 0, 1],
+                           delay: index / 15, // Adjust the delay as needed
+                        }}>
+                        <PostCard
                            key={post.id}
-                           initial={{ opacity: 0, y: 20 }}
-                           animate={{ opacity: 1, y: 0 }}
-                           transition={{
-                              duration: 0.4,
-                              ease: [0.25, 0.25, 0, 1],
-                              delay: index / 15, // Adjust the delay as needed
-                           }}>
-                           <PostCard
-                              key={id}
-                              author={author}
-                              id={id}
-                              image={image}
-                              snippet={snippet}
-                              author_verification={author_verification}
-                              title={title}
-                              category_name={category_name}
-                              author_image={author_image}
-                              bookmark_count={bookmark_count}
-                              created_at={created_at}
-                              likes_count={likes_count}
-                              comment_count={comment_count}
-                              profile_id={profile_id}
-                           />
-                        </motion.div>
-                     );
-                  })
+                           author={post.author}
+                           id={post.id}
+                           image={post.image}
+                           snippet={post.snippet}
+                           author_verification={post.author_verification}
+                           title={post.title}
+                           category_name={post.category_name}
+                           author_image={post.author_image}
+                           bookmark_count={post.bookmark_count}
+                           created_at={post.created_at}
+                           likes_count={post.likes_count}
+                           comment_count={post.comment_count}
+                           profile_id={post.profile_id}
+                        />
+                     </motion.div>
+                  ))
                ) : (
-                  <div className="mx-2">No Posts Yet</div>
+                  <>
+                     {Array.from({ length: 5 }).map((_, index) => (
+                        <div className="w-full mb-4" key={index}>
+                           <PostCardSkeleton />
+                        </div>
+                     ))}
+                  </>
                )}
-
-               {isLoading && <div className="mx-2">Loading...</div>}
+               {totalCount !== null &&
+                  posts !== null &&
+                  totalCount > posts.length && (
+                     <div className="my-10">
+                        <button
+                           disabled={isFetching}
+                           onClick={fetchMorePosts}
+                           className={`${
+                              isFetching && "bg-wh-300 animate-bounce"
+                           } w-full px-5 py-2 mt-5 font-semibold md:w-auto bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black`}>
+                           {isFetching ? "Loading More..." : " Load More"}
+                        </button>
+                     </div>
+                  )}
+               {/* {isLoading && <div className="mx-2">Loading...</div>} */}
                {error && <div className="mx-2 ">Error: {error}</div>}
             </div>
          </div>
@@ -870,3 +1075,16 @@ const Account = () => {
    );
 };
 export default Account;
+
+// {categoryPosts &&
+//    totalCount !== null &&
+//    categoryPosts.length < totalCount && (
+//       <button
+//          disabled={isFetching}
+//          onClick={fetchMorePosts}
+//          className={`${
+//             isFetching && "bg-wh-300 animate-bounce"
+//          } w-full px-5 py-2 mt-5 font-semibold md:w-auto bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black`}>
+//          {isFetching ? "Loading More..." : " Load More"}
+//       </button>
+//    )}

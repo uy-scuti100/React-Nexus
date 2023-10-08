@@ -1,10 +1,10 @@
-import { BadgeCheck, CalendarIcon, MessageCircle } from "lucide-react";
+import { BadgeCheck, CalendarIcon, Heart, MessageCircle } from "lucide-react";
 import { Badge } from "../../components/ui/badge";
 import { useState, useEffect } from "react";
 import { useTheme } from "../../components/providers/theme/theme-provider";
 import { useFetchUser } from "../../hooks/useFetchUser";
 import supabase from "../../lib/supabaseClient";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import {
@@ -17,8 +17,8 @@ import {
    AvatarFallback,
    AvatarImage,
 } from "../../components/ui/avatar";
-
 dayjs.extend(relativeTime);
+
 const dateFormatter = new Intl.DateTimeFormat(undefined, {
    dateStyle: "medium",
 });
@@ -73,6 +73,7 @@ const PostCard = ({
    const [followersCount, setFollowersCount] = useState(0);
    const [followingCount, setFollowingCount] = useState(0);
    const currentUserId = currentUser?.id;
+   const navigate = useNavigate();
 
    // check following
    useEffect(() => {
@@ -95,7 +96,6 @@ const PostCard = ({
       }
    }, [currentUserId, profile_id]);
 
-   // Function to handle the follow/unfollow action
    const handleFollow = async () => {
       if (isFollowing) {
          // If already following, unfollow
@@ -115,6 +115,8 @@ const PostCard = ({
             {
                follower_id: currentUserId,
                following_id: profile_id,
+               follower_username: currentUser?.username,
+               following_username: username,
             },
          ]);
 
@@ -278,22 +280,30 @@ const PostCard = ({
       }
    };
 
+   const goHome = () => {
+      navigate("/");
+   };
+
    return (
       <div key={id} className="mb-10">
          <Link to={`/post/${id}`}>
             <div className="relative w-full h-56 mb-6 md:h-96">
-               <img
-                  src={image}
-                  alt="post image"
-                  style={{
-                     objectFit: "cover",
-                     maxWidth: "100%",
-                     maxHeight: "100%",
-                     width: "100%",
-                     height: "100%",
-                  }}
-                  className="duration-700 ease-in-out"
-               />
+               {image ? (
+                  <img
+                     src={image}
+                     alt="post image"
+                     style={{
+                        objectFit: "cover",
+                        maxWidth: "100%",
+                        maxHeight: "100%",
+                        width: "100%",
+                        height: "100%",
+                     }}
+                     className="duration-700 ease-in-out"
+                  />
+               ) : (
+                  <div className="relative w-full h-56 mb-6 duration-300 bg-gray-300 md:h-96 animate-pulse" />
+               )}
                <Badge variant="secondary" className="absolute top-2 right-2">
                   {category_name}
                </Badge>
@@ -312,10 +322,10 @@ const PostCard = ({
                      className="flex items-center gap-3 capitalize">
                      <img
                         src={author_image}
-                        width={24}
-                        height={24}
+                        width={50}
+                        height={50}
                         alt="user-profile-img"
-                        className="border border-accent w-[24px] h-[24px]  cursor-pointer"
+                        className="border border-accent w-[50px] h-[50px] rounded-full cursor-pointer"
                      />
                      <div className="flex items-center gap-2">
                         <p>{author} </p>
@@ -350,7 +360,7 @@ const PostCard = ({
                            )}
                         </div>
                         <Link to={`/account/${profile_id}`}>
-                           <h4 className="text-xs opacity-90">@{username}</h4>
+                           <h4 className="text-xs opacity-90">{username}</h4>
                         </Link>
                         <p className="pt-2 text-sm">{bio}</p>
                         <div className="flex gap-3 py-2 text-sm">
@@ -395,7 +405,6 @@ const PostCard = ({
                            </span>
                         </div>
                      </div>
-                     <div></div>
                   </div>
                </HoverCardContent>
             </HoverCard>
@@ -417,7 +426,7 @@ const PostCard = ({
          <div className="w-full px-6 border-b border-black/10 dark:border-white/10" />
          <div className="flex items-center justify-between pt-5 md:justify-normal md:gap-20">
             <div className="flex items-center gap-1">
-               <button onClick={toggleBookmark}>
+               <button onClick={user ? toggleBookmark : goHome}>
                   {isBookmarked ? (
                      // Bookmarked
                      <svg
@@ -450,7 +459,7 @@ const PostCard = ({
                </button>
                <p>{bookmarkCount > 0 ? <p>{bookmarkCount}</p> : ""}</p>
             </div>
-            <Link to={`/post/${postId}`}>
+            <Link to={user ? `/post/${postId}` : "/"}>
                <div className="flex items-center gap-1">
                   <MessageCircle className="w-6 h-6 opacity-70" />
                   <p>{commentCount > 0 ? <p>{commentCount}</p> : ""}</p>
@@ -458,7 +467,7 @@ const PostCard = ({
             </Link>
 
             <div className="flex items-center gap-1">
-               <button onClick={toggleLike}>
+               <button onClick={user ? toggleLike : goHome}>
                   {isLiked ? (
                      <svg
                         aria-label="Unlike"
@@ -474,20 +483,7 @@ const PostCard = ({
                         <path d="M34.6 3.1c-4.5 0-7.9 1.8-10.6 5.6-2.7-3.7-6.1-5.5-10.6-5.5C6 3.1 0 9.6 0 17.6c0 7.3 5.4 12 10.6 16.5.6.5 1.3 1.1 1.9 1.7l2.3 2c4.4 3.9 6.6 5.9 7.6 6.5.5.3 1.1.5 1.6.5s1.1-.2 1.6-.5c1-.6 2.8-2.2 7.8-6.8l2-1.8c.7-.6 1.3-1.2 2-1.7C42.7 29.6 48 25 48 17.6c0-8-6-14.5-13.4-14.5z"></path>
                      </svg>
                   ) : (
-                     <svg
-                        className="opacity-70"
-                        aria-label="Like"
-                        // @ts-ignore
-                        class="x1lliihq x1n2onr6"
-                        color="#fff"
-                        fill="rgb(38, 38, 38)"
-                        height="24"
-                        role="img"
-                        viewBox="0 0 24 24"
-                        width="24">
-                        <title>Like</title>
-                        <path d="M16.792 3.904A4.989 4.989 0 0 1 21.5 9.122c0 3.072-2.652 4.959-5.197 7.222-2.512 2.243-3.865 3.469-4.303 3.752-.477-.309-2.143-1.823-4.303-3.752C5.141 14.072 2.5 12.167 2.5 9.122a4.989 4.989 0 0 1 4.708-5.218 4.21 4.21 0 0 1 3.675 1.941c.84 1.175.98 1.763 1.12 1.763s.278-.588 1.11-1.766a4.17 4.17 0 0 1 3.679-1.938m0-2a6.04 6.04 0 0 0-4.797 2.127 6.052 6.052 0 0 0-4.787-2.127A6.985 6.985 0 0 0 .5 9.122c0 3.61 2.55 5.827 5.015 7.97.283.246.569.494.853.747l1.027.918a44.998 44.998 0 0 0 3.518 3.018 2 2 0 0 0 2.174 0 45.263 45.263 0 0 0 3.626-3.115l.922-.824c.293-.26.59-.519.885-.774 2.334-2.025 4.98-4.32 4.98-7.94a6.985 6.985 0 0 0-6.708-7.218Z"></path>
-                     </svg>
+                     <Heart className="w-6 h-6 opacity-70" />
                   )}
                </button>
                <p>{likeCount > 0 ? <p>{likeCount}</p> : ""}</p>

@@ -2,7 +2,7 @@ import { Plus } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "../../components/ui/button";
 import { Hashtag } from "../../../types";
-import { useHashtag } from "../../hooks/useHashtag";
+import { useHashtag } from "../../hooks/useHashtags";
 
 const HashtagComp = () => {
    const { isError, isLoading, hashtags } = useHashtag();

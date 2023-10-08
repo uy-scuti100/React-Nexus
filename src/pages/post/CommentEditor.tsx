@@ -30,7 +30,6 @@ const CommentEditor = ({
    return (
       <div className="flex flex-col gap-2">
          <textarea
-            autoFocus={true}
             style={{
                height: "50px",
                resize: "none",

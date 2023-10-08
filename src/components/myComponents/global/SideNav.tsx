@@ -1,5 +1,5 @@
 import { ModeToggle } from "../../providers/theme/theme-toggle";
-import { LogOut, Settings } from "lucide-react";
+import { Hash, LogOut, Search } from "lucide-react";
 import supabase from "../../../lib/supabaseClient";
 import { Link } from "react-router-dom";
 import { useFetchUser } from "../../../hooks/useFetchUser";
@@ -33,7 +33,7 @@ export default function SideNav({
          className={` ${className} transition-all rounded duration-500 ease z-30 md:w-[300px] overflow-x-hidden w-[200px] bg-background overflow-y-auto fixed top-[85px] shadow-lg`}>
          <div className="p-4">
             <ul className="flex flex-col gap-8">
-               <Link to="/write" onClick={toggleSideNav}>
+               <Link to={user ? "/write" : "/"} onClick={toggleSideNav}>
                   <li className="flex items-center gap-4 cursor-pointer hover:opacity-75">
                      <svg
                         width="24"
@@ -51,7 +51,9 @@ export default function SideNav({
                      <span>Write</span>
                   </li>
                </Link>
-               <Link to={`/account/${userId}`} onClick={toggleSideNav}>
+               <Link
+                  to={user ? `/account/${userId}` : "/"}
+                  onClick={toggleSideNav}>
                   <li className="flex items-center gap-4 cursor-pointer hover:opacity-75">
                      {" "}
                      <svg
@@ -75,6 +77,15 @@ export default function SideNav({
                </Link>
                <Link to="/" onClick={toggleSideNav}>
                   <li className="flex items-center gap-4 cursor-pointer hover:opacity-75">
+                     <Search className="w-6 h-6 cursor-pointer opacity-70" />
+                     <span>Search</span>
+                  </li>
+               </Link>
+
+               <Link
+                  to={user ? `/bookmarks/${userId}` : "/"}
+                  onClick={toggleSideNav}>
+                  <li className="flex items-center gap-4 cursor-pointer hover:opacity-75">
                      <svg
                         width="24"
                         height="24"
@@ -93,8 +104,9 @@ export default function SideNav({
                   </li>
                </Link>
 
-               <Link to="/" onClick={toggleSideNav}>
-                  <div className="w-full border-b border-black/20 dark:border-white/70" />
+               <Link
+                  to={user ? `/liked-posts/${userId}` : "/"}
+                  onClick={toggleSideNav}>
                   <li className="flex items-center gap-4 cursor-pointer hover:opacity-75">
                      <svg
                         width="24"
@@ -110,21 +122,30 @@ export default function SideNav({
                      <span>Liked Posts</span>
                   </li>
                </Link>
-               <Link to="/" onClick={toggleSideNav}>
+               <Link
+                  to={user ? `/hastags/${userId}` : "/"}
+                  onClick={toggleSideNav}>
+                  <li className="flex items-center gap-4 cursor-pointer hover:opacity-75">
+                     <Hash className="w-6 h-6 opacity-60 " />
+                     <span>Hashtags</span>
+                  </li>
+               </Link>
+               {/* <Link to="/" onClick={toggleSideNav}>
                   <li className="flex items-center gap-4 cursor-pointer hover:opacity-75">
                      <Settings strokeWidth={1.25} />
                      <span>Settings</span>
                   </li>
-               </Link>
-               <Link to="/" onClick={toggleSideNav}>
-                  <div className="w-full border-b border-black/20 dark:border-white/70" />
-                  <li
-                     className="flex items-center gap-4 cursor-pointer hover:opacity-75"
-                     onClick={logOff}>
-                     <LogOut strokeWidth={1.25} />
-                     <span>Log Out</span>
-                  </li>
-               </Link>
+               </Link> */}
+               {user && (
+                  <Link to="/" onClick={toggleSideNav}>
+                     <li
+                        className="flex items-center gap-4 cursor-pointer hover:opacity-75"
+                        onClick={logOff}>
+                        <LogOut strokeWidth={1.25} />
+                        <span>Log Out</span>
+                     </li>
+                  </Link>
+               )}
 
                <li className="hover:opacity-75">
                   <ModeToggle />

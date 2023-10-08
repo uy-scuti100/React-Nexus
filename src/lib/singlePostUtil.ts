@@ -12,7 +12,7 @@ export async function fetchSinglePostById(postId: string) {
       if (error) {
          console.error(`Error fetching post with id ${postId}:`, error.message);
       }
-
+ 
       if (!post) {
          console.log(`Post with id ${postId} not found`);
       }
