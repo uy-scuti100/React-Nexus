@@ -5,7 +5,6 @@ import { Button } from "../../components/ui/button";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 dayjs.extend(relativeTime);
-
 import {
    Briefcase,
    CalendarPlus,
@@ -18,6 +17,7 @@ import {
    ScrollText,
    Verified,
    GraduationCap,
+   X,
 } from "lucide-react";
 import { fetchSingleProfile } from "../../lib/fetchSingleProfile";
 import { User } from "../../../types";
@@ -57,6 +57,9 @@ const dateFormatter = new Intl.DateTimeFormat(undefined, {
 const Account = () => {
    const { id: paramsId } = useParams();
    const { user: currentUser } = useFetchUser();
+   const [isFollowing, setIsFollowing] = useState(false);
+   const [followersCount, setFollowersCount] = useState(0);
+   const [followingCount, setFollowingCount] = useState(0);
    const currentUserId = currentUser?.id;
    const [showSettings, setShowSettings] = useState(false);
    const [user, setUser] = useState<User | null | undefined>(null);
@@ -92,9 +95,160 @@ const Account = () => {
    const [commentCount, setCommentCount] = useState<number | null | undefined>(
       null
    );
+
    const [error, setError] = useState<string | null>(null);
    const [isLoading, setIsLoading] = useState(false);
+   const [showFollowersModal, setShowFollowersModal] = useState(false);
+   const [showFollowingModal, setShowFollowingModal] = useState(false);
    const [posts, setPosts] = useState<PostCardProps[]>([]);
+   const [followerProfiles, setFollowerProfiles] = useState<Array<User>>([]);
+   const [followingProfiles, setFollowingProfiles] = useState<Array<User>>([]);
+   const [followerIds, setFollowerIds] = useState<Array<string>>([]);
+   const [followingIds, setFollowingIds] = useState<Array<string>>([]);
+
+   // #useEffect to fetch followers profiles
+   useEffect(() => {
+      async function fetchFollowerProfiles() {
+         const { data: followerProfilesData, error: followerProfilesError } =
+            await supabase.from("profiles").select("*").in("id", followerIds);
+
+         if (!followerProfilesError) {
+            setFollowerProfiles(followerProfilesData);
+         }
+      }
+
+      if (paramsId || followerIds.length > 0) {
+         fetchFollowerProfiles();
+      }
+   }, [paramsId, followerIds]);
+
+   // useEffect to fetch following profiles
+   useEffect(() => {
+      async function fetchFollowingProfiles() {
+         const { data: followingProfilesData, error: followingProfilesError } =
+            await supabase.from("profiles").select("*").in("id", followingIds);
+
+         if (!followingProfilesError) {
+            setFollowingProfiles(followingProfilesData);
+         }
+      }
+
+      if (paramsId || followingIds.length > 0) {
+         fetchFollowingProfiles();
+      }
+   }, [paramsId, followingIds]);
+
+   // check following
+   useEffect(() => {
+      async function checkFollowing() {
+         const { data, error } = await supabase
+            .from("follow")
+            .select()
+            .eq("follower_id", currentUserId)
+            .eq("following_id", paramsId);
+
+         if (data && data.length > 0) {
+            setIsFollowing(true);
+         } else {
+            setIsFollowing(false);
+         }
+      }
+
+      if (currentUserId && paramsId) {
+         checkFollowing();
+      }
+   }, [currentUserId, paramsId]);
+
+   // Function to handle the follow/unfollow action
+   const handleFollow = async () => {
+      if (isFollowing) {
+         // If already following, unfollow
+         const { error } = await supabase
+            .from("follow")
+            .delete()
+            .eq("follower_id", currentUserId)
+            .eq("following_id", paramsId);
+
+         if (!error) {
+            setIsFollowing(false);
+            setFollowersCount((prevCount) => prevCount - 1);
+         }
+      } else {
+         // If not following, follow
+         const { error } = await supabase.from("follow").insert([
+            {
+               follower_id: currentUserId,
+               following_id: paramsId,
+            },
+         ]);
+
+         if (!error) {
+            setIsFollowing(true);
+            setFollowersCount((prevCount) => prevCount + 1);
+         }
+      }
+   };
+
+   // funtion to manage following count
+   useEffect(() => {
+      async function fetchCounts() {
+         // Fetch the followers count
+         const { data: followersData, error: followersError } = await supabase
+            .from("follow")
+            .select("follower_id")
+            .eq("following_id", paramsId);
+
+         if (!followersError) {
+            setFollowersCount(followersData.length);
+         }
+
+         // Fetch the following count
+         const { data: followingData, error: followingError } = await supabase
+            .from("follow")
+            .select("following_id")
+            .eq("follower_id", paramsId);
+
+         if (!followingError) {
+            setFollowingCount(followingData.length);
+         }
+      }
+
+      if (currentUserId) {
+         fetchCounts();
+      }
+   }, [currentUserId, paramsId]);
+
+   // New useEffect to fetch and set follower and following IDs
+   useEffect(() => {
+      async function fetchFollowerAndFollowingIds() {
+         // Fetch follower IDs for the user specified by paramsId
+         const { data: followerData, error: followerError } = await supabase
+            .from("follow")
+            .select("follower_id")
+            .eq("following_id", paramsId);
+
+         if (!followerError) {
+            const followerIds = followerData.map((item) => item.follower_id);
+            setFollowerIds(followerIds);
+         }
+
+         // Fetch following IDs for the user specified by paramsId
+         const { data: followingData, error: followingError } = await supabase
+            .from("follow")
+            .select("following_id")
+            .eq("follower_id", paramsId);
+
+         if (!followingError) {
+            const followingIds = followingData.map((item) => item.following_id);
+            setFollowingIds(followingIds);
+         }
+      }
+
+      // Fetch follower and following IDs when paramsId changes
+      if (paramsId) {
+         fetchFollowerAndFollowingIds();
+      }
+   }, [paramsId]);
 
    useEffect(() => {
       const fetchProfilePosts = async () => {
@@ -104,6 +258,7 @@ const Account = () => {
             const { data: profilePosts, error } = await supabase
                .from("posts")
                .select("*")
+               .range(0, 9)
                .eq("profile_id", id as string);
             if (profilePosts) {
                setPosts(profilePosts);
@@ -279,8 +434,10 @@ const Account = () => {
          </div>
          <div className="px-3 mt-24 mb-8 ">
             {currentUserId !== paramsId && (
-               <button className="w-full px-5 py-2 mt-5 font-semibold md:hidden md:w-auto bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black">
-                  Follow
+               <button
+                  onClick={handleFollow}
+                  className="w-full px-5 py-2 mt-5 font-semibold md:hidden md:w-auto bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black">
+                  {isFollowing ? "Unfollow" : "Follow"}
                </button>
             )}
          </div>
@@ -288,11 +445,12 @@ const Account = () => {
          <div className="max-w-5xl px-3 py-8 mx-3 mb-4 rounded bg-background md:px-4 md:mx-4 lg:mx-auto text-foreground">
             <div className="items-center md:flex md:justify-between">
                <h1 className="flex items-center gap-1 text-2xl font-bold text-center md:text-left">
-                  <span>{name}</span>
+                  <span className="capitalize">{name}</span>
                   <span>
                      {isVerified && <Verified className="w-6 h-6 ml-4" />}
                   </span>
                </h1>
+
                {currentUserId === paramsId && (
                   <button
                      className="hidden w-full px-5 py-2 mt-5 font-semibold md:w-auto bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black md:block"
@@ -302,17 +460,174 @@ const Account = () => {
                )}
 
                {paramsId && currentUserId !== paramsId && (
-                  <button className="hidden w-full px-5 py-2 mt-5 font-semibold md:w-auto bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black md:block">
-                     Follow
+                  <button
+                     onClick={handleFollow}
+                     className="hidden w-full px-5 py-2 mt-5 font-semibold md:w-auto bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black md:block">
+                     {isFollowing ? "Unfollow" : "Follow"}
                   </button>
                )}
             </div>
 
             {username && !username.startsWith("@") ? (
-               <p className="pb-6 opacity-75"> @{username} </p>
+               <p className="pb-3 opacity-75"> @{username}</p>
             ) : (
-               <p className="pb-6 opacity-75"> {username} </p>
+               <p className="pb-3 opacity-75"> {username}</p>
             )}
+            <div className="flex gap-3 py-2">
+               <p
+                  className="font-bold cursor-pointer"
+                  onClick={() => setShowFollowersModal(true)}>
+                  {followersCount} <span className="opacity-50">Followers</span>{" "}
+               </p>
+               <p
+                  className="font-bold"
+                  onClick={() => setShowFollowingModal(true)}>
+                  {followingCount}{" "}
+                  <span className="opacity-50 cursor-pointer">Following</span>{" "}
+               </p>
+               {/* followers */}
+               {showFollowersModal && (
+                  <div className="fixed inset-0 z-50 h-screen backdrop-blur">
+                     <div className="fixed grid w-[95%] max-w-lg gap-4 p-6 duration-200 transform -translate-x-1/2 -translate-y-1/2 border rounded shadow-lg left-1/2 top-1/2 bg-background animate-in fade-in-0">
+                        <div className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg md:w-full">
+                           <div
+                              onClick={() => setShowFollowersModal(false)}
+                              className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
+                              <X className="w-4 h-4" />
+                              <span className="sr-only">Close</span>
+                           </div>
+                           <div className="text-left">
+                              <div className="text-lg">{name}</div>
+                              <p className="text-sm opacity-50">{username}</p>
+                              <div className="pb-2">Followers</div>
+                              <div className="w-full px-6 border-b border-black/10 dark:border-white/10" />
+                           </div>
+                           <div className="gap-2 py-4 overflow-auto">
+                              {followerProfiles.length > 0 ? (
+                                 <div
+                                    key={id}
+                                    className="flex flex-col max-h-[500px] gap-5"
+                                    style={{ overflowY: "auto" }}>
+                                    {followerProfiles?.map((follower) => {
+                                       const {
+                                          display_pic,
+                                          display_name,
+                                          username,
+                                          id,
+                                       } = follower;
+                                       return (
+                                          <Link
+                                             to={`/account/${id}`}
+                                             onClick={() =>
+                                                setShowFollowersModal(false)
+                                             }>
+                                             <div
+                                                className="flex items-center rounded"
+                                                key={id}>
+                                                <div>
+                                                   <img
+                                                      src={
+                                                         display_pic as string
+                                                      }
+                                                      alt={`${display_name}'s display image`}
+                                                      className="rounded-full w-[50px] h-[50px] mr-2"
+                                                   />
+                                                </div>
+                                                <div className="flex flex-col w-full pl-5 transition hover:bg-foreground/5">
+                                                   <h1 className="text-lg">
+                                                      {display_name}
+                                                   </h1>
+                                                   <p className="text-sm opacity-50">
+                                                      {username}
+                                                   </p>
+                                                </div>
+                                             </div>
+                                          </Link>
+                                       );
+                                    })}
+                                 </div>
+                              ) : (
+                                 <div>{name} has no followers yet</div>
+                              )}
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               )}
+
+               {/* following */}
+               {showFollowingModal && (
+                  <div className="fixed inset-0 z-50 h-screen backdrop-blur">
+                     <div className="fixed grid w-[95%] max-w-lg gap-4 p-6 duration-200 transform -translate-x-1/2 -translate-y-1/2 border rounded-sm shadow-lg left-1/2 top-1/2 bg-background animate-in fade-in-0">
+                        <div className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg md:w-full">
+                           <div
+                              onClick={() => setShowFollowingModal(false)}
+                              className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
+                              <X className="w-4 h-4" />
+                              <span className="sr-only">Close</span>
+                           </div>
+                           <div className="text-left">
+                              <div className="text-xl">{name}</div>
+                              <p className="text-xs opacity-50">{username}</p>
+                              <div className="pb-2 text-sm">Following</div>
+                              <div className="w-full px-6 border-b border-black/10 dark:border-white/10" />
+                           </div>
+                           <div className="gap-2 py-4 overflow-auto">
+                              {followingProfiles.length > 0 ? (
+                                 <div
+                                    key={id}
+                                    className="flex flex-col max-h-[500px] gap-5"
+                                    style={{ overflowY: "auto" }}>
+                                    {followingProfiles?.map((follower) => {
+                                       const {
+                                          display_pic,
+                                          display_name,
+                                          username,
+                                          id,
+                                       } = follower;
+                                       return (
+                                          <Link
+                                             to={`/account/${id}`}
+                                             onClick={() =>
+                                                setShowFollowingModal(false)
+                                             }>
+                                             <div
+                                                className="flex items-center rounded"
+                                                key={id}>
+                                                <div>
+                                                   <img
+                                                      src={
+                                                         display_pic as string
+                                                      }
+                                                      alt={`${display_name}'s display image`}
+                                                      className="rounded-full w-[50px] h-[50px] mr-2"
+                                                   />
+                                                </div>
+                                                <div className="flex flex-col w-full pl-5 transition hover:bg-foreground/5">
+                                                   <h1 className="text-lg">
+                                                      {display_name}
+                                                   </h1>
+                                                   <p className="text-sm opacity-50">
+                                                      {username}
+                                                   </p>
+                                                </div>
+                                             </div>
+                                          </Link>
+                                       );
+                                    })}
+                                 </div>
+                              ) : (
+                                 <div>
+                                    {name} is not following anybody at the
+                                    moment
+                                 </div>
+                              )}
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               )}
+            </div>
 
             <div className="w-full px-6 border-b border-black/10 dark:border-white/10" />
             <p className="pt-6 pb-12 text-lg leading-8 md:text-center">{bio}</p>

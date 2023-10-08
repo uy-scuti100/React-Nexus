@@ -68,17 +68,91 @@ const PostCard = ({
    const [bio, setBio] = useState("");
    const [username, setUsername] = useState("");
    const [joinedDate, setJoinedDate] = useState("");
+   const { user: currentUser } = useFetchUser();
+   const [isFollowing, setIsFollowing] = useState(false);
+   const [followersCount, setFollowersCount] = useState(0);
+   const [followingCount, setFollowingCount] = useState(0);
+   const currentUserId = currentUser?.id;
 
-   //    date formatting
-   // const date = new Date(created_at);
-   // const options = {
-   //    year: "numeric",
-   //    month: "long",
-   //    day: "numeric",
-   // } as any;
-   // const formattedDate = date.toLocaleDateString("en-US", options);
+   // check following
+   useEffect(() => {
+      async function checkFollowing() {
+         const { data, error } = await supabase
+            .from("follow")
+            .select()
+            .eq("follower_id", currentUserId)
+            .eq("following_id", profile_id);
 
-   // auth check
+         if (data && data.length > 0) {
+            setIsFollowing(true);
+         } else {
+            setIsFollowing(false);
+         }
+      }
+
+      if (currentUserId && profile_id) {
+         checkFollowing();
+      }
+   }, [currentUserId, profile_id]);
+
+   // Function to handle the follow/unfollow action
+   const handleFollow = async () => {
+      if (isFollowing) {
+         // If already following, unfollow
+         const { error } = await supabase
+            .from("follow")
+            .delete()
+            .eq("follower_id", currentUserId)
+            .eq("following_id", profile_id);
+
+         if (!error) {
+            setIsFollowing(false);
+            setFollowersCount((prevCount) => prevCount - 1);
+         }
+      } else {
+         // If not following, follow
+         const { error } = await supabase.from("follow").insert([
+            {
+               follower_id: currentUserId,
+               following_id: profile_id,
+            },
+         ]);
+
+         if (!error) {
+            setIsFollowing(true);
+            setFollowersCount((prevCount) => prevCount + 1);
+         }
+      }
+   };
+
+   // funtion to manage following count ]]==
+   useEffect(() => {
+      async function fetchCounts() {
+         // Fetch the followers count
+         const { data: followersData, error: followersError } = await supabase
+            .from("follow")
+            .select("follower_id")
+            .eq("following_id", profile_id);
+
+         if (!followersError) {
+            setFollowersCount(followersData.length);
+         }
+
+         // Fetch the following count
+         const { data: followingData, error: followingError } = await supabase
+            .from("follow")
+            .select("following_id")
+            .eq("follower_id", profile_id);
+
+         if (!followingError) {
+            setFollowingCount(followingData.length);
+         }
+      }
+
+      if (currentUserId) {
+         fetchCounts();
+      }
+   }, [currentUserId, profile_id]);
 
    useEffect(() => {
       const fetchData = async () => {
@@ -206,23 +280,25 @@ const PostCard = ({
 
    return (
       <div key={id} className="mb-10">
-         <div className="relative w-full h-56 mb-6 md:h-96">
-            <img
-               src={image}
-               alt="post image"
-               style={{
-                  objectFit: "cover",
-                  maxWidth: "100%",
-                  maxHeight: "100%",
-                  width: "100%",
-                  height: "100%",
-               }}
-               className="duration-700 ease-in-out"
-            />
-            <Badge variant="secondary" className="absolute top-2 right-2">
-               {category_name}
-            </Badge>
-         </div>
+         <Link to={`/post/${id}`}>
+            <div className="relative w-full h-56 mb-6 md:h-96">
+               <img
+                  src={image}
+                  alt="post image"
+                  style={{
+                     objectFit: "cover",
+                     maxWidth: "100%",
+                     maxHeight: "100%",
+                     width: "100%",
+                     height: "100%",
+                  }}
+                  className="duration-700 ease-in-out"
+               />
+               <Badge variant="secondary" className="absolute top-2 right-2">
+                  {category_name}
+               </Badge>
+            </div>
+         </Link>
          <div className="w-full px-6 border-b border-black/10 dark:border-white/10" />
          <Link to={`/post/${id}`}>
             <div className="py-4 text-2xl font-bold capitalize">{title}</div>
@@ -266,9 +342,10 @@ const PostCard = ({
                            </Link>
                            {profile_id !== userId && (
                               <button
+                                 onClick={handleFollow}
                                  type="submit"
                                  className="px-4 py-1 font-semibold bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black">
-                                 Follow
+                                 {isFollowing ? "Unfollow" : "Follow"}
                               </button>
                            )}
                         </div>
@@ -276,14 +353,14 @@ const PostCard = ({
                            <h4 className="text-xs opacity-90">@{username}</h4>
                         </Link>
                         <p className="pt-2 text-sm">{bio}</p>
-                        <div className="flex justify-between py-2 text-sm">
-                           <p>
-                              following{" "}
-                              <span className="font-extrabold">1004</span>
+                        <div className="flex gap-3 py-2 text-sm">
+                           <p className="font-bold ">
+                              {followersCount}{" "}
+                              <span className="opacity-50">Followers</span>{" "}
                            </p>
-                           <p>
-                              followers{" "}
-                              <span className="font-extrabold">11k</span>
+                           <p className="font-bold">
+                              {followingCount}{" "}
+                              <span className="opacity-50">Following</span>{" "}
                            </p>
                         </div>
                         <div className="flex items-center pt-2">

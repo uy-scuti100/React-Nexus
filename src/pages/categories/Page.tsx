@@ -22,7 +22,7 @@ const Page = () => {
    return (
       <main className="relative">
          <Navbar />
-         <section className="px-6 pt-24">
+         <section className="pt-24">
             <Category />
             <div className="gap-10 px-6 pt-10 mb-5 md:flex">
                <div className="basis-3/5">

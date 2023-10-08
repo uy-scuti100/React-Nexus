@@ -35,6 +35,7 @@ import {
    AvatarFallback,
    AvatarImage,
 } from "../../components/ui/avatar";
+import PostSlider from "../../components/myComponents/global/PostSlider";
 
 dayjs.extend(relativeTime);
 
@@ -160,9 +161,95 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
    const imageInputRef = useRef<HTMLInputElement | null>(null);
    const { user } = useFetchUser();
    const userId = user?.id;
+   const name = user?.display_name;
    const userImg = user?.display_pic;
    const postId = post?.id;
    const profile_id = post?.profile_id;
+   const { user: currentUser } = useFetchUser();
+   const [isFollowing, setIsFollowing] = useState(false);
+   const [followersCount, setFollowersCount] = useState(0);
+   const [followingCount, setFollowingCount] = useState(0);
+   const currentUserId = currentUser?.id;
+
+   // check following
+   useEffect(() => {
+      async function checkFollowing() {
+         const { data, error } = await supabase
+            .from("follow")
+            .select()
+            .eq("follower_id", currentUserId)
+            .eq("following_id", profile_id);
+
+         if (data && data.length > 0) {
+            setIsFollowing(true);
+         } else {
+            setIsFollowing(false);
+         }
+      }
+
+      if (currentUserId && profile_id) {
+         checkFollowing();
+      }
+   }, [currentUserId, profile_id]);
+
+   // Function to handle the follow/unfollow action
+   const handleFollow = async () => {
+      if (isFollowing) {
+         // If already following, unfollow
+         const { error } = await supabase
+            .from("follow")
+            .delete()
+            .eq("follower_id", currentUserId)
+            .eq("following_id", profile_id);
+
+         if (!error) {
+            setIsFollowing(false);
+            setFollowersCount((prevCount) => prevCount - 1);
+         }
+      } else {
+         // If not following, follow
+         const { error } = await supabase.from("follow").insert([
+            {
+               follower_id: currentUserId,
+               following_id: profile_id,
+            },
+         ]);
+
+         if (!error) {
+            setIsFollowing(true);
+            setFollowersCount((prevCount) => prevCount + 1);
+         }
+      }
+   };
+
+   // funtion to manage following count ]]==
+   useEffect(() => {
+      async function fetchCounts() {
+         // Fetch the followers count
+         const { data: followersData, error: followersError } = await supabase
+            .from("follow")
+            .select("follower_id")
+            .eq("following_id", profile_id);
+
+         if (!followersError) {
+            setFollowersCount(followersData.length);
+         }
+
+         // Fetch the following count
+         const { data: followingData, error: followingError } = await supabase
+            .from("follow")
+            .select("following_id")
+            .eq("follower_id", profile_id);
+
+         if (!followingError) {
+            setFollowingCount(followingData.length);
+         }
+      }
+
+      if (currentUserId) {
+         fetchCounts();
+      }
+   }, [currentUserId, profile_id]);
 
    useEffect(() => {
       const fetchData = async () => {
@@ -613,9 +700,10 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
                                           </h4>
                                        </Link>
                                        <button
+                                          onClick={handleFollow}
                                           type="submit"
                                           className="px-4 py-1 font-semibold bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black">
-                                          Follow
+                                          {isFollowing ? "Unfollow" : "Follow"}
                                        </button>
                                     </div>
                                     <Link to={`/account/${profile_id}`}>
@@ -624,18 +712,18 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
                                        </h4>
                                     </Link>
                                     <p className="text-sm">{bio}</p>
-                                    <div className="flex justify-between py-2 text-sm">
-                                       <p>
-                                          following{" "}
-                                          <span className="font-extrabold">
-                                             1004
-                                          </span>
+                                    <div className="flex gap-3 py-2 text-sm">
+                                       <p className="font-bold ">
+                                          {followersCount}{" "}
+                                          <span className="opacity-50">
+                                             Followers
+                                          </span>{" "}
                                        </p>
-                                       <p>
-                                          followers{" "}
-                                          <span className="font-extrabold">
-                                             11k
-                                          </span>
+                                       <p className="font-bold">
+                                          {followingCount}{" "}
+                                          <span className="opacity-50">
+                                             Following
+                                          </span>{" "}
                                        </p>
                                     </div>
                                     <div className="flex items-center pt-2">
@@ -834,10 +922,12 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
                      </button>
                      <p>{bookmarkCount > 0 ? <p>{bookmarkCount}</p> : ""}</p>
                   </div>
-                  <div className="flex items-center gap-1 cursor-pointer">
+                  <a
+                     href="#comment"
+                     className="flex items-center gap-1 cursor-pointer">
                      <MessageCircle className="w-6 h-6 opacity-70" />
                      <p>{commentCount > 0 ? <p>{commentCount}</p> : ""}</p>
-                  </div>
+                  </a>
                   <div className="flex items-center gap-1">
                      <button onClick={toggleLike}>
                         {isLiked ? (
@@ -875,6 +965,11 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
                   </div>
                </div>
 
+               <div>
+                  <PostSlider
+                     prop={{ id: postId, userId: profile_id, name: name }}
+                  />
+               </div>
                {/* COMMENT LOGIC */}
 
                <div className="w-full py-4 mt-4">
@@ -893,6 +988,7 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
                         </div>
                         <Textarea
                            placeholder="Add a comment..."
+                           id="comment"
                            style={{
                               height: "100px",
                               resize: "none",
@@ -915,6 +1011,7 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
                      </div>
                   </form>
                </div>
+
                <div className="pt-4 border-t">
                   {/* Pass the comments array to the CommentList component */}
                   {comments && comments.length > 0 && (

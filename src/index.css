@@ -132,6 +132,26 @@
       background-color: hsl(235, 50%, 74%);
       transition: background-color 100ms ease-in-out;
    }
+.mainSlider .swiper-pagination-bullets {
+  bottom: 1.5rem;
+}
+.mainSlider .swiper-pagination-bullet,
+.productSlider .swiper-pagination-bullet {
+  background: #EA9648;
+}
+
+.productSlider .swiper-button-prev::after {
+  font-size: 2rem;
+}
+
+.productSlider .swiper-button-prev::after,
+.productSlider .swiper-button-next::after {
+  font-size: 2rem;
+  color: #EA9648;
+  padding: 1rem;
+  width: 300px;
+}
+
 }
 
 @media screen and (max-width: 768px) {

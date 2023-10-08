@@ -57,7 +57,7 @@ export function Settings({
    fetchUserData: () => void;
 }) {
    const id = prop.id;
-   const bannerImageUrl = import.meta.env.VITE_REACT_SUPABASE_BANNER_IMAGE_URL;
+   const bannerImageLink = import.meta.env.VITE_REACT_SUPABASE_BANNER_IMAGE_URL;
    const avatarImageUrl = import.meta.env.VITE_REACT_SUPABASE_AVATAR_IMAGE_URL;
    const [avatar, setAvatar] = useState(prop.avatar || "");
    const [loading, setLoading] = useState(false);
@@ -79,10 +79,11 @@ export function Settings({
    const [tempPronouns, setTempPronouns] = useState(prop.pronouns);
    const [tempWork, setTempWork] = useState(prop.work);
    const [tempEducation, setTempEducation] = useState(prop.education);
+   // const [tempBannerPic, setTempBannerPic] = useState(prop.bannerPic);
 
    const handleUpdateAccount = async () => {
       let imageUrl = prop.avatar || "";
-      let bannerImage = "";
+      let bannerImageUrl = prop.bannerPic || "";
 
       try {
          setLoading(true);
@@ -132,7 +133,7 @@ export function Settings({
                   });
 
             if (imageUploadResponse) {
-               bannerImage = imageUploadResponse.path;
+               bannerImageUrl = `${bannerImageLink}${imageUploadResponse.path}`;
             } else {
                console.log(
                   "Error uploading bannerPic image:",
@@ -158,7 +159,7 @@ export function Settings({
             work: tempWork,
             education: tempEducation,
             display_pic: imageUrl,
-            banner_pic: `${bannerImageUrl}${bannerImage}`,
+            banner_pic: bannerImageUrl,
          };
 
          const { data: updatedUser, error } = await supabase
@@ -410,7 +411,7 @@ export function Settings({
                         disabled={loading}
                         onClick={handleUpdateAccount}
                         className="w-full">
-                        Save changes
+                        {loading ? "Saving changes" : "Save changes"}
                      </Button>
                   </CardFooter>
                </Card>
@@ -480,7 +481,7 @@ export function Settings({
                         disabled={loading}
                         onClick={handleUpdateAccount}
                         className="w-full">
-                        Save changes
+                        {loading ? "Saving changes" : "Save changes"}
                      </Button>
                   </CardFooter>
                </Card>
@@ -571,7 +572,7 @@ export function Settings({
                         disabled={loading}
                         onClick={handleUpdateAccount}
                         className="w-full">
-                        Save changes
+                        {loading ? "Saving changes" : "Save changes"}
                      </Button>
                   </CardFooter>
                </Card>
@@ -630,7 +631,7 @@ export function Settings({
                         disabled={loading}
                         onClick={handleUpdateAccount}
                         className="w-full">
-                        Save changes
+                        {loading ? "Saving changes" : "Save changes"}
                      </Button>
                   </CardFooter>
                </Card>
