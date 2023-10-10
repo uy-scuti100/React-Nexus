@@ -1,14 +1,13 @@
-import { User } from "../../types";
 import supabase from "./supabaseClient";
 
-export async function fetchUser(): Promise<User | null> {
+export async function fetchUser() {
    try {
       const {
          data: { user },
       } = await supabase.auth.getUser();
 
       if (user) {
-         const userData: User = {
+         const userData = {
             email: user.email || null,
             id: user.id || null,
             avatarUrl: user.user_metadata?.avatar_url || null,

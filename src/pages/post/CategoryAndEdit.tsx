@@ -9,7 +9,7 @@ import { useState } from "react";
 import { Post } from "../../../types";
 
 type Props = {
-   categoryNames: string[];
+   postCategories: Array<{ id: string; name: string }>;
    categoryIds: string[];
    isEditable: boolean;
    handleIsEditable: (isEditable: boolean) => void;
@@ -52,8 +52,8 @@ const CategoryAndEdit = ({
    setPostImage,
    tempPostImage,
    setTempPostImage,
-   categoryNames,
    categoryIds,
+   postCategories,
 }: Props) => {
    const navigate = useNavigate();
    const [showDialog, setShowDialog] = useState(false);
@@ -102,11 +102,15 @@ const CategoryAndEdit = ({
 
    return (
       <div className="flex items-center justify-between">
-         <Link to={`/categories/${categoryIds[0]}`}>
-            <h4 className="px-5 py-2 text-sm font-bold bg-accent-orange tex-wh-900">
-               {categoryNames[0]}
+         <Link
+            to={`/categories/${
+               postCategories.length > 0 ? postCategories[0].id : ""
+            }`}>
+            <h4 className="px-5 py-2 text-sm font-bold capitalize bg-accent-orange text-white-900">
+               {postCategories.length > 0 ? postCategories[0].name : ""}
             </h4>
          </Link>
+
          {post?.profile_id === userId && (
             <div className="mt-4">
                {isEditable ? (

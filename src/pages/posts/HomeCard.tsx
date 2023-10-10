@@ -127,11 +127,9 @@ export default function HomeCard() {
                   id,
                   image,
                   snippet,
-                  author_verification,
                   title,
                   created_at,
                   profile_id,
-                  category_name,
                   author_image,
                   bookmark_count,
                   likes_count,
@@ -155,9 +153,7 @@ export default function HomeCard() {
                         id={id}
                         image={image}
                         snippet={snippet}
-                        author_verification={author_verification}
                         title={title}
-                        category_name={category_name}
                         author_image={author_image}
                         bookmark_count={bookmark_count}
                         created_at={created_at}

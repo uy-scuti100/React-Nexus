@@ -34,22 +34,22 @@ export interface Hashtag {
    name: string | null;
 }
 
-export interface Posted {
-   created_at: Date;
-   profile_id: string | null;
-   title: string | null;
-   content: string | null;
-   image: string | null;
-   id: string;
-   snippet: string | null;
-   author: string | null;
-   updated_at: Date | null;
-   author_image: string | null;
-   bookmark_count: number | null;
-   likes_count: number | null;
-   comment_count: number | null;
-   category_Ids: string[] | null;
- }
+// export interface Posted {
+//    created_at: Date;
+//    profile_id: string | null;
+//    title: string | null;
+//    content: string | null;
+//    image: string | null;
+//    id: string;
+//    snippet: string | null;
+//    author: string | null;
+//    updated_at: Date | null;
+//    author_image: string | null;
+//    bookmark_count: number | null;
+//    likes_count: number | null;
+//    comment_count: number | null;
+//    category_Ids: string[] | null;
+//  }
  
  export interface Post{
    id: string;
@@ -59,14 +59,12 @@ export interface Posted {
    image: string;
    snippet: string;
    created_at: string;
-   author_verification?: boolean;
    author: string;
    author_image: string;
    bookmark_count: number;
    likes_count: number;
    comment_count: number;
    category_Ids: string[] 
-   category_names: string[]
 }
  
  

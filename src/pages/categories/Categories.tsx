@@ -20,11 +20,11 @@ const CategoryCard = ({
                id,
                image,
                snippet,
-               author_verification,
+               category_Ids,
+
                title,
                created_at,
                profile_id,
-               category_name,
                author_image,
                bookmark_count,
                likes_count,
@@ -38,11 +38,10 @@ const CategoryCard = ({
                   id={id}
                   image={image}
                   snippet={snippet}
-                  author_verification={author_verification}
                   title={title}
-                  category_name={category_name}
                   author_image={author_image}
                   bookmark_count={bookmark_count}
+                  category_Ids={category_Ids}
                   created_at={created_at}
                   likes_count={likes_count}
                   comment_count={comment_count}

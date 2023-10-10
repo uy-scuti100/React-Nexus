@@ -43,6 +43,7 @@ interface PostCardProps {
    likes_count: number;
    comment_count: number;
    profile_id: string;
+   category_Ids: string[];
 }
 
 interface HashtagProp {
@@ -106,7 +107,6 @@ const Account = () => {
    const [followerProfiles, setFollowerProfiles] = useState<Array<User>>([]);
    const [followingProfiles, setFollowingProfiles] = useState<Array<User>>([]);
    const [followerIds, setFollowerIds] = useState<Array<string>>([]);
-   const [isFollowingPending, setIsFollowingPending] = useState(false);
    const [followingIds, setFollowingIds] = useState<Array<string>>([]);
    const navigate = useNavigate();
    const [isFollowedBy, setIsFollowedBy] = useState(false);
@@ -1057,15 +1057,14 @@ const Account = () => {
                            id={post.id}
                            image={post.image}
                            snippet={post.snippet}
-                           author_verification={post.author_verification}
                            title={post.title}
-                           category_name={post.category_name}
                            author_image={post.author_image}
                            bookmark_count={post.bookmark_count}
                            created_at={post.created_at}
                            likes_count={post.likes_count}
                            comment_count={post.comment_count}
                            profile_id={post.profile_id}
+                           category_Ids={post.category_Ids}
                         />
                      </motion.div>
                   ))

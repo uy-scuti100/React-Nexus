@@ -31,10 +31,8 @@ interface PostCardProp {
    id: string;
    image: string;
    snippet: string;
-   author_verification: boolean;
    title: string;
    created_at: string;
-   category_name: string;
    author_image: string;
    bookmark_count: number;
    likes_count: number;
@@ -52,8 +50,8 @@ const PostCard = ({
    created_at,
    author_image,
    bookmark_count,
-   profile_id,
    likes_count,
+   profile_id,
    comment_count,
    category_Ids,
 }: PostCardProp) => {

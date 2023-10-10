@@ -38,6 +38,7 @@ import {
 } from "../../components/ui/avatar";
 import PostSlider from "../../components/myComponents/global/PostSlider";
 import ContentSkeleton from "./ContentSkeleton";
+import { Badge } from "../../components/ui/badge";
 
 dayjs.extend(relativeTime);
 
@@ -168,54 +169,52 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
    const [followingCount, setFollowingCount] = useState(0);
    const currentUserId = currentUser?.id;
    const navigate = useNavigate();
-   const [categoryNames, setCategoryNames] = useState<Array<string>>([]);
-   const initialCategoryIds = post?.category_Ids || []; // Set to an empty array if null or undefined
-   const [category_Ids, setCategory_Ids] =
-      useState<Array<string>>(initialCategoryIds);
+   const [postCategories, setPostCategories] = useState<
+      Array<{ id: string; name: string }>
+   >([]);
+
+   const [category_Ids, setCategory_Ids] = useState<Array<string>>([]);
    // console.log(categoryNames);
 
    const scrollToTop = () => {
       window.scrollTo({ top: 0, behavior: "smooth" });
    };
    useEffect(() => {
-      const fetch = async () => {
-         if (post) {
-            setTitle(post.title);
-            setSnippet(post.snippet);
-            setContent(post.content);
-            setCategoryNames(post.category_names);
+      const fetchData = async () => {
+         try {
+            if (post) {
+               setTitle(post.title);
+               setSnippet(post.snippet);
+               setContent(post.content);
+               setCategory_Ids(post.category_Ids);
+            }
+
+            if (category_Ids && category_Ids.length > 0) {
+               const { data, error } = await supabase
+                  .from("categories")
+                  .select("*")
+                  .in("id", category_Ids);
+
+               if (error) {
+                  console.error(
+                     "Error fetching category names:",
+                     error.message
+                  );
+               } else {
+                  const postCategories = data.map((category) => ({
+                     id: category.id,
+                     name: category.name,
+                  }));
+                  setPostCategories(postCategories);
+               }
+            }
+         } catch (error: any) {
+            console.error("An error occurred:", error.message);
          }
       };
-      fetch();
-   }, [postId]);
 
-   // useEffect(() => {
-   //    const fetchCategories = async () => {
-   //       try {
-   //          if (!category_Ids || category_Ids.length === 0) {
-   //             // If there are no category IDs, don't perform the query
-   //             return;
-   //          }
-
-   //          const { data, error } = await supabase
-   //             .from("categories")
-   //             .select("name")
-   //             .in("id", category_Ids);
-
-   //          if (error) {
-   //             console.error("Error fetching category names:", error.message);
-   //          } else {
-   //             // Extract the category names from the fetched data
-   //             const categoryNames = data.map((category) => category.name);
-   //             setCategoryNames(categoryNames);
-   //          }
-   //       } catch (error: any) {
-   //          console.error("An error occurred:", error.message);
-   //       }
-   //    };
-
-   //    fetchCategories();
-   // }, [post?.id]);
+      fetchData();
+   }, [post, category_Ids, postId]);
 
    const goHome = () => {
       navigate("/");
@@ -643,13 +642,10 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
          {post ? (
             <div className="w-full max-w-full mb-10 prose">
                {/* BREADCRUMBS */}
-
-               <h5 className="pb-5 text-wh-300">{`Home > ${
-                  categoryNames?.[0]
+               <h5 className="pb-5 capitalize text-wh-300">{`Home > ${
+                  postCategories?.[0]?.name
                }> ${post?.title.substring(0, 20)}...`}</h5>
-
                {/* CATEGORY AND EDIT */}
-
                <CategoryAndEdit
                   isEditable={isEditable}
                   handleIsEditable={handleIsEditable}
@@ -670,12 +666,10 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
                   tempPostImage={tempPostImage}
                   setTempPostImage={setTempPostImage}
                   post={post}
-                  categoryNames={categoryNames}
                   categoryIds={category_Ids}
+                  postCategories={postCategories}
                />
-
                {/* POST UPDATE  */}
-
                <form onSubmit={handleSubmit}>
                   {/* HEADER */}
 
@@ -716,7 +710,7 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
                   ) : (
                      <p className="mt-3 mb-6 text-lg">{post?.snippet}</p>
                   )}
-                  <div className="flex justify-between gap-3">
+                  <div className="flex flex-wrap justify-between gap-3">
                      <div className="flex items-center gap-2">
                         <HoverCard>
                            <HoverCardTrigger asChild>
@@ -821,7 +815,6 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
                                        </span>
                                     </div>
                                  </div>
-                                 <div></div>
                               </div>
                            </HoverCardContent>
                         </HoverCard>
@@ -948,6 +941,17 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
                      </div>
                   )}
                </form>
+               <div className="flex flex-wrap items-center gap-4 py-5">
+                  {postCategories.map((catName, key) => (
+                     <Link to={`/categories/${catName.id}`}>
+                        <Badge
+                           key={key}
+                           className="flex items-center px-3 py-2 border rounded-lg">
+                           # {catName.name}
+                        </Badge>
+                     </Link>
+                  ))}
+               </div>
                <div className="flex items-center justify-between w-full px-4 py-5 border-y md:gap-20 md:justify-normal ">
                   <div className="flex items-center gap-1">
                      <button onClick={user ? toggleBookmark : goHome}>
@@ -1012,14 +1016,12 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
                      <p>{likeCount > 0 ? <p>{likeCount}</p> : ""}</p>
                   </div>
                </div>
-
                <div>
                   <PostSlider
                      prop={{ id: postId, userId: profile_id, name: name }}
                   />
                </div>
                {/* COMMENT LOGIC */}
-
                <div className="w-full py-4 mt-4">
                   <form
                      className="flex flex-col items-center w-full gap-3"
@@ -1073,7 +1075,6 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
                      </div>
                   </form>
                </div>
-
                <div className="pt-4 border-t">
                   {/* Pass the comments array to the CommentList component */}
                   {comments && comments.length > 0 && (
@@ -1087,7 +1088,6 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
                   />
                </div>
                {/* SOCIAL LINKS */}
-
                <div className="hidden w-1/3 mt-10 md:block">
                   {theme === "dark" ? (
                      <SocialLinks />
