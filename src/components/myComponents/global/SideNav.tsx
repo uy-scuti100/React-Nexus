@@ -13,6 +13,9 @@ export default function SideNav({
 }) {
    const { user } = useFetchUser();
    const userId = user?.id;
+   const scrollToTop = () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+   };
 
    const logOff = async () => {
       try {
@@ -33,7 +36,12 @@ export default function SideNav({
          className={` ${className} transition-all rounded duration-500 ease z-30 md:w-[300px] overflow-x-hidden w-[200px] bg-background overflow-y-auto fixed top-[85px] shadow-lg`}>
          <div className="p-4">
             <ul className="flex flex-col gap-8">
-               <Link to={user ? "/write" : "/"} onClick={toggleSideNav}>
+               <Link
+                  to={user ? "/write" : "/"}
+                  onClick={() => {
+                     toggleSideNav();
+                     scrollToTop();
+                  }}>
                   <li className="flex items-center gap-4 cursor-pointer hover:opacity-75">
                      <svg
                         width="24"
@@ -53,7 +61,10 @@ export default function SideNav({
                </Link>
                <Link
                   to={user ? `/account/${userId}` : "/"}
-                  onClick={toggleSideNav}>
+                  onClick={() => {
+                     toggleSideNav();
+                     scrollToTop();
+                  }}>
                   <li className="flex items-center gap-4 cursor-pointer hover:opacity-75">
                      {" "}
                      <svg

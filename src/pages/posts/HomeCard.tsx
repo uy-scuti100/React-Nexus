@@ -18,6 +18,7 @@ interface PostCardProp {
    bookmark_count: number;
    likes_count: number;
    comment_count: number;
+   category_Ids: string[];
    profile_id: string;
 }
 export default function HomeCard() {
@@ -135,6 +136,7 @@ export default function HomeCard() {
                   bookmark_count,
                   likes_count,
                   comment_count,
+                  category_Ids,
                } = post;
 
                return (
@@ -162,6 +164,7 @@ export default function HomeCard() {
                         likes_count={likes_count}
                         comment_count={comment_count}
                         profile_id={profile_id}
+                        category_Ids={category_Ids}
                      />
                   </motion.div>
                );
@@ -194,6 +197,7 @@ export default function HomeCard() {
                      </button>
                   </div>
                )}
+            {totalPosts === 0 && <div className="pb-10">No Posts to fetch</div>}
          </div>
       </>
    );

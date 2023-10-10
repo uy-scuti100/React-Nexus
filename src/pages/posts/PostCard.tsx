@@ -22,6 +22,9 @@ dayjs.extend(relativeTime);
 const dateFormatter = new Intl.DateTimeFormat(undefined, {
    dateStyle: "medium",
 });
+const scrollToTop = () => {
+   window.scrollTo({ top: 0, behavior: "smooth" });
+};
 
 interface PostCardProp {
    author: string;
@@ -37,6 +40,7 @@ interface PostCardProp {
    likes_count: number;
    comment_count: number;
    profile_id: string;
+   category_Ids: string[];
 }
 
 const PostCard = ({
@@ -46,12 +50,12 @@ const PostCard = ({
    snippet,
    title,
    created_at,
-   category_name,
    author_image,
    bookmark_count,
    profile_id,
    likes_count,
    comment_count,
+   category_Ids,
 }: PostCardProp) => {
    const { theme } = useTheme();
    const [isAuthorized, setIsAuthorized] = useState<boolean | undefined>(
@@ -74,7 +78,34 @@ const PostCard = ({
    const [followingCount, setFollowingCount] = useState(0);
    const currentUserId = currentUser?.id;
    const navigate = useNavigate();
+   const [categoryNames, setCategoryNames] = useState<Array<string>>([]);
 
+   useEffect(() => {
+      const fetchCategories = async () => {
+         try {
+            if (!category_Ids || category_Ids.length === 0) {
+               return;
+            }
+
+            const { data, error } = await supabase
+               .from("categories")
+               .select("name")
+               .in("id", category_Ids);
+
+            if (error) {
+               console.error("Error fetching category names:", error.message);
+            } else {
+               // Extract the category names from the fetched data
+               const categoryNames = data.map((category) => category.name);
+               setCategoryNames(categoryNames);
+            }
+         } catch (error: any) {
+            console.error("An error occurred:", error.message);
+         }
+      };
+
+      fetchCategories();
+   }, [category_Ids]);
    // check following
    useEffect(() => {
       async function checkFollowing() {
@@ -286,7 +317,7 @@ const PostCard = ({
 
    return (
       <div key={id} className="mb-10">
-         <Link to={`/post/${id}`}>
+         <Link to={`/post/${id}`} onClick={scrollToTop}>
             <div className="relative w-full h-56 mb-6 md:h-96">
                {image ? (
                   <img
@@ -305,12 +336,12 @@ const PostCard = ({
                   <div className="relative w-full h-56 mb-6 duration-300 bg-gray-300 md:h-96 animate-pulse" />
                )}
                <Badge variant="secondary" className="absolute top-2 right-2">
-                  {category_name}
+                  {categoryNames[0]}
                </Badge>
             </div>
          </Link>
          <div className="w-full px-6 border-b border-black/10 dark:border-white/10" />
-         <Link to={`/post/${id}`}>
+         <Link to={`/post/${id}`} onClick={scrollToTop}>
             <div className="py-4 text-2xl font-bold capitalize">{title}</div>
          </Link>
          <div className="w-full px-6 border-b border-black/10 dark:border-white/10" />
@@ -319,13 +350,14 @@ const PostCard = ({
                <HoverCardTrigger asChild>
                   <Link
                      to={`/account/${profile_id}`}
-                     className="flex items-center gap-3 capitalize">
+                     className="flex items-center gap-3 capitalize"
+                     onClick={scrollToTop}>
                      <img
                         src={author_image}
                         width={50}
                         height={50}
                         alt="user-profile-img"
-                        className="border border-accent w-[50px] h-[50px] rounded-full cursor-pointer"
+                        className="border border-accent w-[50px] h-[50px] rounded-full cursor-pointer object-cover"
                      />
                      <div className="flex items-center gap-2">
                         <p>{author} </p>
@@ -336,10 +368,13 @@ const PostCard = ({
                   </Link>
                </HoverCardTrigger>
                <HoverCardContent className="w-[380px]">
-                  <div className="flex justify-between space-x-4">
-                     <Link to={`/account/${profile_id}`}>
+                  <div className="flex space-x-4">
+                     <Link to={`/account/${profile_id}`} onClick={scrollToTop}>
                         <Avatar>
-                           <AvatarImage src={author_image} />
+                           <AvatarImage
+                              src={author_image}
+                              className="object-cover"
+                           />
                            <AvatarFallback className="uppercase">
                               {author.substring(0, 2)}
                            </AvatarFallback>
@@ -347,19 +382,23 @@ const PostCard = ({
                      </Link>
                      <div className="space-y-1">
                         <div className="flex justify-between gap-5">
-                           <Link to={`/account/${profile_id}`}>
+                           <Link
+                              to={`/account/${profile_id}`}
+                              onClick={scrollToTop}>
                               <h4 className="font-semibold">{author}</h4>
                            </Link>
                            {profile_id !== userId && (
                               <button
                                  onClick={handleFollow}
                                  type="submit"
-                                 className="px-4 py-1 font-semibold bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black">
+                                 className="justify-end px-4 py-1 font-semibold bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black">
                                  {isFollowing ? "Unfollow" : "Follow"}
                               </button>
                            )}
                         </div>
-                        <Link to={`/account/${profile_id}`}>
+                        <Link
+                           to={`/account/${profile_id}`}
+                           onClick={scrollToTop}>
                            <h4 className="text-xs opacity-90">{username}</h4>
                         </Link>
                         <p className="pt-2 text-sm">{bio}</p>

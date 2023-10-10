@@ -127,7 +127,7 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
    const [isEditing, setIsEditing] = useState(false);
    const [isEditable, setIsEditable] = useState<boolean>(false);
    const [commentText, setCommentText] = useState("");
-   const [title, setTitle] = useState<string>(post?.title);
+   const [title, setTitle] = useState<string>("");
    const [postImage, setPostImage] = useState<string | File | null>(
       post?.image
    );
@@ -168,6 +168,54 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
    const [followingCount, setFollowingCount] = useState(0);
    const currentUserId = currentUser?.id;
    const navigate = useNavigate();
+   const [categoryNames, setCategoryNames] = useState<Array<string>>([]);
+   const initialCategoryIds = post?.category_Ids || []; // Set to an empty array if null or undefined
+   const [category_Ids, setCategory_Ids] =
+      useState<Array<string>>(initialCategoryIds);
+   // console.log(categoryNames);
+
+   const scrollToTop = () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+   };
+   useEffect(() => {
+      const fetch = async () => {
+         if (post) {
+            setTitle(post.title);
+            setSnippet(post.snippet);
+            setContent(post.content);
+            setCategoryNames(post.category_names);
+         }
+      };
+      fetch();
+   }, [postId]);
+
+   // useEffect(() => {
+   //    const fetchCategories = async () => {
+   //       try {
+   //          if (!category_Ids || category_Ids.length === 0) {
+   //             // If there are no category IDs, don't perform the query
+   //             return;
+   //          }
+
+   //          const { data, error } = await supabase
+   //             .from("categories")
+   //             .select("name")
+   //             .in("id", category_Ids);
+
+   //          if (error) {
+   //             console.error("Error fetching category names:", error.message);
+   //          } else {
+   //             // Extract the category names from the fetched data
+   //             const categoryNames = data.map((category) => category.name);
+   //             setCategoryNames(categoryNames);
+   //          }
+   //       } catch (error: any) {
+   //          console.error("An error occurred:", error.message);
+   //       }
+   //    };
+
+   //    fetchCategories();
+   // }, [post?.id]);
 
    const goHome = () => {
       navigate("/");
@@ -301,10 +349,6 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
       setSnippet(e.target.value);
    };
 
-   // const handleOnChangeContent = (content: string) => {
-   //    if (content.trim() !== "<p><br></p>") setContentError("");
-   //    setContent(con);
-   // };
    const handleOnChangePostImage = (e: React.ChangeEvent<HTMLInputElement>) => {
       const selectedFile = e.target.files?.[0]; // Safely access the selected file
 
@@ -601,8 +645,8 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
                {/* BREADCRUMBS */}
 
                <h5 className="pb-5 text-wh-300">{`Home > ${
-                  post?.category_name
-               } > ${post?.title.substring(0, 20)}...`}</h5>
+                  categoryNames?.[0]
+               }> ${post?.title.substring(0, 20)}...`}</h5>
 
                {/* CATEGORY AND EDIT */}
 
@@ -626,6 +670,8 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
                   tempPostImage={tempPostImage}
                   setTempPostImage={setTempPostImage}
                   post={post}
+                  categoryNames={categoryNames}
+                  categoryIds={category_Ids}
                />
 
                {/* POST UPDATE  */}
@@ -668,13 +714,15 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
                         )}
                      </div>
                   ) : (
-                     <p className="mt-3 mb-6 text-lg">{snippet}</p>
+                     <p className="mt-3 mb-6 text-lg">{post?.snippet}</p>
                   )}
                   <div className="flex justify-between gap-3">
                      <div className="flex items-center gap-2">
                         <HoverCard>
                            <HoverCardTrigger asChild>
-                              <Link to={`/account/${profile_id}`}>
+                              <Link
+                                 to={`/account/${profile_id}`}
+                                 onClick={scrollToTop}>
                                  <h5 className="text-lg font-semibold ">
                                     <span className="font-medium opacity-70">
                                        {" "}
@@ -685,10 +733,15 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
                               </Link>
                            </HoverCardTrigger>
                            <HoverCardContent className="w-[380px]">
-                              <div className="flex justify-between space-x-4">
-                                 <Link to={`/account/${profile_id}`}>
+                              <div className="flex space-x-4">
+                                 <Link
+                                    to={`/account/${profile_id}`}
+                                    onClick={scrollToTop}>
                                     <Avatar>
-                                       <AvatarImage src={post.author_image} />
+                                       <AvatarImage
+                                          src={post.author_image}
+                                          className="object-cover"
+                                       />
                                        <AvatarFallback className="uppercase">
                                           {post.author.substring(0, 2)}
                                        </AvatarFallback>
@@ -701,14 +754,20 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
                                              {post.author}
                                           </h4>
                                        </Link>
-                                       <button
-                                          onClick={handleFollow}
-                                          type="submit"
-                                          className="px-4 py-1 font-semibold bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black">
-                                          {isFollowing ? "Unfollow" : "Follow"}
-                                       </button>
+                                       {currentUserId !== profile_id && (
+                                          <button
+                                             onClick={handleFollow}
+                                             type="submit"
+                                             className="px-4 py-1 font-semibold bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black">
+                                             {isFollowing
+                                                ? "Unfollow"
+                                                : "Follow"}
+                                          </button>
+                                       )}
                                     </div>
-                                    <Link to={`/account/${profile_id}`}>
+                                    <Link
+                                       to={`/account/${profile_id}`}
+                                       onClick={scrollToTop}>
                                        <h4 className="text-xs opacity-90">
                                           {username}
                                        </h4>
@@ -854,7 +913,7 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
                            theme="snow"
                            // style={{ height: 300 }}
                            className="h-[80vh]"
-                           value={content} // or defaultValue={content}
+                           value={post?.content} // or defaultValue={content}
                            onChange={(value) => setContent(value)}
                            placeholder="write your note"
                         />
@@ -968,18 +1027,20 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
                      <div className="flex items-center justify-between w-full gap-3">
                         <div className=" w-[60px]">
                            {user && userId ? (
-                              <Link to={`/account/${userId}`}>
+                              <Link
+                                 to={`/account/${userId}`}
+                                 onClick={scrollToTop}>
                                  <img
-                                    src={userImg || "/png.png"} // Provide a default value if userImg is falsy
+                                    src={userImg || "/png.png"}
                                     width={48}
                                     height={48}
                                     alt="user-profile-img"
-                                    className="rounded-full border border-accent-orange w-[48px] h-[48px] cursor-pointer"
+                                    className="rounded-full border border-accent-orange w-[48px] h-[48px] cursor-pointer object-cover"
                                  />
                               </Link>
                            ) : (
                               <img
-                                 src={"/png.png"} // Provide a default value if userImg is falsy
+                                 src={"/png.png"}
                                  width={48}
                                  height={48}
                                  alt="user-profile-img"

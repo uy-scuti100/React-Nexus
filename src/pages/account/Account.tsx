@@ -18,6 +18,8 @@ import {
    Verified,
    GraduationCap,
    X,
+   MoreVertical,
+   Trash2,
 } from "lucide-react";
 import { fetchSingleProfile } from "../../lib/fetchSingleProfile";
 import { User } from "../../../types";
@@ -26,6 +28,7 @@ import PostCard from "../posts/PostCard";
 import { motion } from "framer-motion";
 import { Settings } from "./Settings";
 import PostCardSkeleton from "../../components/myComponents/skeletons/PostCardSkeleton";
+import { Badge } from "../../components/ui/badge";
 interface PostCardProps {
    author: string;
    id: string;
@@ -106,7 +109,8 @@ const Account = () => {
    const [isFollowingPending, setIsFollowingPending] = useState(false);
    const [followingIds, setFollowingIds] = useState<Array<string>>([]);
    const navigate = useNavigate();
-   const [isFetchingFollowers, setIsFetchingFollowers] = useState(false);
+   const [isFollowedBy, setIsFollowedBy] = useState(false);
+   const [criticalInfo, setCriticalInfo] = useState(false);
 
    useEffect(() => {
       // Function to fetch the total count of user's posts based on paramsId
@@ -183,8 +187,23 @@ const Account = () => {
          }
       }
 
+      async function checkFollowedBy() {
+         const { data, error } = await supabase
+            .from("follow")
+            .select()
+            .eq("follower_id", paramsId)
+            .eq("following_id", currentUserId);
+
+         if (data && data.length > 0) {
+            setIsFollowedBy(true);
+         } else {
+            setIsFollowedBy(false);
+         }
+      }
+
       if (currentUserId && paramsId) {
          checkFollowing();
+         checkFollowedBy();
       }
    }, [currentUserId, paramsId]);
 
@@ -545,26 +564,59 @@ const Account = () => {
             </div>
             {username ? (
                username && !username.startsWith("@") ? (
-                  <p className="pb-3 opacity-75"> @{username}</p>
+                  <div className="flex items-center gap-2 pt-2 pb-3">
+                     <p className="opacity-75 "> @{username}</p>
+                     {isFollowedBy && (
+                        <p>
+                           <Badge>Follows you</Badge>
+                        </p>
+                     )}
+                  </div>
                ) : (
-                  <p className="pb-3 opacity-75"> {username}</p>
+                  <div className="flex items-center gap-2 pt-2 pb-3">
+                     <p className="opacity-75 "> {username}</p>
+                     {isFollowedBy && (
+                        <p>
+                           <Badge>Follows you</Badge>
+                        </p>
+                     )}
+                  </div>
                )
             ) : (
                <div className="w-3/4 h-6 mb-3 duration-300 animate-pulse bg-wh-300"></div>
             )}
 
-            <div className="flex gap-3 py-2">
-               <p
-                  className="font-bold cursor-pointer"
-                  onClick={() => setShowFollowersModal(true)}>
-                  {followersCount} <span className="opacity-50">Followers</span>{" "}
-               </p>
-               <p
-                  className="font-bold"
-                  onClick={() => setShowFollowingModal(true)}>
-                  {followingCount}{" "}
-                  <span className="opacity-50 cursor-pointer">Following</span>{" "}
-               </p>
+            <div className="flex justify-between gap-3 py-2">
+               <div className="flex items-center gap-3">
+                  <p
+                     className="font-bold cursor-pointer"
+                     onClick={() => setShowFollowersModal(true)}>
+                     {followersCount}{" "}
+                     <span className="opacity-50">Followers</span>{" "}
+                  </p>
+                  <p
+                     className="font-bold"
+                     onClick={() => setShowFollowingModal(true)}>
+                     {followingCount}{" "}
+                     <span className="opacity-50 cursor-pointer">
+                        Following
+                     </span>{" "}
+                  </p>
+               </div>
+               <div
+                  className="relative"
+                  onClick={() => setCriticalInfo((prev) => !prev)}>
+                  <MoreVertical className="w-6 h-6 opacity-75 cursor-pointer hover:opacity-100" />
+                  {/* {currentUserId === paramsId} */}
+                  {criticalInfo && currentUserId === paramsId && (
+                     <Button
+                        variant="outline"
+                        className="z-10 rounded absolute right-0 flex items-center p-4 w-max -top-[70px] bg-black text-white dark:bg-white dark:text-black">
+                        Delete your account
+                        <Trash2 className="w-6 h-6 ml-3 text-red-600" />
+                     </Button>
+                  )}
+               </div>
                {/* followers */}
                {showFollowersModal && (
                   <div className="fixed inset-0 z-50 h-screen backdrop-blur">

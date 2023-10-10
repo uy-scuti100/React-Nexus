@@ -7,7 +7,7 @@ import { Navigation } from "swiper/modules";
 import { useEffect, useState } from "react";
 import supabase from "../../../lib/supabaseClient";
 import { Badge } from "../../ui/badge";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 interface PostCardProp {
    author: string;
@@ -52,6 +52,12 @@ const PostSlider = ({ prop }: { prop: Prop }) => {
    if (!posts) {
       return null; // or return a placeholder or an error message
    }
+   const navigate = useNavigate();
+   const navigateAndRefresh = (id: string) => {
+      // Navigate to the new page
+      navigate(`/post/${id}`);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+   };
 
    const filteredPosts = posts.filter((post) => post.id !== prop.id);
 
@@ -96,7 +102,9 @@ const PostSlider = ({ prop }: { prop: Prop }) => {
                   <SwiperSlide
                      key={id}
                      className="flex items-center flex-col justify-center h-[300px]">
-                     <Link to={`/post/${id}`}>
+                     <div
+                        onClick={() => navigateAndRefresh(id)}
+                        className="cursor-pointer">
                         <div className="relative">
                            <img
                               src={image}
@@ -107,7 +115,7 @@ const PostSlider = ({ prop }: { prop: Prop }) => {
                               {title.substring(0, 23)}...
                            </Badge>
                         </div>
-                     </Link>
+                     </div>
                   </SwiperSlide>
                );
             })}

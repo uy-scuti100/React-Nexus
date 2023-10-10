@@ -1,10 +1,10 @@
+import { useParams } from "react-router-dom";
 import Navbar from "../../components/myComponents/global/Navbar";
 import { useFetchSinglePost } from "../../hooks/useFetchSinglePost";
 import Content from "./Content";
 
 const Post = () => {
-   const pathname = window.location.pathname;
-   const id = pathname.split("/")[2];
+   const { id } = useParams();
    const { post, isError, isLoading } = useFetchSinglePost(id as string);
 
    return (

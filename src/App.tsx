@@ -9,6 +9,7 @@ import Write from "./pages/write/Page";
 import Category from "./pages/categories/Page";
 import Hashtag from "./pages/hashtags/Page";
 import Settings from "./pages/settings/Page";
+import Chat from "./pages/chat/Page";
 
 const Layout = () => {
    return (
@@ -58,6 +59,10 @@ const router = createBrowserRouter([
          {
             path: "/settings",
             element: <Settings />,
+         },
+         {
+            path: "/chat",
+            element: <Chat />,
          },
       ],
    },

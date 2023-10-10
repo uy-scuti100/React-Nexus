@@ -324,7 +324,7 @@ const Navbar = () => {
             )}
             {user && (
                <div className="flex items-center gap-7">
-                  <Link to="/posts">
+                  <Link to="/chat">
                      <Mail />
                   </Link>
                   {user && (

@@ -8,7 +8,7 @@ import "react-quill/dist/quill.core.css";
 import "react-quill/dist/quill.snow.css";
 import "highlight.js/styles/atom-one-dark.css";
 import hljs from "highlight.js";
-import { Camera, ChevronLeft } from "lucide-react";
+import { ChevronLeft, Image, X } from "lucide-react";
 import "react-quill/dist/quill.core.css";
 import "react-quill/dist/quill.snow.css";
 import "highlight.js/styles/atom-one-dark.css";
@@ -23,24 +23,86 @@ import {
    FormLabel,
    FormMessage,
 } from "../../components/ui/form";
-import { Input } from "../../components/ui/input";
-import {
-   Select,
-   SelectContent,
-   SelectItem,
-   SelectTrigger,
-   SelectValue,
-} from "../../components/ui/select";
-import { Textarea } from "../../components/ui/textarea";
 import { useNavigate } from "react-router-dom";
 import "./highlight.css";
+import debounce from "lodash.debounce";
+import { Badge } from "../../components/ui/badge";
+
+hljs.configure({
+   // optionally configure hljs
+   languages: [
+      "javascript",
+      "python",
+      "c",
+      "c++",
+      "java",
+      "HTML",
+      "css",
+      "matlab",
+      "typescript",
+   ],
+});
+
+const modules = {
+   toolbar: [
+      [
+         { header: "1" },
+         { header: "2" },
+         { font: [] },
+         { list: "ordered" },
+         { list: "bullet" },
+         { indent: "-1" },
+         { indent: "+1" },
+         "code-block",
+         "clean",
+         "blockquote",
+         "strike",
+         "align",
+         "underline",
+         "italic",
+         "bold",
+         "color",
+         "link",
+         "image",
+         "video",
+         "background",
+      ],
+   ],
+};
+
+const formats = [
+   "header",
+   "font",
+   "size",
+   "bold",
+   "italic",
+   "underline",
+   "align",
+   "strike",
+   "script",
+   "blockquote",
+   "background",
+   "list",
+   "bullet",
+   "indent",
+   "link",
+   "image",
+   "color",
+   "code-block",
+   "video",
+];
 
 interface Category {
    id: string;
    created_at: Date;
    name: string;
 }
-const titleMaxLength = 60;
+
+interface SuggestionProp {
+   id: string;
+   name: string;
+}
+const titleMaxLength = 80;
 const snippetMaxLength = 200;
 const contentMinLength = 1;
 
@@ -50,82 +112,29 @@ const formSchema = z.object({
    snippet: z.string().min(contentMinLength).max(snippetMaxLength),
    content: z.string().min(contentMinLength),
    image: z.string(),
-   category_id: z.string(),
 });
 
+// category_id:(z.string()), //
 const PostForm = () => {
    const postImageUrl = import.meta.env.VITE_REACT_SUPABASE_IMAGE_URL;
    const [loading, setLoading] = useState(false);
+   const [drafting, setDrafing] = useState(false);
    const [cats, setCats] = useState<Category[] | null>([]);
    const [postImage, setPostImage] = useState<string | File | null>(null);
    const imageInputRef = useRef<HTMLInputElement | null>(null);
+   const [categoryInput, setCategoryInput] = useState("");
+   const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
+   const [imageSelected, setImageSelected] = useState(false);
+   const [categorySuggestions, setCategorySuggestions] = useState<
+      Array<SuggestionProp>
+   >([]);
+   const [selectedCategories, setSelectedCategories] = useState<
+      Array<SuggestionProp>
+   >([]);
    const { user } = useFetchUser();
    const userId = user?.id;
    const navigate = useNavigate();
 
-   hljs.configure({
-      // optionally configure hljs
-      languages: [
-         "javascript",
-         "python",
-         "c",
-         "c++",
-         "java",
-         "HTML",
-         "css",
-         "matlab",
-         "typescript",
-      ],
-   });
-
-   const modules = {
-      toolbar: [
-         [
-            { header: "1" },
-            { header: "2" },
-            { font: [] },
-            { list: "ordered" },
-            { list: "bullet" },
-            { indent: "-1" },
-            { indent: "+1" },
-            "code-block",
-            "clean",
-            "blockquote",
-            "strike",
-            "align",
-            "underline",
-            "italic",
-            "bold",
-            "color",
-            "link",
-            "image",
-            "video",
-            "background",
-         ],
-      ],
-   };
-
-   const formats = [
-      "header",
-      "font",
-      "size",
-      "bold",
-      "italic",
-      "underline",
-      "align",
-      "strike",
-      "script",
-      "blockquote",
-      "background",
-      "list",
-      "bullet",
-      "indent",
-      "link",
-      "image",
-      "color",
-      "code-block",
-      "video",
-   ];
    const form = useForm<NoteFormValues>({
       resolver: zodResolver(formSchema),
    });
@@ -135,6 +144,7 @@ const PostForm = () => {
 
       if (imageFile) {
          setPostImage(imageFile);
+         setImageSelected(true);
       }
    };
 
@@ -152,18 +162,26 @@ const PostForm = () => {
       fetchCategories();
    }, []);
 
+   const scrollToTop = () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+   };
+
    const handleCreatePost = async (data: NoteFormValues) => {
+      if (selectedCategoryIds.length === 0) {
+         // If no categories are selected, show an error message or take appropriate action
+         toast.error("Please enter at least one category before submitting.");
+         return; // Exit the function without submitting the form
+      }
       let imageUrl = "";
       try {
          setLoading(true);
 
          if (postImage instanceof File) {
-            // Generate a random 10-digit number
+            // Generate a random 10-digit number to stop the error of supabase saying image already exists, incase youre using the same image for different posts
             const randomSuffix = Math.floor(
                1000000000 + Math.random() * 9000000000
             ).toString();
 
-            // Append the random number to the image name
             const imageName = `${randomSuffix}-${postImage.name}`;
 
             const { data: imageUploadResponse, error: imageUploadError } =
@@ -192,27 +210,101 @@ const PostForm = () => {
                {
                   title: data.title,
                   profile_id: userId,
-                  category_id: data.category_id,
                   snippet: data.snippet,
                   content: data.content,
                   image: `${postImageUrl}${imageUrl}`,
+                  category_Ids: selectedCategoryIds,
                },
             ])
             .select();
 
          if (post) {
+            // Insert records into post_categories for each category ID
+
             navigate("/posts");
-            toast.success("Post Created");
-            // console.log("Post:", post);
+            scrollToTop();
+
+            toast.success("Article Published");
          } else {
             toast.error("Failed to create Post");
-            // console.log(error.message);
          }
       } catch (error: any) {
          console.error("An error occurred:", error.message);
       } finally {
          setLoading(false);
       }
+   };
+
+   const debouncedHandleCategoryInputChange = debounce(async (inputValue) => {
+      // Fetch category suggestions from Supabase
+      if (inputValue) {
+         const { data: categories, error } = await supabase
+            .from("categories")
+            .select("id, name")
+            .ilike("name", `%${inputValue}%`)
+            .limit(5); // Limit the number of suggestions
+
+         if (error) {
+            console.error(
+               "Error fetching category suggestions:",
+               error.message
+            );
+         } else {
+            setCategorySuggestions(categories);
+         }
+      } else {
+         setCategorySuggestions([]);
+      }
+   }, 1000);
+
+   // Function to handle category input changes and fetch suggestions
+   const handleCategoryInputChange = async (
+      e: React.ChangeEvent<HTMLInputElement>
+   ) => {
+      const inputValue = e.target.value;
+      setCategoryInput(inputValue);
+
+      // Clear category suggestions when the input is empty
+      if (!inputValue) {
+         setCategorySuggestions([]);
+         return; // Exit early to prevent further processing
+      }
+
+      // Call the debounced function with the current input value
+      debouncedHandleCategoryInputChange(inputValue);
+   };
+
+   const handleCategorySelection = (selectedCategory: SuggestionProp) => {
+      // Clear category suggestions when a category is selected
+      clearCategorySuggestions();
+
+      // Check if the category is already selected
+      if (
+         !selectedCategories.find(
+            (category) => category.id === selectedCategory.id
+         )
+      ) {
+         // Add the selected category to the array
+         setSelectedCategories([...selectedCategories, selectedCategory]);
+         setSelectedCategoryIds([...selectedCategoryIds, selectedCategory.id]);
+      }
+      // Clear the input field
+      setCategoryInput("");
+   };
+
+   const handleRemoveCategory = (index: number) => {
+      // Create a copy of the selectedCategories array without the removed category
+      const updatedCategories = [...selectedCategories];
+      updatedCategories.splice(index, 1); // Remove the category at the specified index
+      setSelectedCategories(updatedCategories); // Update the state
+
+      const updatedCategoriesIds = [...selectedCategoryIds];
+      updatedCategoriesIds.splice(index, 1);
+      setSelectedCategoryIds(updatedCategoriesIds);
+   };
+   // Function to clear category suggestions
+   const clearCategorySuggestions = () => {
+      setCategorySuggestions([]);
    };
 
    return (
@@ -232,116 +324,158 @@ const PostForm = () => {
                   onSubmit={form.handleSubmit(handleCreatePost)}
                   className="w-full pb-20 space-y-8">
                   <div className="grid gap-8">
+                     {/* Article Image */}
                      <FormField
                         control={form.control}
                         name="image"
                         render={({ field }) => (
-                           <FormItem>
-                              <FormLabel> Select a cover Image</FormLabel>
-                              <FormControl>
-                                 <div>
-                                    <label
-                                       htmlFor="postImg"
-                                       className="flex items-center justify-center cursor-pointer">
-                                       <Camera className="w-10 h-10 mb-10" />
-                                    </label>
-                                    <input
-                                       id="postImg"
-                                       name="image"
-                                       type="file"
-                                       accept="image/*"
-                                       onChange={(e) => {
-                                          uploadPostImage(e);
-                                          field.onChange(e.target.value);
-                                       }}
-                                       value={field.value || ""}
-                                       disabled={loading}
-                                       ref={imageInputRef}
-                                       style={{ display: "none" }}
-                                    />
-                                    {postImage instanceof File && (
-                                       <img
-                                          src={URL.createObjectURL(postImage)}
-                                          alt="Preview"
-                                          width={400}
-                                          height={400}
-                                          className="h-[400px] w-full object-cover"
+                           <div className="flex items-center justify-center">
+                              <FormItem className="w-full border md:w-1/2 ">
+                                 <FormControl>
+                                    <div>
+                                       <label
+                                          htmlFor="postImg"
+                                          className="flex flex-col px-3 md:h-[200px]h-[200px] pt-2  items-center justify-center cursor-pointer">
+                                          <Image className="w-10 h-10 mb-10" />
+
+                                          {postImage instanceof File ? (
+                                             <span className="mb-5 text-xs text-center">
+                                                Click the image Icon above to
+                                                change article image
+                                             </span>
+                                          ) : (
+                                             <span className="mb-5 text-xs text-center">
+                                                Select a captivating cover image
+                                                for your article. This image
+                                                will be the visual centerpiece
+                                                of your article, grabbing
+                                                readers' attention and setting
+                                                the tone for your content.
+                                             </span>
+                                          )}
+                                       </label>
+                                       <input
+                                          id="postImg"
+                                          name="image"
+                                          type="file"
+                                          accept="image/*"
+                                          onChange={(e) => {
+                                             uploadPostImage(e);
+                                             field.onChange(e.target.value);
+                                          }}
+                                          value={field.value || ""}
+                                          disabled={loading}
+                                          ref={imageInputRef}
+                                          style={{ display: "none" }}
                                        />
-                                    )}
-                                 </div>
-                              </FormControl>
-                           </FormItem>
+                                       {postImage instanceof File && (
+                                          <img
+                                             src={URL.createObjectURL(
+                                                postImage
+                                             )}
+                                             alt="Preview"
+                                             width={400}
+                                             height={400}
+                                             className="md:h-[300px] w-full object-contain md:pb-2"
+                                          />
+                                       )}
+                                    </div>
+                                 </FormControl>
+                              </FormItem>
+                           </div>
                         )}
                      />
+                     {/* article Title */}
                      <FormField
                         control={form.control}
                         name="title"
                         render={({ field }) => (
-                           <FormItem>
+                           <FormItem className="flex flex-col gap-4">
                               <FormLabel>Title</FormLabel>
                               <FormControl>
-                                 <Input
+                                 <input
                                     disabled={loading}
                                     placeholder="Title"
                                     {...field}
+                                    className="h-10 bg-transparent border-b outline-none placeholder:text-xs placeholder:opacity-75"
                                  />
                               </FormControl>
-                              <FormMessage />
-                           </FormItem>
-                        )}
-                     />
-                     <FormField
-                        control={form.control}
-                        name="category_id"
-                        render={({ field }) => (
-                           <FormItem>
-                              <FormLabel>Topic</FormLabel>
-                              <Select
-                                 disabled={loading}
-                                 onValueChange={field.onChange}
-                                 value={field.value}
-                                 defaultValue={field.value}>
-                                 <FormControl>
-                                    <SelectTrigger>
-                                       <SelectValue
-                                          defaultValue={field.value}
-                                          placeholder="Select a topic"
-                                       />
-                                    </SelectTrigger>
-                                 </FormControl>
-                                 <SelectContent>
-                                    {cats?.map((category) => (
-                                       <SelectItem
-                                          key={category.id}
-                                          value={category.id}>
-                                          {category.name}
-                                       </SelectItem>
-                                    ))}
-                                 </SelectContent>
-                              </Select>
-                              <FormMessage />
-                           </FormItem>
-                        )}
-                     />
+                              <div className="flex items-start gap-2 pb-5 md:items-center opacity-80">
+                                 <p className="text-xs ">
+                                    Choose a compelling title for your article.
+                                    This is what readers will see first and sets
+                                    the stage for your article's content
+                                 </p>
+                              </div>
 
+                              <FormMessage />
+                           </FormItem>
+                        )}
+                     />
                      <FormField
                         control={form.control}
                         name="snippet"
                         render={({ field }) => (
-                           <FormItem>
-                              <FormLabel>Snippet</FormLabel>
+                           <FormItem className="flex flex-col gap-4">
+                              <FormLabel>Article snippet</FormLabel>
                               <FormControl>
-                                 <Textarea
+                                 <textarea
                                     disabled={loading}
-                                    placeholder="Snippet"
+                                    placeholder="enter your article snippet"
                                     {...field}
-                                    className="h-20 resize-none"
+                                    className="h-10 bg-transparent border-b outline-none resize-none placeholder:text-xs placeholder:opacity-75"
                                  />
                               </FormControl>
+                              <div className="pb-5 text-xs opacity-80">
+                                 Please provide a short and captivating snippet
+                                 . This will appear right next to your article's
+                                 title and cover image, giving readers a glimpse
+                                 of what your article is about
+                              </div>
                               <FormMessage />
                            </FormItem>
                         )}
                      />
+                     <FormLabel>Categories</FormLabel>
+                     <div className="flex flex-wrap gap-2">
+                        {selectedCategories.map((selectedCategory, index) => (
+                           <Badge
+                              onClick={clearCategorySuggestions}
+                              key={index}
+                              className="flex items-center px-3 py-2 border rounded-lg">
+                              <span className="mr-2">
+                                 # {selectedCategory.name}
+                              </span>
+                              <button
+                                 onClick={() => handleRemoveCategory(index)}>
+                                 <X className="w-4 h-4 " />
+                              </button>
+                           </Badge>
+                        ))}
+                     </div>
+                     <input
+                        type="text"
+                        placeholder="Enter and select categories that best decsribe your article"
+                        value={categoryInput}
+                        onChange={handleCategoryInputChange}
+                        className="h-10 bg-transparent border-b outline-none placeholder:text-xs placeholder:opacity-75"
+                     />
+                     <ul
+                        className={`${
+                           categorySuggestions.length &&
+                           "border-2 rounded border-accent-red"
+                        }`}>
+                        {categorySuggestions.map((category) => (
+                           <li
+                              className="py-3 mx-2 text-lg border-b cursor-pointer hover:opacity-50 "
+                              key={category.id}
+                              onClick={() => handleCategorySelection(category)}>
+                              # {category.name}
+                           </li>
+                        ))}
+                     </ul>
+
+                     <FormMessage />
 
                      <FormField
                         control={form.control}
@@ -358,7 +492,7 @@ const PostForm = () => {
                                           theme="snow"
                                           style={{ height: 300 }}
                                           {...field}
-                                          placeholder="write your note"
+                                          placeholder="Knock yourself out and write your article... let's see where the Nexus takes us   🖋"
                                        />
                                     </>
                                  </div>
@@ -367,9 +501,22 @@ const PostForm = () => {
                            </FormItem>
                         )}
                      />
-                     <Button disabled={loading} className="mt-20" type="submit">
-                        {loading ? "Posting..." : "Post"}
-                     </Button>
+                     <div className="flex items-center justify-center gap-3 ">
+                        <button
+                           disabled={drafting}
+                           aria-disabled={drafting}
+                           className="w-full px-5 py-2 mt-20 mr-3 font-semibold text-black bg-accent-red hover:bg-wh-500 dark:text-black"
+                           type="submit">
+                           {drafting ? "Saving as draft..." : "Save to draft"}
+                        </button>
+                        <button
+                           aria-disabled={loading}
+                           disabled={loading}
+                           className="w-full px-5 py-2 mt-20 mr-3 font-semibold text-black bg-accent-red hover:bg-wh-500 dark:text-black"
+                           type="submit">
+                           {loading ? "Publishing..." : "Publish"}
+                        </button>
+                     </div>
                   </div>
                </form>
             </Form>

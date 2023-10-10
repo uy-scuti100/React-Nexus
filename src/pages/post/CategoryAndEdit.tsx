@@ -3,12 +3,14 @@ import toast from "react-hot-toast";
 
 import { Button } from "../../components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
-import { Post } from "../../../types";
 import { useFetchUser } from "../../hooks/useFetchUser";
 import supabase from "../../lib/supabaseClient";
 import { useState } from "react";
+import { Post } from "../../../types";
 
 type Props = {
+   categoryNames: string[];
+   categoryIds: string[];
    isEditable: boolean;
    handleIsEditable: (isEditable: boolean) => void;
    title: string;
@@ -50,6 +52,8 @@ const CategoryAndEdit = ({
    setPostImage,
    tempPostImage,
    setTempPostImage,
+   categoryNames,
+   categoryIds,
 }: Props) => {
    const navigate = useNavigate();
    const [showDialog, setShowDialog] = useState(false);
@@ -98,9 +102,9 @@ const CategoryAndEdit = ({
 
    return (
       <div className="flex items-center justify-between">
-         <Link to={`/categories/${post.category_id}`}>
+         <Link to={`/categories/${categoryIds[0]}`}>
             <h4 className="px-5 py-2 text-sm font-bold bg-accent-orange tex-wh-900">
-               {post?.category_name}
+               {categoryNames[0]}
             </h4>
          </Link>
          {post?.profile_id === userId && (
