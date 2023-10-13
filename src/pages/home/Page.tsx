@@ -18,6 +18,23 @@ const Page = () => {
    const [showHashtagForm, setShowHashtagForm] = useState(false);
    const { user, isError } = useUser();
    const userId = user?.id;
+   const dbUsername = user?.email;
+   let username: string | undefined;
+
+   if (dbUsername) {
+      const parts = dbUsername.split("@");
+      if (parts.length === 2) {
+         username = parts[0];
+      } else {
+         // Handle cases where the email doesn't contain exactly one '@'
+         console.error("Invalid email format:", dbUsername);
+         // You might want to set a default or display an error message.
+      }
+   } else {
+      // Handle cases where user.email is undefined or null
+      console.error("No email provided for the user.");
+      // You might want to set a default or display an error message.
+   }
 
    useEffect(() => {
       const confirmUserHashtag = async () => {
@@ -53,26 +70,17 @@ const Page = () => {
                   // Check if display_pic and display_name are null
                   if (
                      userProfileData.display_pic === null ||
-                     userProfileData.display_name === null
+                     userProfileData.display_name === null ||
+                     userProfileData.username === null
                   ) {
-                     // Update display_pic and display_name if they are null
+                     // Update display_pic, and display_name if they are null
                      await supabase
                         .from("profiles")
                         .update([
                            {
                               display_pic: user.avatarUrl,
                               display_name: user.fullName,
-                           },
-                        ])
-                        .eq("id", userId)
-                        .select();
-                  }
-                  if (userProfileData.username === null) {
-                     await supabase
-                        .from("profiles")
-                        .update([
-                           {
-                              username: user.user_name,
+                              username: username,
                            },
                         ])
                         .eq("id", userId)

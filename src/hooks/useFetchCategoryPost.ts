@@ -1,5 +1,5 @@
 import useSWR from "swr";
-import { fetchCategoryPost } from "../lib/fetchCategoryPostUtil";
+import { fetchCategoryPosts } from "../lib/fetchCategoryPostUtil"; // Update the import
 import { Post } from "../../types";
 
 export const useFetchCategoryPost = (
@@ -11,7 +11,7 @@ export const useFetchCategoryPost = (
 } => {
    const { data: posts, error } = useSWR(
       categoryId ? `categoryPosts-${categoryId}` : null,
-      () => fetchCategoryPost(categoryId),
+      () => fetchCategoryPosts(categoryId), // Update the function name here
       {
         revalidateOnMount: true
       }
@@ -23,4 +23,3 @@ export const useFetchCategoryPost = (
       isError: !!error,
    };
 };
-

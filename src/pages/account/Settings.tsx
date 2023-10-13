@@ -409,7 +409,7 @@ export function Settings({
                      <button
                         disabled={loading}
                         onClick={handleUpdateAccount}
-                        className="w-full px-5 py-2 mt-5 font-semibold md:hidden md:w-auto bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black">
+                        className="w-full px-5 py-2 mt-5 font-semibold md:w-auto bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black">
                         {loading ? "Saving changes" : "Save changes"}
                      </button>
                   </CardFooter>
@@ -479,7 +479,7 @@ export function Settings({
                      <button
                         disabled={loading}
                         onClick={handleUpdateAccount}
-                        className="w-full px-5 py-2 mt-5 font-semibold md:hidden md:w-auto bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black">
+                        className="w-full px-5 py-2 mt-5 font-semibold md:w-auto bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black">
                         {loading ? "Saving changes" : "Save changes"}
                      </button>
                   </CardFooter>
@@ -570,7 +570,7 @@ export function Settings({
                      <button
                         disabled={loading}
                         onClick={handleUpdateAccount}
-                        className="w-full px-5 py-2 mt-5 font-semibold md:hidden md:w-auto bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black">
+                        className="w-full px-5 py-2 mt-5 font-semibold md:w-auto bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black">
                         {loading ? "Saving changes" : "Save changes"}
                      </button>
                   </CardFooter>
@@ -629,7 +629,7 @@ export function Settings({
                      <button
                         disabled={loading}
                         onClick={handleUpdateAccount}
-                        className="w-full px-5 py-2 mt-5 font-semibold md:hidden md:w-auto bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black">
+                        className="w-full px-5 py-2 mt-5 font-semibold md:w-auto bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black">
                         {loading ? "Saving changes" : "Save changes"}
                      </button>
                   </CardFooter>

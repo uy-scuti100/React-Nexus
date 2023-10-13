@@ -644,7 +644,7 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
                {/* BREADCRUMBS */}
                <h5 className="pb-5 capitalize text-wh-300">{`Home > ${
                   postCategories?.[0]?.name
-               }> ${post?.title.substring(0, 20)}...`}</h5>
+               }> ${post?.title.substring(0, 20)}`}</h5>
                {/* CATEGORY AND EDIT */}
                <CategoryAndEdit
                   isEditable={isEditable}
@@ -688,7 +688,7 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
                         )}
                      </div>
                   ) : (
-                     <h3 className="mt-3 mb-6 text-3xl font-bold capitalize">
+                     <h3 className="mt-3 mb-6 text-[2rem] md:text-[2.625rem] leading-10 md:leading-relaxed font-bold capitalize">
                         {title}
                      </h3>
                   )}
@@ -820,7 +820,14 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
                         </HoverCard>
 
                         <span>
-                           {isAuthorized && <BadgeCheck className="w-4 h-4" />}
+                           {isAuthorized && (
+                              <img
+                                 src="/GoldCheck-removebg-preview.png"
+                                 alt="checkmark"
+                                 height={24}
+                                 width={24}
+                              />
+                           )}
                         </span>
                      </div>
                      <h6 className=" text-wh-300">
@@ -946,7 +953,7 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
                      <Link to={`/categories/${catName.id}`}>
                         <Badge
                            key={key}
-                           className="flex items-center px-3 py-2 border rounded-lg">
+                           className="flex items-center px-3 py-2 border rounded-lg font-normal">
                            # {catName.name}
                         </Badge>
                      </Link>

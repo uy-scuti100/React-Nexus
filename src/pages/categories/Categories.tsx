@@ -21,7 +21,6 @@ const CategoryCard = ({
                image,
                snippet,
                category_Ids,
-
                title,
                created_at,
                profile_id,
@@ -49,9 +48,28 @@ const CategoryCard = ({
                />
             );
          })}
+
          {isLoading && (
             <div className="flex flex-col w-full gap-5">{skeletonElements}</div>
          )}
+
+         {categoryPosts === null ||
+            (Array.isArray(categoryPosts) && categoryPosts.length === 0 && (
+               <div>
+                  <div className="flex items-center justify-center bg-white">
+                     <div className="relative w-full md:w-[500px] h-[500px]">
+                        <img
+                           src="/No data-amico.svg"
+                           alt="loading-image"
+                           className="object-cover"
+                        />
+                     </div>
+                  </div>
+                  <div className="pb-10 text-center text-2xl font-bold">
+                     No posts in this Category
+                  </div>
+               </div>
+            ))}
       </div>
    );
 };

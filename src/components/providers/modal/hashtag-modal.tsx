@@ -69,7 +69,7 @@ const HashtagForm = () => {
             console.error("Error inserting hashtags:", error.message);
          } else {
             console.log("Hashtags inserted successfully:", data);
-            navigate("/posts");
+            navigate(`/account/${userId}`);
          }
       } catch (error: any) {
          console.error("Error:", error.message);
@@ -96,13 +96,13 @@ const HashtagForm = () => {
                Personalize Your Experience:
             </h1>
             <p className="text-center">Choose 5 or More Interests</p>
-            <div className="h-[400px] overflow-y-auto py-4">
+            <div className="h-[300px] overflow-y-auto py-4">
                <div className="flex gap-5 items-center flex-wrap max-w-[500px]">
                   {hashtags?.map((hashtag: HashtagProp) => (
-                     <Button
-                        className={`px-2 py-2 text-xs transition-transform duration-300 rounded hover:scale-105 w-max whitespace-nowrap ${
+                     <button
+                        className={`px-2 py-2 border-foreground border text-xs transition-transform duration-300 rounded-none  hover:scale-105 w-max whitespace-nowrap ${
                            selectedHashtags.includes(hashtag.id as string)
-                              ? "selected"
+                              ? "bg-[#c1c1c1]"
                               : userHashtags.includes(hashtag.id as string) // Check if the user has this hashtag
                               ? "bg-accent-red"
                               : ""
@@ -120,7 +120,7 @@ const HashtagForm = () => {
                            })
                         }>
                         #{hashtag.name}
-                     </Button>
+                     </button>
                   ))}
                </div>
             </div>
@@ -141,7 +141,7 @@ const HashtagForm = () => {
                   : "You have reached the minimum of five hashtags."}
             </p> */}
             <Button
-               className="w-full my-8"
+               className="w-full px-6 py-2 my-8 border rounded-none md:w-auto border-foregroud"
                type="button"
                onClick={addHashtags}
                disabled={!areEnoughHashtagsSelected() || loading}>

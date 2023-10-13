@@ -26,24 +26,24 @@ const Category = () => {
             <Plus />
          </div>
          <Link to="/posts">
-            <Button
+            <button
                className={` ${
                   path === "posts" && "bg-accent-orange"
-               } px-2 py-2 transition-transform duration-300 rounded hover:scale-105 w-max whitespace-nowrap`}>
+               } px-2 py-2 transition-transform duration-300 hover:scale-105 w-max whitespace-nowrap`}>
                {" "}
-               For You
-            </Button>
+               Recommended
+            </button>
          </Link>
          {categories?.map((cat) => {
             const { name, id } = cat;
             return (
                <Link to={`/categories/${id}`} key={id}>
-                  <Button
+                  <button
                      className={`${
                         paramsId === id && "bg-accent-orange"
-                     } px-2 py-2 transition-transform duration-300 rounded hover:scale-105 w-max whitespace-nowrap`}>
+                     } px-2 py-2 transition-transform duration-300 hover:scale-105 w-max whitespace-nowrap`}>
                      {name}
-                  </Button>
+                  </button>
                </Link>
             );
          })}

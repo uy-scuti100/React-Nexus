@@ -1,5 +1,5 @@
 import { ModeToggle } from "../../providers/theme/theme-toggle";
-import { Hash, LogOut, Search } from "lucide-react";
+import { Hash, LogOut, Mail, Search } from "lucide-react";
 import supabase from "../../../lib/supabaseClient";
 import { Link } from "react-router-dom";
 import { useFetchUser } from "../../../hooks/useFetchUser";
@@ -13,6 +13,8 @@ export default function SideNav({
 }) {
    const { user } = useFetchUser();
    const userId = user?.id;
+
+   ///////////////////////////////////////////////////////////////////
    const scrollToTop = () => {
       window.scrollTo({ top: 0, behavior: "smooth" });
    };
@@ -86,7 +88,13 @@ export default function SideNav({
                      <span>Profile</span>
                   </li>
                </Link>
-               <Link to="/" onClick={toggleSideNav}>
+               <Link to={`/`}>
+                  <li className="flex items-center gap-4 cursor-pointer hover:opacity-75">
+                     <Mail className="w-6 h-6 opacity-60 " />
+                     <span>Messages</span>
+                  </li>
+               </Link>
+               <Link to="/search" onClick={toggleSideNav}>
                   <li className="flex items-center gap-4 cursor-pointer hover:opacity-75">
                      <Search className="w-6 h-6 cursor-pointer opacity-70" />
                      <span>Search</span>
@@ -133,14 +141,7 @@ export default function SideNav({
                      <span>Liked Posts</span>
                   </li>
                </Link>
-               <Link
-                  to={user ? `/hastags/${userId}` : "/"}
-                  onClick={toggleSideNav}>
-                  <li className="flex items-center gap-4 cursor-pointer hover:opacity-75">
-                     <Hash className="w-6 h-6 opacity-60 " />
-                     <span>Hashtags</span>
-                  </li>
-               </Link>
+
                {/* <Link to="/" onClick={toggleSideNav}>
                   <li className="flex items-center gap-4 cursor-pointer hover:opacity-75">
                      <Settings strokeWidth={1.25} />

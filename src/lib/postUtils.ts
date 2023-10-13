@@ -6,7 +6,7 @@ export async function fetchPosts(): Promise<Post[] | null> {
       const { data: posts, error } = await supabase
          .from("posts")
          .select("*")
-         .range(0, 9)
+         .range(0, 9) // Adjust the range as needed for initial loading
          .order("created_at", { ascending: false });
 
       if (posts && !error) {
@@ -23,8 +23,7 @@ export async function fetchPosts(): Promise<Post[] | null> {
             bookmark_count: post.bookmark_count,
             likes_count: post.likes_count,
             comment_count: post.comment_count,
-            category_Ids: post.category_Ids
-         
+            category_Ids: post.category_Ids,
          }));
 
          return formattedPost;
@@ -32,7 +31,7 @@ export async function fetchPosts(): Promise<Post[] | null> {
          return null;
       }
    } catch (error) {
-      console.error("Error fetching categories:", error);
+      console.error("Error fetching posts:", error);
       return null;
    }
 }

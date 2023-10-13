@@ -126,9 +126,13 @@ const Navbar = () => {
       }
    };
 
+   const scrollToTop = () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+   };
+
    useEffect(() => {
-      const channel = supabase
-         .channel("realtime_notifications")
+      const followChannel = supabase
+         .channel("realtime_follow_notifications")
          .on(
             "postgres_changes",
             {
@@ -168,8 +172,8 @@ const Navbar = () => {
          .subscribe();
 
       return () => {
-         supabase.removeChannel(channel);
          supabase.removeChannel(postChannel);
+         supabase.removeChannel(followChannel);
       };
    }, [userId]);
 
@@ -301,7 +305,7 @@ const Navbar = () => {
             </div>
          )}
 
-         <nav className="fixed z-40 flex items-center self-center max-w-[1440px] justify-between w-full px-6 py-6 pt-6 bg-white border-b border-black/20 dark:bg-background ">
+         <nav className="fixed z-40 flex items-center  max-w-[1440px] justify-between w-full px-6 py-6 pt-6 bg-white border-b border-black/20 dark:bg-background ">
             <div
                className="text-3xl cursor-pointer md:text-4xl logo"
                onClick={() => navigate("/posts")}>
@@ -318,15 +322,37 @@ const Navbar = () => {
             {!user && (
                <Link
                   to="/"
-                  className={`${buttonVariants} px-4 py-2 text-lg transition-colors duration-300 rounded-3xl border bg-black dark:bg-white text-white dark:text-black hover:bg-white hover:dark:text-white hover:dark:bg-black `}>
+                  className={`${buttonVariants} px-4 py-2 text-lg transition-colors duration-300  border bg-black dark:bg-white text-white dark:text-black hover:text-black hover:bg-white hover:dark:text-white hover:dark:bg-black  `}>
                   Sign in
                </Link>
             )}
             {user && (
                <div className="flex items-center gap-7">
-                  <Link to="/chat">
-                     <Mail />
-                  </Link>
+                  {user && (
+                     <Link
+                        to={user ? "/write" : "/"}
+                        onClick={() => {
+                           toggleSideNav();
+                           scrollToTop();
+                        }}>
+                        <li className="flex items-center gap-4 cursor-pointer hover:opacity-75">
+                           <svg
+                              width="24"
+                              height="24"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              aria-label="Write">
+                              <path
+                                 d="M14 4a.5.5 0 0 0 0-1v1zm7 6a.5.5 0 0 0-1 0h1zm-7-7H4v1h10V3zM3 4v16h1V4H3zm1 17h16v-1H4v1zm17-1V10h-1v10h1zm-1 1a1 1 0 0 0 1-1h-1v1zM3 20a1 1 0 0 0 1 1v-1H3zM4 3a1 1 0 0 0-1 1h1V3z"
+                                 fill="currentColor"></path>
+                              <path
+                                 d="M17.5 4.5l-8.46 8.46a.25.25 0 0 0-.06.1l-.82 2.47c-.07.2.12.38.31.31l2.47-.82a.25.25 0 0 0 .1-.06L19.5 6.5m-2-2l2.32-2.32c.1-.1.26-.1.36 0l1.64 1.64c.1.1.1.26 0 .36L19.5 6.5m-2-2l2 2"
+                                 stroke="currentColor"></path>
+                           </svg>
+                        </li>
+                     </Link>
+                  )}
+
                   {user && (
                      <div
                         className="relative"

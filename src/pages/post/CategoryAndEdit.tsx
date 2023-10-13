@@ -101,15 +101,15 @@ const CategoryAndEdit = ({
    };
 
    return (
-      <div className="flex items-center justify-between">
-         <Link
+      <div className="flex items-center justify-end">
+         {/* <Link
             to={`/categories/${
                postCategories.length > 0 ? postCategories[0].id : ""
             }`}>
             <h4 className="px-5 py-2 text-sm font-bold capitalize bg-accent-orange text-white-900">
                {postCategories.length > 0 ? postCategories[0].name : ""}
             </h4>
-         </Link>
+         </Link> */}
 
          {post?.profile_id === userId && (
             <div className="mt-4">

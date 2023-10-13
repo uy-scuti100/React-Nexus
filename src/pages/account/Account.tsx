@@ -15,7 +15,6 @@ import {
    MapPin,
    MessageSquare,
    ScrollText,
-   Verified,
    GraduationCap,
    X,
    MoreVertical,
@@ -60,8 +59,8 @@ const Account = () => {
    const { id: paramsId } = useParams();
    const { user: currentUser } = useFetchUser();
    const [isFollowing, setIsFollowing] = useState(false);
-   const [followersCount, setFollowersCount] = useState(0);
-   const [followingCount, setFollowingCount] = useState(0);
+   const [followersCount, setFollowersCount] = useState<number | null>(null);
+   const [followingCount, setFollowingCount] = useState<number | null>(null);
    const currentUserId = currentUser?.id;
    const [showSettings, setShowSettings] = useState(false);
    const [user, setUser] = useState<User | null | undefined>(null);
@@ -111,34 +110,201 @@ const Account = () => {
    const navigate = useNavigate();
    const [isFollowedBy, setIsFollowedBy] = useState(false);
    const [criticalInfo, setCriticalInfo] = useState(false);
-
+   const [isFollowingMutual, setIsFollowingMutual] = useState<{
+      [key: string]: boolean;
+   }>({});
+   const [isFollowerMutual, setIsFollowerMutual] = useState<{
+      [key: string]: boolean;
+   }>({});
    useEffect(() => {
-      // Function to fetch the total count of user's posts based on paramsId
-      const fetchTotalCount = async () => {
-         if (paramsId) {
-            try {
-               const { data, error } = await supabase
-                  .from("posts")
-                  .select("count", { count: "exact" })
-                  .eq("profile_id", paramsId as string);
+      async function checkFollowerMutual() {
+         const followerMutualStatus: { [key: string]: boolean } = {};
 
-               if (error) {
-                  throw new Error("Failed to fetch total count");
-               }
+         for (const user of followerProfiles) {
+            const { data, error } = await supabase
+               .from("follow")
+               .select("*")
+               .eq("follower_id", currentUserId)
+               .eq("following_id", user.id);
 
-               setTotalCount(data[0]?.count || 0);
-            } catch (error) {
-               console.error(error);
+            if (error) {
+               console.error("Error checking follow status:", error);
+               return;
+            }
+
+            if (user.id) {
+               followerMutualStatus[user.id] = !!(data && data.length > 0);
             }
          }
-      };
 
-      if (paramsId) {
-         fetchTotalCount();
+         setIsFollowerMutual(followerMutualStatus);
       }
-   }, [paramsId]);
 
-   // #useEffect to fetch followers profiles
+      checkFollowerMutual();
+   }, [currentUserId, followerProfiles]);
+
+   useEffect(() => {
+      async function checkFollowingMutual() {
+         const followingMutualStatus: { [key: string]: boolean } = {};
+
+         for (const user of followingProfiles) {
+            const { data, error } = await supabase
+               .from("follow")
+               .select("*")
+               .eq("follower_id", currentUserId)
+               .eq("following_id", user.id);
+
+            if (error) {
+               console.error("Error checking follow status:", error);
+               return;
+            }
+
+            if (user.id) {
+               followingMutualStatus[user.id] = !!(data && data.length > 0);
+            }
+         }
+
+         setIsFollowingMutual(followingMutualStatus);
+      }
+
+      checkFollowingMutual();
+   }, [currentUserId, followingProfiles]);
+
+   const handleFollowUnfollowForMutualFollowing = async (
+      userId: string,
+      isFollowingMutual: boolean,
+      username: string | null | undefined
+   ) => {
+      if (isFollowingMutual) {
+         // If it's mutual, unfollow
+         const { error } = await supabase
+            .from("follow")
+            .delete()
+            .eq("follower_id", currentUserId)
+            .eq("following_id", userId)
+            .select();
+
+         if (!error) {
+            // Update the state for this specific user
+            setIsFollowingMutual((prevState) => ({
+               ...prevState,
+               [userId]: false,
+            }));
+         }
+      } else {
+         // If it's not mutual, follow
+         const { data, error } = await supabase
+            .from("follow")
+            .insert([
+               {
+                  follower_id: currentUserId,
+                  following_id: userId,
+                  follower_username: currentUser?.username,
+                  following_username: username,
+               },
+            ])
+            .select();
+
+         if (data && !error) {
+            // Update the state for this specific user
+            setIsFollowingMutual((prevState) => ({
+               ...prevState,
+               [userId]: true,
+            }));
+         }
+      }
+   };
+
+   const handleFollowUnfollowForMutualFollowers = async (
+      userId: string,
+      isFollowerMutual: boolean,
+      username: string | null | undefined
+   ) => {
+      if (isFollowerMutual) {
+         // If it's mutual, unfollow
+         const { error } = await supabase
+            .from("follow")
+            .delete()
+            .eq("follower_id", currentUserId)
+            .eq("following_id", userId)
+            .select();
+
+         if (!error) {
+            // Update the state for this specific user
+            setIsFollowerMutual((prevState) => ({
+               ...prevState,
+               [userId]: false,
+            }));
+         }
+      } else {
+         // If it's not mutual, follow
+         const { data, error } = await supabase
+            .from("follow")
+            .insert([
+               {
+                  follower_id: currentUserId,
+                  following_id: userId,
+                  follower_username: currentUser?.username,
+                  following_username: username,
+               },
+            ])
+            .select();
+
+         if (data && !error) {
+            // Update the state for this specific user
+            setIsFollowerMutual((prevState) => ({
+               ...prevState,
+               [userId]: true,
+            }));
+         }
+      }
+   };
+
+   // const handleFollowUnfollow = async (
+   //    userId: string,
+   //    isFollowing: boolean
+   // ) => {
+   //    if (isFollowing) {
+   //       // If already following, unfollow
+   //       const { error } = await supabase
+   //          .from("follow")
+   //          .delete()
+   //          .eq("follower_id", currentUserId)
+   //          .eq("following_id", userId);
+
+   //       if (!error) {
+   //          // Update the isFollowingMap to mark the user as unfollowed
+   //          setIsFollowingMap((prevMap) => {
+   //             const updatedMap = { ...prevMap };
+   //             updatedMap[userId] = false; // Mark as unfollowed
+   //             return updatedMap;
+   //          });
+
+   //          setFollowingCount((prevCount) => (prevCount as number) - 1);
+   //       }
+   //    } else {
+   //       // If not following, follow
+   //       const { error } = await supabase.from("follow").insert([
+   //          {
+   //             follower_id: currentUserId,
+   //             following_id: userId,
+   //             follower_username: currentUser?.username,
+   //             following_username: userId,
+   //          },
+   //       ]);
+
+   //       if (!error) {
+   //          // Update the isFollowingMap to mark the user as followed
+   //          setIsFollowingMap((prevMap) => {
+   //             const updatedMap = { ...prevMap };
+   //             updatedMap[userId] = true; // Mark as followed
+   //             return updatedMap;
+   //          });
+
+   //          setFollowingCount((prevCount) => (prevCount as number) + 1);
+   //       }
+   //    }
+   // };
 
    useEffect(() => {
       async function fetchFollowerProfiles() {
@@ -219,7 +385,7 @@ const Account = () => {
 
          if (!error) {
             setIsFollowing(false);
-            setFollowersCount((prevCount) => prevCount - 1);
+            setFollowersCount((prevCount) => (prevCount as number) - 1);
          }
       } else {
          // If not following, follow
@@ -234,7 +400,7 @@ const Account = () => {
 
          if (!error) {
             setIsFollowing(true);
-            setFollowersCount((prevCount) => prevCount + 1);
+            setFollowersCount((prevCount) => (prevCount as number) + 1);
          }
       }
    };
@@ -309,6 +475,7 @@ const Account = () => {
             const { data: profilePosts, error } = await supabase
                .from("posts")
                .select("*")
+               .range(0, 9)
                .eq("profile_id", id as string);
             if (profilePosts) {
                setPosts(profilePosts);
@@ -482,21 +649,21 @@ const Account = () => {
       }
    };
    return (
-      <main className="pt-24">
-         <div className="relative flex w-full h-52">
+      <main className="pt-24 ">
+         <div className="relative flex justify-center max-w-5xl mx-auto h-52">
             {bannerPic ? (
                <img
                   src={bannerPic as string}
                   alt="banner"
-                  className="object-cover w-full h-full"
+                  className="object-cover w-full"
                />
             ) : (
                <div className="w-full h-full duration-1000 animate-pulse bg-wh-300"></div>
             )}
 
-            <div className="absolute flex items-end justify-center w-full p-4 -bottom-20 ">
+            <div className="absolute w-full p-4 -bottom-32 ">
                {avatar ? (
-                  <div className=" w-36 h-36 overflow-hidden border-[5px] border-white/40 rounded-full">
+                  <div className="w-32 h-32 overflow-hidden border-5 border-[#F5F5F5] rounded-full">
                      <img
                         src={avatar}
                         alt={`${name}'s profile image`}
@@ -504,12 +671,15 @@ const Account = () => {
                      />
                   </div>
                ) : (
-                  <div className="duration-[2s] border-4 border-black rounded-full animate-pulse dark:border-white bg-wh-300 w-36 h-36"></div>
+                  <div className="overflow-hidden border-4 border-black rounded-full duration-2000 animate-pulse w-36 h-36">
+                     {" "}
+                     <img src="/png.png" alt="" />
+                  </div>
                )}
             </div>
          </div>
 
-         <div className="px-3 mt-24 mb-8">
+         <div className="px-3 mt-32 mb-8">
             {currentUserId === paramsId && (
                <button
                   className="w-full px-5 py-2 mt-5 font-semibold md:hidden md:w-auto bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black "
@@ -518,7 +688,7 @@ const Account = () => {
                </button>
             )}
          </div>
-         <div className="px-3 mt-24 mb-8">
+         <div className="px-3 mt-12 mb-8">
             {currentUserId ? (
                currentUserId !== paramsId && (
                   <button
@@ -542,7 +712,14 @@ const Account = () => {
                <h1 className="flex items-center gap-1 text-2xl font-bold text-center md:text-left">
                   <span className="capitalize">{name}</span>
                   <span>
-                     {isVerified && <Verified className="w-6 h-6 ml-4" />}
+                     {isVerified && (
+                        <img
+                           src="/GoldCheck-removebg-preview.png"
+                           alt="checkmark"
+                           height={24}
+                           width={24}
+                        />
+                     )}
                   </span>
                </h1>
 
@@ -556,7 +733,7 @@ const Account = () => {
 
                {paramsId && currentUserId !== paramsId && (
                   <button
-                     onClick={handleFollow}
+                     onClick={currentUserId ? handleFollow : goHome}
                      className="hidden w-full px-5 py-2 mt-5 font-semibold md:w-auto bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black md:block">
                      {isFollowing ? "Unfollow" : "Follow"}
                   </button>
@@ -647,26 +824,36 @@ const Account = () => {
                                           username,
                                           id,
                                        } = follower;
+
                                        return (
-                                          <div className="flex items-center justify-between">
+                                          <div
+                                             className="flex items-center justify-between"
+                                             key={id}>
                                              <Link
                                                 to={`/account/${id}`}
                                                 onClick={() =>
                                                    setShowFollowersModal(false)
                                                 }>
-                                                <div
-                                                   className="flex items-center rounded"
-                                                   key={id}>
+                                                <div className="flex items-center rounded">
                                                    <div>
-                                                      <img
-                                                         src={
-                                                            display_pic as string
-                                                         }
-                                                         alt={`${display_name}'s display image`}
-                                                         className="rounded-full w-[50px] h-[50px] mr-2"
-                                                      />
+                                                      {display_pic ? (
+                                                         <img
+                                                            src={
+                                                               display_pic as string
+                                                            }
+                                                            alt={`${display_name}'s display image`}
+                                                            className="rounded-full w-[50px] h-[50px] mr-2"
+                                                         />
+                                                      ) : (
+                                                         <div className="rounded-full w-[50px] h-[50px] mr-2 uppercase font-bold text-lg border-foreground">
+                                                            {display_name?.substring(
+                                                               0,
+                                                               1
+                                                            )}
+                                                         </div>
+                                                      )}
                                                    </div>
-                                                   <div className="flex flex-col pl-5 transition hover:bg-foreground/5">
+                                                   <div className="flex flex-col pl-5 transition hover-bg-foreground/5">
                                                       <h1 className="text-lg">
                                                          {display_name}
                                                       </h1>
@@ -676,17 +863,26 @@ const Account = () => {
                                                    </div>
                                                 </div>
                                              </Link>
-                                             <div
-                                                onClick={
-                                                   currentUser
-                                                      ? handleFollow
-                                                      : goHome
-                                                }>
-                                                <button className="w-full px-3 py-2 text-xs font-semibold md:px-5 md:w-auto bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black">
-                                                   {isFollowing
-                                                      ? "Unfollow"
-                                                      : "Follow"}
-                                                </button>
+                                             <div>
+                                                {currentUserId !== id && (
+                                                   <button
+                                                      className="w-full px-3 py-2 text-xs font-semibold text-black md:px-5 md:w-auto bg-accent-red hover-bg-wh-500"
+                                                      onClick={() =>
+                                                         handleFollowUnfollowForMutualFollowers(
+                                                            id as string,
+                                                            isFollowerMutual[
+                                                               id as string
+                                                            ] || false, // Pass isFollowerMutual for this specific user
+                                                            username
+                                                         )
+                                                      }>
+                                                      {isFollowerMutual[
+                                                         id as string
+                                                      ]
+                                                         ? "Unfollow"
+                                                         : "Follow"}
+                                                   </button>
+                                                )}
                                              </div>
                                           </div>
                                        );
@@ -726,15 +922,18 @@ const Account = () => {
                                     key={id}
                                     className="flex flex-col max-h-[500px] gap-5"
                                     style={{ overflowY: "auto" }}>
-                                    {followingProfiles?.map((follower) => {
+                                    {followingProfiles?.map((followingUser) => {
                                        const {
                                           display_pic,
                                           display_name,
                                           username,
                                           id,
-                                       } = follower;
+                                       } = followingUser;
+
                                        return (
-                                          <div className="flex items-center justify-between">
+                                          <div
+                                             className="flex items-center justify-between"
+                                             key={id}>
                                              <Link
                                                 to={`/account/${id}`}
                                                 onClick={() =>
@@ -752,7 +951,7 @@ const Account = () => {
                                                          className="rounded-full w-[50px] h-[50px] mr-2"
                                                       />
                                                    </div>
-                                                   <div className="flex flex-col pl-5 transition hover:bg-foreground/5">
+                                                   <div className="flex flex-col pl-5 transition hover-bg-foreground/5">
                                                       <h1 className="text-lg">
                                                          {display_name}
                                                       </h1>
@@ -762,17 +961,26 @@ const Account = () => {
                                                    </div>
                                                 </div>
                                              </Link>
-                                             <div
-                                                onClick={
-                                                   currentUser
-                                                      ? handleFollow
-                                                      : goHome
-                                                }>
-                                                <button className="w-full px-3 py-2 text-xs font-semibold md:px-5 md:w-auto bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black">
-                                                   {isFollowing
-                                                      ? "Unfollow"
-                                                      : "Follow"}
-                                                </button>
+                                             <div>
+                                                {currentUserId !== id && (
+                                                   <button
+                                                      className="w-full px-3 py-2 text-xs font-semibold text-black md:px-5 md:w-auto bg-accent-red hover-bg-wh-500"
+                                                      onClick={() =>
+                                                         handleFollowUnfollowForMutualFollowing(
+                                                            id as string,
+                                                            isFollowingMutual[
+                                                               id as string
+                                                            ] || false, // Pass isFollowingMutual for this specific user
+                                                            username
+                                                         )
+                                                      }>
+                                                      {isFollowingMutual[
+                                                         id as string
+                                                      ]
+                                                         ? "Unfollow"
+                                                         : "Follow"}
+                                                   </button>
+                                                )}
                                              </div>
                                           </div>
                                        );
@@ -1018,7 +1226,7 @@ const Account = () => {
                      <p>
                         {postCount
                            ? `${postCount} post(s) published`
-                           : "Loading..."}
+                           : "Not available"}
                      </p>
                   </p>
                   <p className="flex items-center gap-3">
@@ -1026,7 +1234,7 @@ const Account = () => {
                      <p>
                         {commentCount
                            ? `${commentCount} comment(s) written`
-                           : "Loading..."}
+                           : "Not available"}
                      </p>
                   </p>
                   <p className="flex items-center gap-3">
@@ -1034,49 +1242,73 @@ const Account = () => {
                      <p>
                         {tagsCount
                            ? `${tagsCount} hashtags followed`
-                           : "Loading..."}
+                           : "Not available"}
                      </p>
                   </p>
                </div>
             </div>
             <div className="col-span-2 px-3 pt-10 pb-24 mr-3 rounded bg-background">
-               {posts.length > 0 ? (
-                  posts.map((post, index) => (
-                     <motion.div
-                        key={post.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{
-                           duration: 0.4,
-                           ease: [0.25, 0.25, 0, 1],
-                           delay: index / 15, // Adjust the delay as needed
-                        }}>
-                        <PostCard
-                           key={post.id}
-                           author={post.author}
-                           id={post.id}
-                           image={post.image}
-                           snippet={post.snippet}
-                           title={post.title}
-                           author_image={post.author_image}
-                           bookmark_count={post.bookmark_count}
-                           created_at={post.created_at}
-                           likes_count={post.likes_count}
-                           comment_count={post.comment_count}
-                           profile_id={post.profile_id}
-                           category_Ids={post.category_Ids}
-                        />
-                     </motion.div>
-                  ))
-               ) : (
-                  <>
+               {isLoading && (
+                  <div className="flex flex-col w-full gap-5">
                      {Array.from({ length: 5 }).map((_, index) => (
                         <div className="w-full mb-4" key={index}>
                            <PostCardSkeleton />
                         </div>
                      ))}
-                  </>
+                  </div>
                )}
+
+               {!isLoading && (
+                  <div className="flex flex-col w-full gap-5">
+                     {posts && posts.length > 0 ? (
+                        // Render posts if there are any
+                        posts.map((post, index) => (
+                           <motion.div
+                              key={post.id}
+                              initial={{ opacity: 0, y: 20 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{
+                                 duration: 0.4,
+                                 ease: [0.25, 0.25, 0, 1],
+                                 delay: index / 15, // Adjust the delay as needed
+                              }}>
+                              <PostCard
+                                 key={post.id}
+                                 author={post.author}
+                                 id={post.id}
+                                 image={post.image}
+                                 snippet={post.snippet}
+                                 title={post.title}
+                                 author_image={post.author_image}
+                                 bookmark_count={post.bookmark_count}
+                                 created_at={post.created_at}
+                                 likes_count={post.likes_count}
+                                 comment_count={post.comment_count}
+                                 profile_id={post.profile_id}
+                                 category_Ids={post.category_Ids}
+                              />
+                           </motion.div>
+                        ))
+                     ) : (
+                        // Render the "No posts" div when there are no posts
+                        <div>
+                           <div className="flex items-center justify-center mb-10 bg-white">
+                              <div className="relative w-full md:w-[500px] h-[500px]">
+                                 <img
+                                    src="/No data-amico.svg"
+                                    alt="loading-image"
+                                    className="object-cover"
+                                 />
+                              </div>
+                           </div>
+                           <div className="pb-10 text-2xl font-bold text-center">
+                              {name} has no Post yet
+                           </div>
+                        </div>
+                     )}
+                  </div>
+               )}
+
                {totalCount !== null &&
                   posts !== null &&
                   totalCount > posts.length && (
@@ -1126,16 +1358,3 @@ const Account = () => {
    );
 };
 export default Account;
-
-// {categoryPosts &&
-//    totalCount !== null &&
-//    categoryPosts.length < totalCount && (
-//       <button
-//          disabled={isFetching}
-//          onClick={fetchMorePosts}
-//          className={`${
-//             isFetching && "bg-wh-300 animate-bounce"
-//          } w-full px-5 py-2 mt-5 font-semibold md:w-auto bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black`}>
-//          {isFetching ? "Loading More..." : " Load More"}
-//       </button>
-//    )}

@@ -50,7 +50,7 @@ const PostSlider = ({ prop }: { prop: Prop }) => {
    }, [prop.userId, prop.id]);
 
    if (!posts) {
-      return null; // or return a placeholder or an error message
+      return;
    }
    const navigate = useNavigate();
    const navigateAndRefresh = (id: string) => {
@@ -63,11 +63,13 @@ const PostSlider = ({ prop }: { prop: Prop }) => {
 
    return (
       <>
-         {filteredPosts.length && (
+         {filteredPosts.length ? (
             <div className="mt-5 text-xl font-bold text-center md:text-left">
                {" "}
                More posts from {prop.name}
             </div>
+         ) : (
+            ""
          )}
          <Swiper
             modules={[Navigation]}

@@ -77,6 +77,9 @@ const PostCard = ({
    const currentUserId = currentUser?.id;
    const navigate = useNavigate();
    const [categoryNames, setCategoryNames] = useState<Array<string>>([]);
+   const [postCategories, setPostCategories] = useState<
+      Array<{ name: string; id: string }>
+   >([]);
 
    useEffect(() => {
       const fetchCategories = async () => {
@@ -93,9 +96,28 @@ const PostCard = ({
             if (error) {
                console.error("Error fetching category names:", error.message);
             } else {
-               // Extract the category names from the fetched data
                const categoryNames = data.map((category) => category.name);
                setCategoryNames(categoryNames);
+            }
+
+            if (category_Ids && category_Ids.length > 0) {
+               const { data, error } = await supabase
+                  .from("categories")
+                  .select("*")
+                  .in("id", category_Ids);
+
+               if (error) {
+                  console.error(
+                     "Error fetching category names:",
+                     error.message
+                  );
+               } else {
+                  const postCategories = data.map((category) => ({
+                     id: category.id,
+                     name: category.name,
+                  }));
+                  setPostCategories(postCategories);
+               }
             }
          } catch (error: any) {
             console.error("An error occurred:", error.message);
@@ -104,6 +126,7 @@ const PostCard = ({
 
       fetchCategories();
    }, [category_Ids]);
+
    // check following
    useEffect(() => {
       async function checkFollowing() {
@@ -333,9 +356,6 @@ const PostCard = ({
                ) : (
                   <div className="relative w-full h-56 mb-6 duration-300 bg-gray-300 md:h-96 animate-pulse" />
                )}
-               <Badge variant="secondary" className="absolute top-2 right-2">
-                  {categoryNames[0]}
-               </Badge>
             </div>
          </Link>
          <div className="w-full px-6 border-b border-black/10 dark:border-white/10" />
@@ -357,10 +377,17 @@ const PostCard = ({
                         alt="user-profile-img"
                         className="border border-accent w-[50px] h-[50px] rounded-full cursor-pointer object-cover"
                      />
-                     <div className="flex items-center gap-2">
+                     <div className="flex items-center font-semibold gap-2">
                         <p>{author} </p>
                         <span>
-                           {isAuthorized && <BadgeCheck className="w-4 h-4" />}
+                           {isAuthorized && (
+                              <img
+                                 src="/GoldCheck-removebg-preview.png"
+                                 alt="checkmark"
+                                 height={24}
+                                 width={24}
+                              />
+                           )}
                         </span>
                      </div>
                   </Link>
@@ -460,7 +487,20 @@ const PostCard = ({
          <div className="pt-3 pb-8 text-lg font-medium capitalize">
             {snippet.substring(0, 120)}...
          </div>
-         <div className="w-full px-6 border-b border-black/10 dark:border-white/10" />
+         <div
+            className="flex flex-wrap items-center gap-4 py-5"
+            key={postCategories.map((post) => post.id)}>
+            {postCategories.map((catName, key) => (
+               <Link to={`/categories/${catName.id}`}>
+                  <Badge
+                     key={key}
+                     className="flex items-center px-3 py-2 border rounded-none font-normal ">
+                     # {catName.name}
+                  </Badge>
+               </Link>
+            ))}
+         </div>
+
          <div className="flex items-center justify-between pt-5 md:justify-normal md:gap-20">
             <div className="flex items-center gap-1">
                <button onClick={user ? toggleBookmark : goHome}>
@@ -496,7 +536,7 @@ const PostCard = ({
                </button>
                <p>{bookmarkCount > 0 ? <p>{bookmarkCount}</p> : ""}</p>
             </div>
-            <Link to={user ? `/post/${postId}` : "/"}>
+            <Link to={user ? `/post/${postId}` : "/"} onClick={scrollToTop}>
                <div className="flex items-center gap-1">
                   <MessageCircle className="w-6 h-6 opacity-70" />
                   <p>{commentCount > 0 ? <p>{commentCount}</p> : ""}</p>
@@ -526,6 +566,7 @@ const PostCard = ({
                <p>{likeCount > 0 ? <p>{likeCount}</p> : ""}</p>
             </div>
          </div>
+         <div className="w-full px-6 py-4 border-b border-black/10 dark:border-white/10" />
       </div>
    );
 };

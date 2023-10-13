@@ -23,8 +23,6 @@ export interface User {
    work: string | null | undefined
    education: string | null | undefined
 }
-
-
 export interface Category {
    id: string | null;
    name: string | null;
@@ -33,43 +31,21 @@ export interface Hashtag {
    id: string | null;
    name: string | null;
 }
-
-// export interface Posted {
-//    created_at: Date;
-//    profile_id: string | null;
-//    title: string | null;
-//    content: string | null;
-//    image: string | null;
-//    id: string;
-//    snippet: string | null;
-//    author: string | null;
-//    updated_at: Date | null;
-//    author_image: string | null;
-//    bookmark_count: number | null;
-//    likes_count: number | null;
-//    comment_count: number | null;
-//    category_Ids: string[] | null;
-//  }
- 
  export interface Post{
    id: string;
-   title: string;
-   profile_id: string;
-   content: string;
+   author: string;
    image: string;
    snippet: string;
+   title: string;
+   profile_id: string;
    created_at: string;
-   author: string;
    author_image: string;
    bookmark_count: number;
+   content: string;
    likes_count: number;
    comment_count: number;
    category_Ids: string[] 
 }
- 
- 
-
- 
 export interface Comment {
    id: string;
    content: string;
