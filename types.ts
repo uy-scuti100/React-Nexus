@@ -30,6 +30,7 @@ export interface Category {
 export interface Hashtag {
    id: string | null;
    name: string | null;
+   created_at: string | null
 }
  export interface Post{
    id: string;

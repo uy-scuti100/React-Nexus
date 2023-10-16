@@ -5,20 +5,23 @@ type Props = {
 const SocialLinks = ({ isDark = false }: Props) => {
    return (
       <div className="flex items-center justify-between gap-7">
-         <a href="https://twitter.com" target="_blank" rel="noreferrer">
-            <img
-               className={`${isDark ? "brightness-0" : ""} hover:opacity-50`}
-               alt="twitter"
-               src="/social_twitter.png"
-               width={20}
-               height={20}
-            />
-         </a>
          <a href="https://facebook.com" target="_blank" rel="noreferrer">
             <img
                className={`${isDark ? "brightness-0" : ""} hover:opacity-50`}
                alt="facebook"
                src="/social_facebook.png"
+               width={20}
+               height={20}
+            />
+         </a>
+         <a
+            href="https://twitter.com/nexusblogapp"
+            target="_blank"
+            rel="noreferrer">
+            <img
+               className={`${isDark ? "brightness-0" : ""} hover:opacity-50`}
+               alt="twitter"
+               src="/social_twitter.png"
                width={20}
                height={20}
             />

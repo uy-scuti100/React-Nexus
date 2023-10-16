@@ -23,8 +23,8 @@ const SearchResult = ({
 }) => {
    if (category === "people") {
       return (
-         <Link to={`/account/${result.id}`} className=" p-2 mb-2">
-            <div className="flex gap-4 items-center">
+         <Link to={`/account/${result.id}`} className="p-2 mb-2 ">
+            <div className="flex items-center gap-4">
                <img
                   src={result.display_pic}
                   alt={result.display_name}
@@ -33,7 +33,9 @@ const SearchResult = ({
                   className="border border-accent-orange w-[50px] h-[50px] rounded-full cursor-pointer object-cover"
                />
                <div className="flex flex-col">
-                  <p className="text-xl font-bold ">{result.display_name}</p>
+                  <p className="text-xl font-bold capitalize ">
+                     {result.display_name}
+                  </p>
                   <p className="text-xs opacity-75"> {result.username}</p>
                </div>
             </div>
@@ -42,8 +44,8 @@ const SearchResult = ({
       );
    } else if (category === "posts") {
       return (
-         <Link to={`/post/${result.id}`} className=" p-2 my-2">
-            <div className="flex gap-4 items-center">
+         <Link to={`/post/${result.id}`} className="p-2 my-2 ">
+            <div className="flex items-center gap-4">
                <img
                   src={result.image}
                   alt={result.display_name}
@@ -52,7 +54,9 @@ const SearchResult = ({
                   className="w-[150px] h-[100px] cursor-pointer object-contain"
                />
                <div className="flex flex-col gap-4">
-                  <p className="font-bold text-xl ">{result.title}</p>
+                  <p className="text-xl font-bold capitalize ">
+                     {result.title}
+                  </p>
                   <p className="opacity-80">{result.snippet}</p>
                   <p className="text-xs"> by: {result.author}</p>
                </div>
@@ -62,7 +66,7 @@ const SearchResult = ({
       );
    } else if (category === "topics") {
       return (
-         <div className="border p-2 mb-2">
+         <div className="p-2 mb-2 border">
             <p>{result.name}</p>
          </div>
       );

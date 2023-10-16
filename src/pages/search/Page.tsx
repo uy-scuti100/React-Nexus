@@ -62,7 +62,7 @@ const Search = () => {
          .from("posts")
          .select("*")
          .or(
-            `title.ilike.*${query}*,content.ilike.*${query}*,snippet.ilike.*${query}`
+            `title.ilike.*${query}*,content.ilike.*${query}*,snippet.ilike.*${query}*`
          );
 
       if (error) {
@@ -98,8 +98,10 @@ const Search = () => {
          <section className="px-6 pt-24">
             <div className="flex items-center gap-10 pb-10">
                <button
-                  className={`w-full px-5 py-2 mt-5 font-semibold md:w-auto bg-accent-red hover:bg-wh-500 dark:text-black ${
-                     selectedCategory === "people" ? "active" : ""
+                  className={`w-full px-5 py-2 mt-5 font-semibold md:w-auto  dark:text-black ${
+                     selectedCategory === "people"
+                        ? "bg-accent-red"
+                        : "bg-accent-red/40 dark:text-white"
                   }`}
                   onClick={() => {
                      setSelectedCategory("people");
@@ -108,8 +110,10 @@ const Search = () => {
                   People
                </button>
                <button
-                  className={`w-full px-5 py-2 mt-5 font-semibold md:w-auto bg-accent-red hover:bg-wh-500 dark:text-black ${
-                     selectedCategory === "posts" ? "active" : ""
+                  className={`w-full px-5 py-2 mt-5 font-semibold md:w-auto  dark:text-black ${
+                     selectedCategory === "posts"
+                        ? "bg-accent-red"
+                        : "bg-accent-red/40 dark:text-white"
                   }`}
                   onClick={() => {
                      setSelectedCategory("posts");
@@ -118,8 +122,10 @@ const Search = () => {
                   Posts
                </button>
                <button
-                  className={`w-full px-5 py-2 mt-5 font-semibold md:w-auto bg-accent-red hover:bg-wh-500 dark:text-black ${
-                     selectedCategory === "topics" ? "active" : ""
+                  className={`w-full px-5 py-2 mt-5 font-semibold md:w-auto  dark:text-black ${
+                     selectedCategory === "topics"
+                        ? "bg-accent-red"
+                        : "dark:text-white"
                   }`}
                   onClick={() => {
                      setSelectedCategory("topics");

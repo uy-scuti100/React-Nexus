@@ -11,7 +11,7 @@ export async function fetchHashtagById(
 ): Promise<HashtagProp | null> {
    try {
       const { data: hashtags, error } = await supabase
-         .from("hashtags")
+         .from("topics")
          .select("id, name")
          .eq("id", hashtagId)
          .single();

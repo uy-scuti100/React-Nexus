@@ -26,13 +26,16 @@ const Page = () => {
          try {
             const { data, error } = await supabase
                .from("posts")
-               .select("count", { count: "exact" })
-               .eq("category_id", paramsId);
+               .select("*")
+               .contains("category_Ids", [paramsId]);
+
             if (error) {
                throw new Error("Failed to fetch total count");
             }
 
-            setTotalCount(data[0]?.count || 0);
+            const totalCount = data.length;
+            setTotalCount(totalCount);
+            console.log(totalCount);
          } catch (error) {
             console.error(error);
          }
@@ -69,10 +72,10 @@ const Page = () => {
    return (
       <main className="relative">
          <Navbar />
-         <section className="pt-24">
+         <section className="px-6 pt-24">
             <Category />
-            <div className="gap-10 px-6 pt-10 mb-5 md:flex">
-               <div className="basis-3/5">
+            <div className="gap-10 pt-20 mb-5 md:flex md:px-20">
+               <div className="px-4 md:basis-3/5 lg:basis-3/4 md:px-0 lg:px-24">
                   {/* posts */}
                   <CategoryCard
                      isLoading={isLoading}
@@ -94,7 +97,7 @@ const Page = () => {
                      <Subscribe />
                   </div>
                </div>
-               <div className="basis-2/5">
+               <div className="pl-8 border-l md:basis-2/5 lg:basis1/4 border-foreground/40 lg:px-6">
                   <Sidebar type="home" />
                </div>
             </div>

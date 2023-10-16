@@ -100,7 +100,7 @@ const HashtagForm = () => {
                <div className="flex gap-5 items-center flex-wrap max-w-[500px]">
                   {hashtags?.map((hashtag: HashtagProp) => (
                      <button
-                        className={`px-2 py-2 border-foreground border text-xs transition-transform duration-300 rounded-none  hover:scale-105 w-max whitespace-nowrap ${
+                        className={`px-2 py-2 border-foreground border text-xs transition-transform duration-300 rounded-full  hover:scale-105 w-max whitespace-nowrap ${
                            selectedHashtags.includes(hashtag.id as string)
                               ? "bg-[#c1c1c1]"
                               : userHashtags.includes(hashtag.id as string) // Check if the user has this hashtag
@@ -141,7 +141,7 @@ const HashtagForm = () => {
                   : "You have reached the minimum of five hashtags."}
             </p> */}
             <Button
-               className="w-full px-6 py-2 my-8 border rounded-none md:w-auto border-foregroud"
+               className="w-full px-6 py-2 my-8 border rounded-full md:w-auto border-foregroud"
                type="button"
                onClick={addHashtags}
                disabled={!areEnoughHashtagsSelected() || loading}>

@@ -1,4 +1,4 @@
-import { BadgeCheck, CalendarIcon, Heart, MessageCircle } from "lucide-react";
+import { Heart, MessageCircle } from "lucide-react";
 import { Badge } from "../../components/ui/badge";
 import { useState, useEffect } from "react";
 import { useTheme } from "../../components/providers/theme/theme-provider";
@@ -7,16 +7,7 @@ import supabase from "../../lib/supabaseClient";
 import { Link, useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import {
-   HoverCard,
-   HoverCardContent,
-   HoverCardTrigger,
-} from "../../components/ui/hover-card";
-import {
-   Avatar,
-   AvatarFallback,
-   AvatarImage,
-} from "../../components/ui/avatar";
+import Hover from "./Hover";
 dayjs.extend(relativeTime);
 
 const dateFormatter = new Intl.DateTimeFormat(undefined, {
@@ -39,6 +30,7 @@ interface PostCardProp {
    comment_count: number;
    profile_id: string;
    category_Ids: string[];
+   readTime: number;
 }
 
 const PostCard = ({
@@ -54,6 +46,7 @@ const PostCard = ({
    profile_id,
    comment_count,
    category_Ids,
+   readTime,
 }: PostCardProp) => {
    const { theme } = useTheme();
    const [isAuthorized, setIsAuthorized] = useState<boolean | undefined>(
@@ -78,7 +71,7 @@ const PostCard = ({
    const navigate = useNavigate();
    const [categoryNames, setCategoryNames] = useState<Array<string>>([]);
    const [postCategories, setPostCategories] = useState<
-      Array<{ name: string; id: string }>
+      Array<{ name: string; id: string; type: string }>
    >([]);
 
    useEffect(() => {
@@ -88,36 +81,89 @@ const PostCard = ({
                return;
             }
 
-            const { data, error } = await supabase
-               .from("categories")
-               .select("name")
+            const topicData = await supabase
+               .from("topics")
+               .select("id, name")
                .in("id", category_Ids);
 
-            if (error) {
-               console.error("Error fetching category names:", error.message);
+            const subtopicData = await supabase
+               .from("subtopics")
+               .select("id, name")
+               .in("id", category_Ids);
+
+            const subsubtopicData = await supabase
+               .from("subsubtopics")
+               .select("id, name")
+               .in("id", category_Ids);
+
+            if (
+               topicData.error ||
+               subtopicData.error ||
+               subsubtopicData.error
+            ) {
+               console.error(
+                  "Error fetching category names:",
+                  topicData.error,
+                  subtopicData.error,
+                  subsubtopicData.error
+               );
             } else {
-               const categoryNames = data.map((category) => category.name);
+               // Combine the results into one array of category names
+               const combinedData = [
+                  ...topicData.data,
+                  ...subtopicData.data,
+                  ...subsubtopicData.data,
+               ];
+
+               // Extract the names and set the state
+               const categoryNames = combinedData.map(
+                  (category) => category.name
+               );
+
                setCategoryNames(categoryNames);
             }
+            const topicPost = await supabase
+               .from("topics")
+               .select("id, name, type")
+               .in("id", category_Ids);
 
-            if (category_Ids && category_Ids.length > 0) {
-               const { data, error } = await supabase
-                  .from("categories")
-                  .select("*")
-                  .in("id", category_Ids);
+            const subtopicPost = await supabase
+               .from("subtopics")
+               .select("id, name, type")
+               .in("id", category_Ids);
 
-               if (error) {
-                  console.error(
-                     "Error fetching category names:",
-                     error.message
-                  );
-               } else {
-                  const postCategories = data.map((category) => ({
-                     id: category.id,
-                     name: category.name,
-                  }));
-                  setPostCategories(postCategories);
-               }
+            const subsubtopicPost = await supabase
+               .from("subsubtopics")
+               .select("id, name, type")
+               .in("id", category_Ids);
+
+            if (
+               topicPost.error ||
+               subtopicPost.error ||
+               subsubtopicPost.error
+            ) {
+               console.error(
+                  "Error fetching category names:",
+                  topicPost.error,
+                  subtopicPost.error,
+                  subsubtopicPost.error
+               );
+            } else {
+               // Combine the results into one array of category names
+               const combinedData = [
+                  ...topicPost.data,
+                  ...subtopicPost.data,
+                  ...subsubtopicPost.data,
+               ];
+
+               // Extract the names and set the state
+               const postCategories = combinedData.map((category) => ({
+                  id: category.id,
+                  name: category.name,
+                  type: category.type,
+               }));
+
+               setPostCategories(postCategories);
             }
          } catch (error: any) {
             console.error("An error occurred:", error.message);
@@ -336,18 +382,21 @@ const PostCard = ({
       navigate("/");
    };
 
+   // const navigation = () => {
+   //    const type = "Topic" || "Subtopic" || "Subsubtopic";
+
+   //    if()
+   // };
    return (
       <div key={id} className="mb-10">
          <Link to={`/post/${id}`} onClick={scrollToTop}>
-            <div className="relative w-full h-56 mb-6 md:h-96">
+            <div className="relative w-full h-56 mb-6 md:h-52">
                {image ? (
                   <img
                      src={image}
                      alt="post image"
                      style={{
                         objectFit: "cover",
-                        maxWidth: "100%",
-                        maxHeight: "100%",
                         width: "100%",
                         height: "100%",
                      }}
@@ -360,120 +409,24 @@ const PostCard = ({
          </Link>
          <div className="w-full px-6 border-b border-black/10 dark:border-white/10" />
          <Link to={`/post/${id}`} onClick={scrollToTop}>
-            <div className="py-4 text-2xl font-bold capitalize">{title}</div>
+            <div className="py-4 text-xl font-bold capitalize">{title}</div>
          </Link>
          <div className="w-full px-6 border-b border-black/10 dark:border-white/10" />
          <div className="flex items-center justify-between py-3">
-            <HoverCard>
-               <HoverCardTrigger asChild>
-                  <Link
-                     to={`/account/${profile_id}`}
-                     className="flex items-center gap-3 capitalize"
-                     onClick={scrollToTop}>
-                     <img
-                        src={author_image}
-                        width={50}
-                        height={50}
-                        alt="user-profile-img"
-                        className="border border-accent w-[50px] h-[50px] rounded-full cursor-pointer object-cover"
-                     />
-                     <div className="flex items-center font-semibold gap-2">
-                        <p>{author} </p>
-                        <span>
-                           {isAuthorized && (
-                              <img
-                                 src="/GoldCheck-removebg-preview.png"
-                                 alt="checkmark"
-                                 height={24}
-                                 width={24}
-                              />
-                           )}
-                        </span>
-                     </div>
-                  </Link>
-               </HoverCardTrigger>
-               <HoverCardContent className="w-[380px]">
-                  <div className="flex space-x-4">
-                     <Link to={`/account/${profile_id}`} onClick={scrollToTop}>
-                        <Avatar>
-                           <AvatarImage
-                              src={author_image}
-                              className="object-cover"
-                           />
-                           <AvatarFallback className="uppercase">
-                              {author.substring(0, 2)}
-                           </AvatarFallback>
-                        </Avatar>
-                     </Link>
-                     <div className="space-y-1">
-                        <div className="flex justify-between gap-5">
-                           <Link
-                              to={`/account/${profile_id}`}
-                              onClick={scrollToTop}>
-                              <h4 className="font-semibold">{author}</h4>
-                           </Link>
-                           {profile_id !== userId && (
-                              <button
-                                 onClick={handleFollow}
-                                 type="submit"
-                                 className="justify-end px-4 py-1 font-semibold bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black">
-                                 {isFollowing ? "Unfollow" : "Follow"}
-                              </button>
-                           )}
-                        </div>
-                        <Link
-                           to={`/account/${profile_id}`}
-                           onClick={scrollToTop}>
-                           <h4 className="text-xs opacity-90">{username}</h4>
-                        </Link>
-                        <p className="pt-2 text-sm">{bio}</p>
-                        <div className="flex gap-3 py-2 text-sm">
-                           <p className="font-bold ">
-                              {followersCount}{" "}
-                              <span className="opacity-50">Followers</span>{" "}
-                           </p>
-                           <p className="font-bold">
-                              {followingCount}{" "}
-                              <span className="opacity-50">Following</span>{" "}
-                           </p>
-                        </div>
-                        <div className="flex items-center pt-2">
-                           <CalendarIcon className="w-4 h-4 mr-2 opacity-70" />
-                           <span className="text-xs text-muted-foreground">
-                              <p suppressHydrationWarning>
-                                 {joinedDate && (
-                                    <div className="flex items-center gap-2">
-                                       <p>
-                                          Joined on{" "}
-                                          {dateFormatter.format(
-                                             new Date(joinedDate)
-                                          )}
-                                       </p>
-                                       <p
-                                          suppressHydrationWarning
-                                          className="text-[10px]">
-                                          {" "}
-                                          (
-                                          {dayjs().diff(
-                                             joinedDate,
-                                             "seconds",
-                                             true
-                                          ) < 30
-                                             ? "just now"
-                                             : dayjs(joinedDate).fromNow()}
-                                          )
-                                       </p>
-                                    </div>
-                                 )}
-                              </p>
-                           </span>
-                        </div>
-                     </div>
-                  </div>
-               </HoverCardContent>
-            </HoverCard>
-
-            <div className="text-wh-300">
+            <Hover
+               profile_id={profile_id}
+               author_image={author_image}
+               author={author}
+               isFollowing={isFollowing}
+               isAuthorized={isAuthorized}
+               handleFollow={handleFollow}
+               username={username}
+               followingCount={followingCount}
+               followersCount={followersCount}
+               joinedDate={joinedDate}
+               bio={bio}
+            />
+            <div className="text-xs text-wh-300">
                {/* <p suppressHydrationWarning>
                   {dateFormatter.format(Date.parse(created_at))}
                </p>{" "} */}
@@ -484,24 +437,36 @@ const PostCard = ({
                </p>
             </div>
          </div>
-         <div className="pt-3 pb-8 text-lg font-medium capitalize">
+         <div className="pt-3 pb-4 text-sm font-medium first-letter:uppercase">
             {snippet.substring(0, 120)}...
          </div>
-         <div
-            className="flex flex-wrap items-center gap-4 py-5"
-            key={postCategories.map((post) => post.id)}>
-            {postCategories.map((catName, key) => (
-               <Link to={`/categories/${catName.id}`}>
-                  <Badge
-                     key={key}
-                     className="flex items-center px-3 py-2 border rounded-none font-normal ">
-                     # {catName.name}
-                  </Badge>
-               </Link>
-            ))}
+         <div className="text-xs">{readTime} mins read</div>
+         <div className="flex flex-wrap items-center gap-4 py-5">
+            {postCategories.slice(0, 3).map((cat, key) => {
+               let type;
+
+               if (cat.type === "Topic") {
+                  type = "tag";
+               } else if (cat.type === "Subtopic") {
+                  type = "subtopic";
+               } else {
+                  type = "subsubtopic";
+               }
+
+               return (
+                  <Link
+                     to={`/${type}/${cat.id}`}
+                     key={cat.id}
+                     onClick={scrollToTop}>
+                     <Badge className="flex items-center px-3 py-2 font-normal border rounded-full">
+                        # {cat.name}
+                     </Badge>
+                  </Link>
+               );
+            })}
          </div>
 
-         <div className="flex items-center justify-between pt-5 md:justify-normal md:gap-20">
+         <div className="flex items-center justify-between">
             <div className="flex items-center gap-1">
                <button onClick={user ? toggleBookmark : goHome}>
                   {isBookmarked ? (

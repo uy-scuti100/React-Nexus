@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Bell, ChevronDown, ChevronUp, Mail, X } from "lucide-react";
+import { ChevronDown, ChevronUp, X } from "lucide-react";
 import SideNav from "./SideNav";
 import { Link, useNavigate } from "react-router-dom";
 import { useFetchUser } from "../../../hooks/useFetchUser";
@@ -12,6 +12,13 @@ import {
    FollowerNotification,
    PostNotification,
 } from "./NotificationsComponent";
+import {
+   Tooltip,
+   TooltipContent,
+   TooltipProvider,
+   TooltipTrigger,
+} from "../../ui/tooltip";
+
 dayjs.extend(relativeTime);
 
 interface CommonNotificationProps {
@@ -305,11 +312,43 @@ const Navbar = () => {
             </div>
          )}
 
-         <nav className="fixed z-40 flex items-center  max-w-[1440px] justify-between w-full px-6 py-6 pt-6 bg-white border-b border-black/20 dark:bg-background ">
-            <div
-               className="text-3xl cursor-pointer md:text-4xl logo"
-               onClick={() => navigate("/posts")}>
-               Nexus
+         <nav className="fixed z-40 flex items-center justify-between  max-w-[1440px] px-6 w-full h-[57px] bg-white border-b border-black/20 dark:bg-background ">
+            <div className="flex items-center gap-5">
+               <p
+                  className="text-3xl cursor-pointer md:text-4xl logo"
+                  onClick={() => {
+                     navigate("/posts");
+                     scrollToTop();
+                  }}>
+                  Nexus
+               </p>
+
+               <TooltipProvider>
+                  <Tooltip>
+                     <TooltipTrigger>
+                        <p
+                           className="hidden cursor-pointer md:block"
+                           onClick={() => navigate("/search")}>
+                           <svg
+                              width="24"
+                              height="24"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              aria-label="Search"
+                              className="cursor-pointer">
+                              <path
+                                 fill-rule="evenodd"
+                                 clip-rule="evenodd"
+                                 d="M4.1 11.06a6.95 6.95 0 1 1 13.9 0 6.95 6.95 0 0 1-13.9 0zm6.94-8.05a8.05 8.05 0 1 0 5.13 14.26l3.75 3.75a.56.56 0 1 0 .8-.79l-3.74-3.73A8.05 8.05 0 0 0 11.04 3v.01z"
+                                 fill="currentColor"></path>
+                           </svg>
+                        </p>
+                     </TooltipTrigger>
+                     <TooltipContent>
+                        <p>Search</p>
+                     </TooltipContent>
+                  </Tooltip>
+               </TooltipProvider>
             </div>
             {user && (
                <div ref={sidenavRef}>
@@ -322,35 +361,54 @@ const Navbar = () => {
             {!user && (
                <Link
                   to="/"
-                  className={`${buttonVariants} px-4 py-2 text-lg transition-colors duration-300  border bg-black dark:bg-white text-white dark:text-black hover:text-black hover:bg-white hover:dark:text-white hover:dark:bg-black  `}>
+                  className={`${buttonVariants} px-4 py-2 text-lg transition-colors duration-300  border bg-black dark:bg-white text-white dark:text-black hover:text-black hover:bg-white hover:dark:text-white hover:dark:bg-black rounded-full  `}>
                   Sign in
                </Link>
             )}
             {user && (
                <div className="flex items-center gap-7">
                   {user && (
-                     <Link
-                        to={user ? "/write" : "/"}
-                        onClick={() => {
-                           toggleSideNav();
-                           scrollToTop();
-                        }}>
-                        <li className="flex items-center gap-4 cursor-pointer hover:opacity-75">
-                           <svg
-                              width="24"
-                              height="24"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              aria-label="Write">
-                              <path
-                                 d="M14 4a.5.5 0 0 0 0-1v1zm7 6a.5.5 0 0 0-1 0h1zm-7-7H4v1h10V3zM3 4v16h1V4H3zm1 17h16v-1H4v1zm17-1V10h-1v10h1zm-1 1a1 1 0 0 0 1-1h-1v1zM3 20a1 1 0 0 0 1 1v-1H3zM4 3a1 1 0 0 0-1 1h1V3z"
-                                 fill="currentColor"></path>
-                              <path
-                                 d="M17.5 4.5l-8.46 8.46a.25.25 0 0 0-.06.1l-.82 2.47c-.07.2.12.38.31.31l2.47-.82a.25.25 0 0 0 .1-.06L19.5 6.5m-2-2l2.32-2.32c.1-.1.26-.1.36 0l1.64 1.64c.1.1.1.26 0 .36L19.5 6.5m-2-2l2 2"
-                                 stroke="currentColor"></path>
-                           </svg>
-                        </li>
-                     </Link>
+                     <>
+                        <Link
+                           to={user ? "/write" : "/"}
+                           onClick={() => {
+                              toggleSideNav();
+                              scrollToTop();
+                           }}>
+                           <li className="items-center hidden gap-4 cursor-pointer md:block hover:opacity-75">
+                              <svg
+                                 width="24"
+                                 height="24"
+                                 viewBox="0 0 24 24"
+                                 fill="none"
+                                 aria-label="Write">
+                                 <path
+                                    d="M14 4a.5.5 0 0 0 0-1v1zm7 6a.5.5 0 0 0-1 0h1zm-7-7H4v1h10V3zM3 4v16h1V4H3zm1 17h16v-1H4v1zm17-1V10h-1v10h1zm-1 1a1 1 0 0 0 1-1h-1v1zM3 20a1 1 0 0 0 1 1v-1H3zM4 3a1 1 0 0 0-1 1h1V3z"
+                                    fill="currentColor"></path>
+                                 <path
+                                    d="M17.5 4.5l-8.46 8.46a.25.25 0 0 0-.06.1l-.82 2.47c-.07.2.12.38.31.31l2.47-.82a.25.25 0 0 0 .1-.06L19.5 6.5m-2-2l2.32-2.32c.1-.1.26-.1.36 0l1.64 1.64c.1.1.1.26 0 .36L19.5 6.5m-2-2l2 2"
+                                    stroke="currentColor"></path>
+                              </svg>
+                           </li>
+                        </Link>
+                        <Link to="/search" className="md:hidden">
+                           <li className="flex items-center gap-4 cursor-pointer hover:opacity-75">
+                              <svg
+                                 width="24"
+                                 height="24"
+                                 viewBox="0 0 24 24"
+                                 fill="none"
+                                 aria-label="Search"
+                                 className="cursor-pointer">
+                                 <path
+                                    fill-rule="evenodd"
+                                    clip-rule="evenodd"
+                                    d="M4.1 11.06a6.95 6.95 0 1 1 13.9 0 6.95 6.95 0 0 1-13.9 0zm6.94-8.05a8.05 8.05 0 1 0 5.13 14.26l3.75 3.75a.56.56 0 1 0 .8-.79l-3.74-3.73A8.05 8.05 0 0 0 11.04 3v.01z"
+                                    fill="currentColor"></path>
+                              </svg>
+                           </li>
+                        </Link>
+                     </>
                   )}
 
                   {user && (
@@ -363,7 +421,22 @@ const Navbar = () => {
                                  {combinedNotificationCount}
                               </div>
                            )}
-                        <Bell className="cursor-pointer" />
+                        <svg
+                           width="24"
+                           height="24"
+                           viewBox="0 0 24 24"
+                           fill="none"
+                           aria-label="Notifications"
+                           className="cursor-pointer">
+                           <path
+                              d="M15 18.5a3 3 0 1 1-6 0"
+                              stroke="currentColor"
+                              stroke-linecap="round"></path>
+                           <path
+                              d="M5.5 10.53V9a6.5 6.5 0 0 1 13 0v1.53c0 1.42.56 2.78 1.57 3.79l.03.03c.26.26.4.6.4.97v2.93c0 .14-.11.25-.25.25H3.75a.25.25 0 0 1-.25-.25v-2.93c0-.37.14-.71.4-.97l.03-.03c1-1 1.57-2.37 1.57-3.79z"
+                              stroke="currentColor"
+                              stroke-linejoin="round"></path>
+                        </svg>
                      </div>
                   )}
                   <div className="flex items-center">

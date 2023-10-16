@@ -52,8 +52,6 @@ const CategoryAndEdit = ({
    setPostImage,
    tempPostImage,
    setTempPostImage,
-   categoryIds,
-   postCategories,
 }: Props) => {
    const navigate = useNavigate();
    const [showDialog, setShowDialog] = useState(false);
@@ -112,7 +110,7 @@ const CategoryAndEdit = ({
          </Link> */}
 
          {post?.profile_id === userId && (
-            <div className="mt-4">
+            <div>
                {isEditable ? (
                   <div className="flex justify-between gap-3">
                      <button onClick={handleCancelEdit}>

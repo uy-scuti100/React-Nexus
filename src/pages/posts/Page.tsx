@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Category from "../../components/myComponents/global/Category";
 import Navbar from "../../components/myComponents/global/Navbar";
 import Sidebar from "../../components/myComponents/global/Sidebar";
@@ -77,10 +77,9 @@ const page = () => {
    return (
       <main className="relative">
          <Navbar />
-         <section className="px-6 pt-24">
-            <Category />
-            <div className="gap-10 pt-20 mb-5 md:flex">
-               <div className="md:basis-3/5 lg:basis-3/4">
+         <section className="px-6 pt-16 ">
+            <div className="gap-10 pt-5 mb-5 md:flex md:px-20">
+               <div className="md:basis-3/5 lg:basis-3/4 md:px-0 lg:px-24">
                   {/* posts */}
                   <HomeCard
                      blogPosts={blogPosts}
@@ -96,7 +95,7 @@ const page = () => {
                               onClick={handleLoadMoreClick}
                               className={`${
                                  isFetching && "bg-wh-300 animate-bounce"
-                              } w-full px-5 py-2 mt-5 font-semibold md:w-auto bg-accent-red hover-bg-wh-500 text-wh-10 dark-text-black`}>
+                              } w-full px-5 py-2 mt-5 font-semibold md:w-auto bg-accent-red hover-bg-wh-500 text-black`}>
                               {isFetching ? "Loading More..." : "Load More"}
                            </button>
                         </div>
@@ -118,7 +117,7 @@ const page = () => {
                   )}
                </div>
 
-               <div className="md:basis-2/5 lg:basis1/4">
+               <div className="md:pl-8 md:border-l md:basis-2/5 lg:basis1/4 border-foreground/40 lg:px-6">
                   <Sidebar type="home" />
                </div>
             </div>

@@ -5,7 +5,7 @@ import { useCategory } from "../../../hooks/useCategory";
 
 export const CategorySkeleton = () => {
    return (
-      <div className="h-10 px-10 duration-300 bg-gray-300 roundedhover:scale-105 animate-pulse "></div>
+      <div className="h-10 px-10 bg-gray-300 duration-2000 roundedhover:scale-105 animate-pulse "></div>
    );
 };
 
@@ -22,9 +22,7 @@ const Category = () => {
 
    return (
       <div className="flex items-center gap-6 py-4 overflow-x-auto">
-         <div>
-            <Plus />
-         </div>
+         <div></div>
          <Link to="/posts">
             <button
                className={` ${

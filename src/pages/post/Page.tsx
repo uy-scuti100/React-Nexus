@@ -10,8 +10,8 @@ const Post = () => {
    return (
       <main className="relative leading-7">
          <Navbar />
-         <div className="gap-10 px-6 pt-32 mb-5 md:px-32">
-            <div className="">
+         <div className="gap-10 px-6 pt-24 mb-5 md:px-32">
+            <div className="max-w-[43rem] mx-auto">
                <Content post={post} loading={isLoading} />
             </div>
          </div>

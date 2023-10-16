@@ -1,5 +1,6 @@
 import { Post } from "../../../types";
 import PostCardSkeleton from "../../components/myComponents/skeletons/PostCardSkeleton";
+import { calculateReadTime } from "../../lib/readTime";
 import PostCard from "../posts/PostCard";
 
 const CategoryCard = ({
@@ -28,11 +29,15 @@ const CategoryCard = ({
                bookmark_count,
                likes_count,
                comment_count,
+               content,
             } = post;
+
+            const readTime = calculateReadTime(content);
 
             return (
                <PostCard
                   key={id}
+                  readTime={readTime}
                   author={author}
                   id={id}
                   image={image}
@@ -65,7 +70,7 @@ const CategoryCard = ({
                         />
                      </div>
                   </div>
-                  <div className="pb-10 text-center text-2xl font-bold">
+                  <div className="pb-10 text-2xl font-bold text-center">
                      No posts in this Category
                   </div>
                </div>

@@ -9,6 +9,35 @@
    font-family: "Inter", sans-serif;
 }
 
+
+
+@layer utilities {
+   .scrollbar::-webkit-scrollbar {
+     width: 20px;
+     height: 10px;
+   }
+ 
+   .scrollbar::-webkit-scrollbar-track {
+     border-radius: 100vh;
+     background: #f7f4ed;
+   }
+ 
+   .scrollbar::-webkit-scrollbar-thumb {
+     background: #e0cbcb;
+     border-radius: 100vh;
+     border: 3px solid #f6f7ed;
+   }
+  .dark .scrollbar::-webkit-scrollbar-thumb {
+     background: #c0a0b9;
+     border-radius: 100vh;
+     border: 3px solid #f6f7ed;
+   }
+ 
+   .scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #742525;
+   }
+   
+ }
 @layer base {
    :root {
       --background: 0 0% 100%;
@@ -38,11 +67,13 @@
       --wh-300: 240 5.9% 58%;
       --wh-500: 240 5.9% 35%;
       --wh-900: 240 5.9% 6%;
-      --accent-red: 29 79% 60%;
-      --accent-orange: 44 89% 69%;
       --accent-green: 104 55% 81%;
+      --accent-red:44.47, 100%, 50%;
+      --accent-orange:44.47, 100%, 50%;
    }
-
+   
+   /* --accent-red: 29 79% 60%; */
+   /* --accent-orange: 44 89% 69%; */
    .dark {
       --background: 20 14.3% 4.1%;
       --foreground: 0 0% 95%;

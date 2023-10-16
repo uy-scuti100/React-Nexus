@@ -28,8 +28,13 @@
 import useSWR from "swr";
 import { fetchHashtags } from "../lib/hashtagUtils";
 
+export interface TopicProp {
+    name: string | null;
+     id: string | null; 
+    created_at: string | null; 
+}
 export const useHashtag = (): {
-   hashtags: { name: string | null; id: string | null }[] | null;
+   hashtags: TopicProp[] | null;
    isLoading: boolean;
    isError: boolean;
 } => {

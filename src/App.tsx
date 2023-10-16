@@ -6,10 +6,10 @@ import Post from "./pages/post/Page";
 import Search from "./pages/search/Page";
 import Posts from "./pages/posts/Page";
 import Write from "./pages/write/Page";
-import Category from "./pages/categories/Page";
-import Hashtag from "./pages/hashtags/Page";
-import Settings from "./pages/settings/Page";
-import Chat from "./pages/chat/Page";
+import Topics from "./pages/explore-topics/Page";
+import SubSubTopic from "./pages/subsubtopic/Page";
+import Topic from "./pages/subtopic/Page";
+import Tag from "./pages/tag/Page";
 
 const Layout = () => {
    return (
@@ -49,20 +49,20 @@ const router = createBrowserRouter([
             element: <Write />,
          },
          {
-            path: "/categories/:id",
-            element: <Category />,
+            path: "/explore-topics",
+            element: <Topics />,
          },
          {
-            path: "/hashtag/:id",
-            element: <Hashtag />,
+            path: "/tag/:id",
+            element: <Tag />,
          },
          {
-            path: "/settings",
-            element: <Settings />,
+            path: "/subtopic/:id",
+            element: <Topic />,
          },
          {
-            path: "/chat",
-            element: <Chat />,
+            path: "/subsubtopic/:id",
+            element: <SubSubTopic />,
          },
       ],
    },

@@ -7,12 +7,13 @@ import ReactQuill from "react-quill";
 import CategoryAndEdit from "./CategoryAndEdit";
 import rehypeRaw from "rehype-raw";
 import {
-   BadgeCheck,
-   CalendarIcon,
    Camera,
    Disc3,
    Heart,
    MessageCircle,
+   MoreHorizontal,
+   Play,
+   Share,
 } from "lucide-react";
 import CommentList from "./CommentList";
 import toast from "react-hot-toast";
@@ -20,31 +21,22 @@ import supabase from "../../lib/supabaseClient";
 import { useFetchUser } from "../../hooks/useFetchUser";
 import { useTheme } from "../../components/providers/theme/theme-provider";
 import { Textarea } from "../../components/ui/textarea";
-import SocialLinks from "../../components/myComponents/global/SocialLinks";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import ReactMarkdown from "react-markdown";
 import { Comment, Post } from "../../../types";
 import { Link, useNavigate } from "react-router-dom";
-import {
-   HoverCard,
-   HoverCardContent,
-   HoverCardTrigger,
-} from "../../components/ui/hover-card";
-import {
-   Avatar,
-   AvatarFallback,
-   AvatarImage,
-} from "../../components/ui/avatar";
-import PostSlider from "../../components/myComponents/global/PostSlider";
 import ContentSkeleton from "./ContentSkeleton";
 import { Badge } from "../../components/ui/badge";
+import { calculateReadTime } from "../../lib/readTime";
+import AboutWriter from "./AboutWriter";
+import Hover from "../posts/Hover";
 
 dayjs.extend(relativeTime);
 
-const dateFormatter = new Intl.DateTimeFormat(undefined, {
-   dateStyle: "medium",
-});
+// const dateFormatter = new Intl.DateTimeFormat(undefined, {
+//    dateStyle: "medium",
+// });
 
 hljs.configure({
    // optionally configure hljs
@@ -120,65 +112,75 @@ const formats = [
 
 const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
    const postImageUrl = import.meta.env.VITE_REACT_SUPABASE_IMAGE_URL;
-   const [tempPostImage, setTempPostImage] = useState<string | File | null>(
-      post?.image
-   );
    const [imageFile, setImageFile] = useState<File | null>(null);
    const { theme } = useTheme();
+   const { user } = useFetchUser();
+   const navigate = useNavigate();
    const [isEditing, setIsEditing] = useState(false);
    const [isEditable, setIsEditable] = useState<boolean>(false);
    const [commentText, setCommentText] = useState("");
+   const { user: currentUser } = useFetchUser();
+   const [isFollowing, setIsFollowing] = useState(false);
+   const [isPublished, setIsPublished] = useState(false);
+   const [followersCount, setFollowersCount] = useState(0);
+   const [followingCount, setFollowingCount] = useState(0);
    const [title, setTitle] = useState<string>("");
-   const [postImage, setPostImage] = useState<string | File | null>(
-      post?.image
-   );
-   const [snippet, setSnippet] = useState<string>(post?.snippet);
    const [titleError, setTitleError] = useState<string | "">("");
    const [commentError, setCommentError] = useState<string | "">("");
    const [snippetError, setSnippetError] = useState<string | "">("");
-   const [tempTitle, setTempTitle] = useState<string | "">(post?.title);
-   const [content, setContent] = useState<string | "">(post?.content);
    const [contentError, setContentError] = useState<string | "">("");
    const [postImageError, setPostImageError] = useState<string | "">("");
+   const [snippet, setSnippet] = useState<string>(post?.snippet);
+   const [tempTitle, setTempTitle] = useState<string | "">(post?.title);
+   const [content, setContent] = useState<string | "">(post?.content);
    const [tempContent, setTempContent] = useState<string | "">(post?.content);
    const [tempSnippet, setTempSnippet] = useState<string | "">(post?.snippet);
-   const [bookmarkCount, setBookmarkCount] = useState(
-      post?.bookmark_count || 0
-   );
+   const userId = user?.id;
+   const userImg = user?.display_pic;
+   const postId = post?.id;
+   const author_image = post?.author_image;
+   const author = post?.author;
+   const profile_id = post?.profile_id;
+   const currentUserId = currentUser?.id;
+   const [bookmarkCount, setBookmarkCount] = useState(0);
    const [bio, setBio] = useState("");
    const [username, setUsername] = useState("");
+   const [category_Ids, setCategory_Ids] = useState<Array<string>>([]);
+   const [readTime, setReadTime] = useState(0);
    const [joinedDate, setJoinedDate] = useState("");
    const [comments, setComments] = useState<Comment[]>([]);
-   const [commentCount, setCommentCount] = useState(post?.comment_count || 0);
-   const [likeCount, setLikeCount] = useState(post?.likes_count || 0);
+   const [commentCount, setCommentCount] = useState(0);
+   const [likeCount, setLikeCount] = useState(0);
    const [isBookmarked, setIsBookmarked] = useState(false);
    const [isLiked, setIsLiked] = useState(false);
+   const [tempPostImage, setTempPostImage] = useState<string | File | null>(
+      post?.image
+   );
+   const [postImage, setPostImage] = useState<string | File | null>(
+      post?.image
+   );
    const [isAuthorized, setIsAuthorized] = useState<boolean | undefined>(
       undefined
    );
    const imageInputRef = useRef<HTMLInputElement | null>(null);
-   const { user } = useFetchUser();
-   const userId = user?.id;
-   const name = user?.display_name;
-   const userImg = user?.display_pic;
-   const postId = post?.id;
-   const profile_id = post?.profile_id;
-   const { user: currentUser } = useFetchUser();
-   const [isFollowing, setIsFollowing] = useState(false);
-   const [followersCount, setFollowersCount] = useState(0);
-   const [followingCount, setFollowingCount] = useState(0);
-   const currentUserId = currentUser?.id;
-   const navigate = useNavigate();
    const [postCategories, setPostCategories] = useState<
-      Array<{ id: string; name: string }>
+      Array<{ id: string; name: string; type: string }>
    >([]);
 
-   const [category_Ids, setCategory_Ids] = useState<Array<string>>([]);
-   // console.log(categoryNames);
-
+   // calculate read time
+   useEffect(() => {
+      const newReadTime = calculateReadTime(content as string);
+      setReadTime(newReadTime);
+   }, [content, postId]);
+   // scroll to top
    const scrollToTop = () => {
       window.scrollTo({ top: 0, behavior: "smooth" });
    };
+   // navigate home
+   const goHome = () => {
+      navigate("/");
+   };
+   // setting iniial states
    useEffect(() => {
       const fetchData = async () => {
          try {
@@ -186,26 +188,55 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
                setTitle(post.title);
                setSnippet(post.snippet);
                setContent(post.content);
+               setBookmarkCount(post.bookmark_count as number);
+               setLikeCount(post.likes_count as number);
+               setCommentCount(post.comment_count as number);
                setCategory_Ids(post.category_Ids);
             }
 
             if (category_Ids && category_Ids.length > 0) {
-               const { data, error } = await supabase
-                  .from("categories")
-                  .select("*")
+               const topicData = await supabase
+                  .from("topics")
+                  .select("id, name, type")
                   .in("id", category_Ids);
 
-               if (error) {
+               const subtopicData = await supabase
+                  .from("subtopics")
+                  .select("id, name, type")
+                  .in("id", category_Ids);
+
+               const subsubtopicData = await supabase
+                  .from("subsubtopics")
+                  .select("id, name, type")
+                  .in("id", category_Ids);
+
+               if (
+                  topicData.error ||
+                  subtopicData.error ||
+                  subsubtopicData.error
+               ) {
                   console.error(
                      "Error fetching category names:",
-                     error.message
+                     topicData.error,
+                     subtopicData.error,
+                     subsubtopicData.error
                   );
                } else {
-                  const postCategories = data.map((category) => ({
+                  // Combine the results into one array of category names
+                  const combinedData = [
+                     ...topicData.data,
+                     ...subtopicData.data,
+                     ...subsubtopicData.data,
+                  ];
+
+                  // Extract the names and set the state
+                  const categoryNames = combinedData.map((category) => ({
                      id: category.id,
                      name: category.name,
+                     type: category.type,
                   }));
-                  setPostCategories(postCategories);
+
+                  setPostCategories(categoryNames);
                }
             }
          } catch (error: any) {
@@ -216,26 +247,22 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
       fetchData();
    }, [post, category_Ids, postId]);
 
-   const goHome = () => {
-      navigate("/");
-   };
-
    // check following
-   useEffect(() => {
-      async function checkFollowing() {
-         const { data, error } = await supabase
-            .from("follow")
-            .select()
-            .eq("follower_id", currentUserId)
-            .eq("following_id", profile_id);
+   async function checkFollowing() {
+      const { data, error } = await supabase
+         .from("follow")
+         .select()
+         .eq("follower_id", currentUserId)
+         .eq("following_id", profile_id);
 
-         if (data && data.length > 0) {
-            setIsFollowing(true);
-         } else {
-            setIsFollowing(false);
-         }
+      if (data && data.length > 0) {
+         setIsFollowing(true);
+      } else {
+         setIsFollowing(false);
       }
-
+   }
+   // check following useeffect
+   useEffect(() => {
       if (currentUserId && profile_id) {
          checkFollowing();
       }
@@ -300,6 +327,7 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
       }
    }, [currentUserId, profile_id]);
 
+   // fetching article author data
    useEffect(() => {
       const fetchData = async () => {
          try {
@@ -327,10 +355,6 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
       };
       fetchData();
    }, [profile_id]);
-
-   const updateCommentCount = (newCount: number) => {
-      setCommentCount(newCount);
-   };
 
    // post editing functionalities
 
@@ -513,6 +537,10 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
          console.error("Error submitting comment:", error);
       }
    };
+   // commentcount
+   const updateCommentCount = (newCount: number) => {
+      setCommentCount(newCount);
+   };
 
    // Fetch comments when the component mounts
    useEffect(() => {
@@ -642,9 +670,9 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
          {post ? (
             <div className="w-full max-w-full mb-10 prose">
                {/* BREADCRUMBS */}
-               <h5 className="pb-5 capitalize text-wh-300">{`Home > ${
+               {/* <h5 className="pb-5 capitalize text-wh-300">{`Home > ${
                   postCategories?.[0]?.name
-               }> ${post?.title.substring(0, 20)}`}</h5>
+               }> ${post?.title.substring(0, 20)}`}</h5> */}
                {/* CATEGORY AND EDIT */}
                <CategoryAndEdit
                   isEditable={isEditable}
@@ -688,7 +716,7 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
                         )}
                      </div>
                   ) : (
-                     <h3 className="mt-3 mb-6 text-[2rem] md:text-[2.625rem] leading-10 md:leading-relaxed font-bold capitalize">
+                     <h3 className="mt-3 mb-[5px] text-[2rem] md:text-[2.625rem] leading-10 break-words box-border font-bold capitalize lead">
                         {title}
                      </h3>
                   )}
@@ -708,135 +736,83 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
                         )}
                      </div>
                   ) : (
-                     <p className="mt-3 mb-6 text-lg">{post?.snippet}</p>
+                     <p className="mt-[5px] mb-6 text-lg leading-6">
+                        {post?.snippet}
+                     </p>
                   )}
-                  <div className="flex flex-wrap justify-between gap-3">
-                     <div className="flex items-center gap-2">
-                        <HoverCard>
-                           <HoverCardTrigger asChild>
-                              <Link
-                                 to={`/account/${profile_id}`}
-                                 onClick={scrollToTop}>
-                                 <h5 className="text-lg font-semibold ">
-                                    <span className="font-medium opacity-70">
-                                       {" "}
-                                       By
-                                    </span>{" "}
-                                    {post?.author}
-                                 </h5>
-                              </Link>
-                           </HoverCardTrigger>
-                           <HoverCardContent className="w-[380px]">
-                              <div className="flex space-x-4">
-                                 <Link
-                                    to={`/account/${profile_id}`}
-                                    onClick={scrollToTop}>
-                                    <Avatar>
-                                       <AvatarImage
-                                          src={post.author_image}
-                                          className="object-cover"
-                                       />
-                                       <AvatarFallback className="uppercase">
-                                          {post.author.substring(0, 2)}
-                                       </AvatarFallback>
-                                    </Avatar>
-                                 </Link>
-                                 <div className="space-y-1">
-                                    <div className="flex justify-between gap-5">
-                                       <Link to={`/account/${profile_id}`}>
-                                          <h4 className="font-semibold">
-                                             {post.author}
-                                          </h4>
-                                       </Link>
-                                       {currentUserId !== profile_id && (
-                                          <button
-                                             onClick={handleFollow}
-                                             type="submit"
-                                             className="px-4 py-1 font-semibold bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black">
-                                             {isFollowing
-                                                ? "Unfollow"
-                                                : "Follow"}
-                                          </button>
-                                       )}
-                                    </div>
-                                    <Link
-                                       to={`/account/${profile_id}`}
-                                       onClick={scrollToTop}>
-                                       <h4 className="text-xs opacity-90">
-                                          {username}
-                                       </h4>
-                                    </Link>
-                                    <p className="text-sm">{bio}</p>
-                                    <div className="flex gap-3 py-2 text-sm">
-                                       <p className="font-bold ">
-                                          {followersCount}{" "}
-                                          <span className="opacity-50">
-                                             Followers
-                                          </span>{" "}
-                                       </p>
-                                       <p className="font-bold">
-                                          {followingCount}{" "}
-                                          <span className="opacity-50">
-                                             Following
-                                          </span>{" "}
-                                       </p>
-                                    </div>
-                                    <div className="flex items-center pt-2">
-                                       <CalendarIcon className="w-4 h-4 mr-2 opacity-70" />
-                                       <span className="text-xs text-muted-foreground">
-                                          <p suppressHydrationWarning>
-                                             {joinedDate && (
-                                                <div className="flex items-center gap-2">
-                                                   <p>
-                                                      Joined on{" "}
-                                                      {dateFormatter.format(
-                                                         new Date(joinedDate)
-                                                      )}
-                                                   </p>
-                                                   <p
-                                                      suppressHydrationWarning
-                                                      className="text-[10px]">
-                                                      {" "}
-                                                      (
-                                                      {dayjs().diff(
-                                                         joinedDate,
-                                                         "seconds",
-                                                         true
-                                                      ) < 30
-                                                         ? "just now"
-                                                         : dayjs(
-                                                              joinedDate
-                                                           ).fromNow()}
-                                                      )
-                                                   </p>
-                                                </div>
-                                             )}
-                                          </p>
-                                       </span>
-                                    </div>
-                                 </div>
-                              </div>
-                           </HoverCardContent>
-                        </HoverCard>
 
-                        <span>
-                           {isAuthorized && (
-                              <img
-                                 src="/GoldCheck-removebg-preview.png"
-                                 alt="checkmark"
-                                 height={24}
-                                 width={24}
-                              />
-                           )}
-                        </span>
+                  {/* features== ---- audio, share and more */}
+                  <div className="flex flex-col gap-3">
+                     <div className="flex items-start gap-5 pb-3">
+                        <Hover
+                           profile_id={profile_id}
+                           author_image={author_image}
+                           author={author}
+                           isFollowing={isFollowing}
+                           isAuthorized={isAuthorized}
+                           handleFollow={handleFollow}
+                           username={username}
+                           followingCount={followingCount}
+                           followersCount={followersCount}
+                           joinedDate={joinedDate}
+                           bio={bio}
+                        />
+                        <div>
+                           <div className="flex items-center gap-3">
+                              <div className="flex items-center gap-2">
+                                 <Link to={`/account/${profile_id}`}>
+                                    <p className="">{post.author} . </p>
+                                 </Link>
+                                 {isAuthorized && (
+                                    <img
+                                       src="/bluecheck-removebg-preview.png"
+                                       alt="checkmark"
+                                       height={14}
+                                       width={14}
+                                    />
+                                 )}
+                              </div>
+                              <p className="text-sm text-[#1A8917]">
+                                 {" "}
+                                 {isFollowing ? "Following" : ""}{" "}
+                              </p>
+                           </div>
+                           {/* {!isPublished && (
+                              <p className="pt-1 text-sm opacity-75">
+                                 {" "}
+                                 Published in{" "}
+                                 <span className="font-semibold opacity-100">
+                                    Quora Digest
+                                 </span>
+                              </p>
+                           )} */}
+                           <div className="flex items-center gap-3 pt-1">
+                              <p className="text-xs">{readTime} min read.</p>{" "}
+                              <p suppressHydrationWarning className="text-xs">
+                                 {dayjs().diff(
+                                    post?.created_at,
+                                    "seconds",
+                                    true
+                                 ) < 30
+                                    ? "just now"
+                                    : dayjs(post?.created_at).fromNow()}
+                              </p>
+                           </div>
+                        </div>
                      </div>
-                     <h6 className=" text-wh-300">
-                        <p suppressHydrationWarning>
-                           {dayjs().diff(post?.created_at, "seconds", true) < 30
-                              ? "just now"
-                              : dayjs(post?.created_at).fromNow()}
+                     <div className="flex items-center gap-6 pb-16 opacity-70">
+                        <p className="flex items-center gap-2 px-4 py-2 text-xs border rounded-full cursor-pointer border-foreground/20">
+                           {" "}
+                           <Play className="w-4 h-4 " />
+                           Listen
                         </p>
-                     </h6>
+                        <p className="flex items-center gap-2 px-4 py-2 text-xs border rounded-full cursor-pointer border-foreground/20">
+                           <Share className="w-4 h-4 " /> Share
+                        </p>
+                        <p className="flex items-center gap-2 px-4 py-2 text-xs border rounded-full cursor-pointer border-foreground/20">
+                           <MoreHorizontal className="w-4 h-4 " /> More
+                        </p>
+                     </div>
                   </div>
 
                   {/* IMAGE */}
@@ -905,6 +881,7 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
                      </div>
                   )}
 
+                  {/* content */}
                   <div className={isEditable ? "" : "w-full max-w-full"}>
                      {isEditable ? (
                         <ReactQuill
@@ -948,17 +925,33 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
                      </div>
                   )}
                </form>
+               {/* post categories */}
                <div className="flex flex-wrap items-center gap-4 py-5">
-                  {postCategories.map((catName, key) => (
-                     <Link to={`/categories/${catName.id}`}>
-                        <Badge
-                           key={key}
-                           className="flex items-center px-3 py-2 border rounded-lg font-normal">
-                           # {catName.name}
-                        </Badge>
-                     </Link>
-                  ))}
+                  {postCategories.map((cat, key) => {
+                     let type;
+
+                     if (cat.type === "Topic") {
+                        type = "tag";
+                     } else if (cat.type === "Subtopic") {
+                        type = "subtopic";
+                     } else {
+                        type = "subsubtopic";
+                     }
+
+                     return (
+                        <Link
+                           to={`/${type}/${cat.id}`}
+                           key={cat.id}
+                           onClick={scrollToTop}>
+                           <Badge className="flex items-center px-3 py-2 font-normal border rounded-full">
+                              # {cat.name}
+                           </Badge>
+                        </Link>
+                     );
+                  })}
                </div>
+
+               {/* like , bookmark and comment action buttons */}
                <div className="flex items-center justify-between w-full px-4 py-5 border-y md:gap-20 md:justify-normal ">
                   <div className="flex items-center gap-1">
                      <button onClick={user ? toggleBookmark : goHome}>
@@ -1009,10 +1002,10 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
                               class="x1lliihq x1n2onr6"
                               color="rgb(255, 48, 64)"
                               fill={theme === "dark" ? "#ffffff" : "#000"}
-                              height="20"
+                              height="24"
                               role="img"
                               viewBox="0 0 48 48"
-                              width="20">
+                              width="24">
                               <title>Unlike</title>
                               <path d="M34.6 3.1c-4.5 0-7.9 1.8-10.6 5.6-2.7-3.7-6.1-5.5-10.6-5.5C6 3.1 0 9.6 0 17.6c0 7.3 5.4 12 10.6 16.5.6.5 1.3 1.1 1.9 1.7l2.3 2c4.4 3.9 6.6 5.9 7.6 6.5.5.3 1.1.5 1.6.5s1.1-.2 1.6-.5c1-.6 2.8-2.2 7.8-6.8l2-1.8c.7-.6 1.3-1.2 2-1.7C42.7 29.6 48 25 48 17.6c0-8-6-14.5-13.4-14.5z"></path>
                            </svg>
@@ -1023,11 +1016,7 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
                      <p>{likeCount > 0 ? <p>{likeCount}</p> : ""}</p>
                   </div>
                </div>
-               <div>
-                  <PostSlider
-                     prop={{ id: postId, userId: profile_id, name: name }}
-                  />
-               </div>
+
                {/* COMMENT LOGIC */}
                <div className="w-full py-4 mt-4">
                   <form
@@ -1082,10 +1071,14 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
                      </div>
                   </form>
                </div>
+
+               {/* displaying comments on a post */}
                <div className="pt-4 border-t">
                   {/* Pass the comments array to the CommentList component */}
                   {comments && comments.length > 0 && (
-                     <h1 className="pb-5 mb-5 text-2xl">Comments</h1>
+                     <h1 className="pb-5 mb-5 text-2xl">
+                        Comments ( {comments.length} )
+                     </h1>
                   )}
                   <CommentList
                      comments={comments}
@@ -1094,19 +1087,22 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
                      updateCommentCount={updateCommentCount}
                   />
                </div>
-               {/* SOCIAL LINKS */}
-               <div className="hidden w-1/3 mt-10 md:block">
-                  {theme === "dark" ? (
-                     <SocialLinks />
-                  ) : (
-                     <SocialLinks isDark={true} />
-                  )}
-               </div>
             </div>
          ) : (
             ""
          )}
          {loading && <ContentSkeleton />}
+
+         <AboutWriter
+            profile_id={profile_id}
+            author_image={author_image}
+            author={author}
+            isAuthorized={isAuthorized}
+            handleFollow={handleFollow}
+            postId={postId}
+            isFollowing={isFollowing}
+            categoryIds={category_Ids}
+         />
       </>
    );
 };

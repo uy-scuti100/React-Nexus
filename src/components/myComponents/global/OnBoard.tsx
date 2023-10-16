@@ -58,7 +58,7 @@ export default function OnBoard() {
                      </div>
                      <div className="pt-10 text-center md:text-left">
                         <Button
-                           className="w-[200px] bg-black p-6 duration-300 transition-colors rounded-none "
+                           className="w-[200px] bg-black p-6 duration-300 transition-colors rounded-full "
                            onClick={toggleJoinFormModal}>
                            Start writing
                            <span className="w-4 h-4 ml-2">

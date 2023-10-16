@@ -43,7 +43,7 @@ const OnboardNav = () => {
                </Button>
                <Button
                   size="sm"
-                  className="text-xs transition-colors duration-300 bg-black rounded-none"
+                  className="text-xs transition-colors duration-300 bg-black rounded-full"
                   onClick={toggleJoinFormModal}>
                   Get started
                </Button>

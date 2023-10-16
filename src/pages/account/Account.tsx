@@ -116,6 +116,7 @@ const Account = () => {
    const [isFollowerMutual, setIsFollowerMutual] = useState<{
       [key: string]: boolean;
    }>({});
+
    useEffect(() => {
       async function checkFollowerMutual() {
          const followerMutualStatus: { [key: string]: boolean } = {};
@@ -259,52 +260,6 @@ const Account = () => {
          }
       }
    };
-
-   // const handleFollowUnfollow = async (
-   //    userId: string,
-   //    isFollowing: boolean
-   // ) => {
-   //    if (isFollowing) {
-   //       // If already following, unfollow
-   //       const { error } = await supabase
-   //          .from("follow")
-   //          .delete()
-   //          .eq("follower_id", currentUserId)
-   //          .eq("following_id", userId);
-
-   //       if (!error) {
-   //          // Update the isFollowingMap to mark the user as unfollowed
-   //          setIsFollowingMap((prevMap) => {
-   //             const updatedMap = { ...prevMap };
-   //             updatedMap[userId] = false; // Mark as unfollowed
-   //             return updatedMap;
-   //          });
-
-   //          setFollowingCount((prevCount) => (prevCount as number) - 1);
-   //       }
-   //    } else {
-   //       // If not following, follow
-   //       const { error } = await supabase.from("follow").insert([
-   //          {
-   //             follower_id: currentUserId,
-   //             following_id: userId,
-   //             follower_username: currentUser?.username,
-   //             following_username: userId,
-   //          },
-   //       ]);
-
-   //       if (!error) {
-   //          // Update the isFollowingMap to mark the user as followed
-   //          setIsFollowingMap((prevMap) => {
-   //             const updatedMap = { ...prevMap };
-   //             updatedMap[userId] = true; // Mark as followed
-   //             return updatedMap;
-   //          });
-
-   //          setFollowingCount((prevCount) => (prevCount as number) + 1);
-   //       }
-   //    }
-   // };
 
    useEffect(() => {
       async function fetchFollowerProfiles() {
@@ -661,9 +616,9 @@ const Account = () => {
                <div className="w-full h-full duration-1000 animate-pulse bg-wh-300"></div>
             )}
 
-            <div className="absolute w-full p-4 -bottom-32 ">
+            <div className="absolute w-full p-4 top-32 -bottom-32 ">
                {avatar ? (
-                  <div className="w-32 h-32 overflow-hidden border-5 border-[#F5F5F5] rounded-full">
+                  <div className="w-32 h-32 overflow-hidden border-2 border-[#F5F5F5] rounded-full">
                      <img
                         src={avatar}
                         alt={`${name}'s profile image`}
@@ -714,10 +669,10 @@ const Account = () => {
                   <span>
                      {isVerified && (
                         <img
-                           src="/GoldCheck-removebg-preview.png"
+                           src="/bluecheck-removebg-preview.png"
                            alt="checkmark"
-                           height={24}
-                           width={24}
+                           height={16}
+                           width={16}
                         />
                      )}
                   </span>

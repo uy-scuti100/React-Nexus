@@ -431,3 +431,294 @@
 //       </>
 //    );
 // }
+
+
+
+
+
+               <TooltipProvider>
+                  <Tooltip>
+                     <TooltipTrigger>
+                        <p
+                           className="hidden cursor-pointer md:block"
+                           onClick={() => navigate("/search")}>
+                           <Search className="w-6 h-6 opacity-50" />
+                        </p>
+                     </TooltipTrigger>
+                     <TooltipContent>
+                        <p>Search</p>
+                     </TooltipContent>
+                  </Tooltip>
+               </TooltipProvider>
+
+
+
+               <div className="w-full px-6 py-4 border-b border-black/10 dark:border-white/10" />
+
+                <button className="flex items-center px-2 py-2 text-xs font-normal transition-transform duration-300 bg-black rounded-full hover:scale-105 w-max whitespace-nowrap dark:bg-white text-black ">
+                                 {name}
+                              </button>
+
+
+
+
+
+
+                              import { useEffect, useState } from "react";
+import { useSingleHashtag } from "../../hooks/useFetchSingleHashtag";
+import { useParams } from "react-router-dom";
+import supabase from "../../lib/supabaseClient";
+import { useFetchUser } from "../../hooks/useFetchUser";
+
+const Topics = () => {
+   const [hashtagId, setHashtagId] = useState<string | null | undefined>(null);
+   const [hashtagName, setHashtagName] = useState<string | null | undefined>(
+      null
+   );
+   const [subtopic, setSubtopic] = useState<
+      Array<{ name: string; description: string; id: string }>
+   >([]);
+   const [subSubTopic, setSubSubTopic] = useState<Array<{
+      name: string;
+      description: string;
+      id: string;
+   }> | null>([]);
+   const { id } = useParams();
+   const { user } = useFetchUser();
+   const userId = user?.id;
+   const [isFollowing, setIsFollowing] = useState(false);
+
+   const { hashtag: hashtagData } = useSingleHashtag(id as string);
+
+   useEffect(() => {
+      setHashtagId(hashtagData?.id);
+      setHashtagName(hashtagData?.name);
+   }, [hashtagData]);
+
+   useEffect(() => {
+      const fetchSubtopic = async () => {
+         const { data, error } = await supabase
+            .from("subtopics")
+            .select("*")
+            .eq("parent_topic_id", hashtagId);
+
+         if (data && !error) {
+            setSubtopic(data);
+
+            // After setting the subtopics, you can query related subsubtopics
+            const subtopicIds = data.map((subtopic) => subtopic.id);
+
+            const { data: subSubData, error: subSubError } = await supabase
+               .from("subsubtopics")
+               .select("*")
+               .in("parent_subtopic_id", subtopicIds);
+
+            if (subSubData && !subSubError) {
+               setSubSubTopic(subSubData);
+            }
+         }
+      };
+      fetchSubtopic();
+   }, [hashtagId]);
+   // Check if the user is already following the topic
+   // useEffect(() => {
+   //    async function checkIsFollowing() {
+   //       const { data, error } = await supabase
+   //          .from("topicfellowship")
+   //          .select()
+   //          .eq("user_id", userId)
+   //          .eq("topic_id", hashtagId)
+   //          .single();
+
+   //       if (data) {
+   //          setIsFollowing(true);
+   //       } else {
+   //          setIsFollowing(false);
+   //       }
+   //    }
+
+   //    checkIsFollowing();
+   // }, [userId, hashtagId]);
+
+   async function followTopic(type: string) {
+      try {
+         if (isFollowing) {
+            // If the user is already following, unfollow the topic
+            const { data, error } = await supabase
+               .from("topicfellowship")
+               .delete()
+               .eq("user_id", userId)
+               .eq("topic_id", hashtagId);
+
+            if (!error) {
+               // Record successfully deleted
+               setIsFollowing(false);
+               alert("You have unfollowed the topic.");
+            } else {
+               // Handle errors here, e.g., display an error message
+               alert("Failed to unfollow the topic.");
+               console.log(error);
+            }
+         } else {
+            // If the user is not following, follow the topic
+            const { data, error } = await supabase
+               .from("topicfellowship")
+               .insert([{ user_id: userId, topic_id: hashtagId, type }]);
+
+            if (data && !error) {
+               // Record successfully inserted
+               setIsFollowing(true);
+               alert("You are now following the topic.");
+            } else {
+               // Handle errors here, e.g., display an error message
+               alert("Failed to follow the topic.");
+               console.log(error);
+            }
+         }
+      } catch (error) {
+         console.error("An error occurred:", error);
+      }
+   }
+
+   return (
+      <main>
+         <section>
+            <div className="py-20 font-black">{hashtagName}</div>
+            <button
+               className="px-4 py-2 text-black border border-black bg-accent-orange"
+               onClick={() => followTopic("Topic")}>
+               {isFollowing ? "Unfollow" : "Follow"}
+            </button>
+            {isFollowing && <p>You are following this topic.</p>}
+
+            {subtopic.map((topic) => (
+               <div key={topic.id} className="flex flex-col gap-3 my-7">
+                  <h1>{topic.name}</h1>
+                  <p>{topic.description}</p>
+                  <p className="pl-6">
+                     {subSubTopic?.map((topic) => (
+                        <div
+                           key={topic.id}
+                           className="flex flex-col items-center gap-3 my-7">
+                           <h1>{topic.name}</h1>
+                           <p>{topic.description}</p>
+                        </div>
+                     ))}
+                  </p>
+               </div>
+            ))}
+         </section>
+      </main>
+   );
+};
+
+export default Topics;
+
+
+
+
+import { useEffect, useState } from "react";
+import supabase from "../../lib/supabaseClient";
+
+import { BiChevronUp } from "react-icons/bi";
+
+const Topics = () => {
+   const [topics, setTopics] = useState<
+      Array<{ name: string; description: string; id: string }>
+   >([]);
+   const [subTopic, setSubTopic] = useState<
+      Array<{ name: string; description: string; id: string }>
+   >([]);
+   const [subSubTopic, setSubSubTopic] = useState<Array<{
+      name: string;
+      description: string;
+      id: string;
+   }> | null>([]);
+
+   useEffect(() => {
+      const fetchData = async () => {
+         const { data: topicsData, error: topicsError } = await supabase
+            .from("topics")
+            .select("*");
+
+         if (topicsError) {
+            console.error("Error fetching topics:", topicsError);
+            return;
+         }
+
+         setTopics(topicsData);
+
+         const topicIds = topicsData.map((topic) => topic.id);
+
+         const { data: subtopicsData, error: subtopicsError } = await supabase
+            .from("subtopics")
+            .select("*")
+            .in("parent_topic_id", topicIds);
+
+         if (subtopicsError) {
+            console.error("Error fetching subtopics:", subtopicsError);
+            return;
+         }
+
+         setSubTopic(subtopicsData);
+
+         const subtopicIds = subtopicsData.map((subtopic) => subtopic.id);
+
+         const { data: subsubtopicsData, error: subsubtopicsError } =
+            await supabase
+               .from("subsubtopics")
+               .select("*")
+               .in("parent_subtopic_id", subtopicIds);
+
+         if (subsubtopicsError) {
+            console.error("Error fetching subsubtopics:", subsubtopicsError);
+            return;
+         }
+
+         setSubSubTopic(subsubtopicsData);
+      };
+
+      fetchData();
+   }, []);
+
+   return (
+      <main className="relative max-w-[1440px]">
+         <section className="flex flex-col grid-cols-3 gap-6 px-6 md:gap-8 md:grid">
+            {topics.map((topic) => (
+               <div key={topic.id} className="col-span-1 ">
+                  <div className="flex items-center justify-between w-full pb-3">
+                     <h1 className="text-xl font-bold">{topic.name}</h1>
+                     <BiChevronUp className="md:hidden" />
+                  </div>
+               </div>
+            ))}
+         </section>
+         <p>
+            <p className="pl-6">
+               {subTopic?.map((topic) => (
+                  <div
+                     key={topic.id}
+                     className="flex flex-col w-full gap-3 my-7">
+                     <h1 className="text-sm font-semibold">{topic.name}</h1>
+                     <BiChevronUp className="md:hidden" />
+                  </div>
+               ))}
+            </p>
+         </p>
+         <p>
+            <p className="pl-6">
+               {subSubTopic?.map((topic) => (
+                  <div
+                     key={topic.id}
+                     className="flex flex-col w-full gap-3 my-7">
+                     <h1 className="text-sm">{topic.name}</h1>
+                     <BiChevronUp className="md:hidden" />
+                  </div>
+               ))}
+            </p>
+         </p>
+      </main>
+   );
+};
+
+export default Topics;
