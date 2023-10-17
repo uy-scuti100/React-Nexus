@@ -722,3 +722,24 @@ const Topics = () => {
 };
 
 export default Topics;
+
+
+
+
+
+<CategoryCard
+                     isLoading={isLoading}
+                     categoryPosts={categoryPosts}
+                  />
+                  {categoryPosts &&
+                     totalCount !== null &&
+                     categoryPosts.length < totalCount && (
+                        <button
+                           disabled={isFetching}
+                           onClick={fetchMorePosts}
+                           className={`${
+                              isFetching && "bg-wh-300 animate-bounce"
+                           } w-full px-5 py-2 mt-5 font-semibold md:w-auto bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black`}>
+                           {isFetching ? "Loading More..." : " Load More"}
+                        </button>
+                     )}

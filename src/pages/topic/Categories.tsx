@@ -36,6 +36,7 @@ const CategoryCard = ({
 
             return (
                <PostCard
+                  content={content}
                   key={id}
                   readTime={readTime}
                   author={author}
@@ -61,10 +62,10 @@ const CategoryCard = ({
          {categoryPosts === null ||
             (Array.isArray(categoryPosts) && categoryPosts.length === 0 && (
                <div>
-                  <div className="flex items-center justify-center bg-white">
+                  <div className="flex items-center justify-center">
                      <div className="relative w-full md:w-[500px] h-[500px]">
                         <img
-                           src="/No data-amico.svg"
+                           src="/No data-amico.png"
                            alt="loading-image"
                            className="object-cover"
                         />

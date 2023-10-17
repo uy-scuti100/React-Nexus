@@ -28,6 +28,7 @@ import { motion } from "framer-motion";
 import { Settings } from "./Settings";
 import PostCardSkeleton from "../../components/myComponents/skeletons/PostCardSkeleton";
 import { Badge } from "../../components/ui/badge";
+import { calculateReadTime } from "../../lib/readTime";
 interface PostCardProps {
    author: string;
    id: string;
@@ -43,6 +44,7 @@ interface PostCardProps {
    comment_count: number;
    profile_id: string;
    category_Ids: string[];
+   content: string;
 }
 
 interface HashtagProp {
@@ -1217,40 +1219,45 @@ const Account = () => {
                   <div className="flex flex-col w-full gap-5">
                      {posts && posts.length > 0 ? (
                         // Render posts if there are any
-                        posts.map((post, index) => (
-                           <motion.div
-                              key={post.id}
-                              initial={{ opacity: 0, y: 20 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{
-                                 duration: 0.4,
-                                 ease: [0.25, 0.25, 0, 1],
-                                 delay: index / 15, // Adjust the delay as needed
-                              }}>
-                              <PostCard
+                        posts.map((post, index) => {
+                           const readTime = calculateReadTime(post?.content);
+                           return (
+                              <motion.div
                                  key={post.id}
-                                 author={post.author}
-                                 id={post.id}
-                                 image={post.image}
-                                 snippet={post.snippet}
-                                 title={post.title}
-                                 author_image={post.author_image}
-                                 bookmark_count={post.bookmark_count}
-                                 created_at={post.created_at}
-                                 likes_count={post.likes_count}
-                                 comment_count={post.comment_count}
-                                 profile_id={post.profile_id}
-                                 category_Ids={post.category_Ids}
-                              />
-                           </motion.div>
-                        ))
+                                 initial={{ opacity: 0, y: 20 }}
+                                 animate={{ opacity: 1, y: 0 }}
+                                 transition={{
+                                    duration: 0.4,
+                                    ease: [0.25, 0.25, 0, 1],
+                                    delay: index / 15, // Adjust the delay as needed
+                                 }}>
+                                 <PostCard
+                                    key={post.id}
+                                    author={post.author}
+                                    id={post.id}
+                                    image={post.image}
+                                    snippet={post.snippet}
+                                    title={post.title}
+                                    author_image={post.author_image}
+                                    bookmark_count={post.bookmark_count}
+                                    created_at={post.created_at}
+                                    likes_count={post.likes_count}
+                                    comment_count={post.comment_count}
+                                    profile_id={post.profile_id}
+                                    category_Ids={post.category_Ids}
+                                    readTime={readTime}
+                                    content={post.content}
+                                 />
+                              </motion.div>
+                           );
+                        })
                      ) : (
                         // Render the "No posts" div when there are no posts
                         <div>
-                           <div className="flex items-center justify-center mb-10 bg-white">
+                           <div className="flex items-center justify-center">
                               <div className="relative w-full md:w-[500px] h-[500px]">
                                  <img
-                                    src="/No data-amico.svg"
+                                    src="/No data-amico.png"
                                     alt="loading-image"
                                     className="object-cover"
                                  />

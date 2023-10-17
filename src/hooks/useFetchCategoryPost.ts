@@ -3,15 +3,15 @@ import { fetchCategoryPosts } from "../lib/fetchCategoryPostUtil"; // Update the
 import { Post } from "../../types";
 
 export const useFetchCategoryPost = (
-   categoryId: string
+   paramsId: string
 ): {
    posts: Post[] | null | undefined;
    isLoading: boolean;
    isError: boolean;
 } => {
    const { data: posts, error } = useSWR(
-      categoryId ? `categoryPosts-${categoryId}` : null,
-      () => fetchCategoryPosts(categoryId), // Update the function name here
+      paramsId ? `categoryPosts-${paramsId}` : null,
+      () => fetchCategoryPosts(paramsId), // Update the function name here
       {
         revalidateOnMount: true
       }

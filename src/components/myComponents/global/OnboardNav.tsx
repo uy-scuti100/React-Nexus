@@ -28,26 +28,24 @@ const OnboardNav = () => {
 
    return (
       <nav
-         className={`z-20 transition-colors duration-700 fixed w-full px-6 py-4 ${
+         className={`z-20 transition-colors duration-700 flex items-center justify-between  max-w-[1440px] px-6 w-full h-[57px] ${
             navColor ? "bg-background" : "bg-[#51b045]"
          }  border-b border-black/30 dark:border-white/20`}>
-         <div className="flex items-center self-center justify-between md:max-w-[1192px] mx-auto">
-            <div className="text-2xl md:text-5xl logo ">Nexus</div>
-            <div className="flex items-center gap-4">
-               {/* <ModeToggle /> */}
-               <Button
-                  variant="link"
-                  className="hidden text-xs text-black dark:text-white md:block"
-                  onClick={toggleWelcomeFormModal}>
-                  Sign In
-               </Button>
-               <Button
-                  size="sm"
-                  className="text-xs transition-colors duration-300 bg-black rounded-full"
-                  onClick={toggleJoinFormModal}>
-                  Get started
-               </Button>
-            </div>
+         <h2 className="text-3xl text-black md:text-4xl logo ">Nexus</h2>
+         <div className="flex items-center gap-4">
+            {/* <ModeToggle /> */}
+            <Button
+               variant="link"
+               className="hidden text-xs text-black md:block"
+               onClick={toggleWelcomeFormModal}>
+               Sign In
+            </Button>
+            <Button
+               size="sm"
+               className="text-xs transition-colors duration-300 bg-black rounded-full"
+               onClick={toggleJoinFormModal}>
+               Get started
+            </Button>
          </div>
       </nav>
    );

@@ -35,7 +35,7 @@ export default function SideNav({
 
    return (
       <nav
-         className={` ${className} transition-all rounded duration-500 ease z-30 md:w-[300px] overflow-x-hidden w-[200px] bg-background overflow-y-auto fixed top-[85px] shadow-lg`}>
+         className={` ${className} transition-all rounded duration-500 ease z-30 md:w-[300px] overflow-x-hidden w-[200px] bg-background overflow-y-auto fixed top-[57px] shadow-lg`}>
          <div className="p-4">
             <ul className="flex flex-col gap-8">
                <Link

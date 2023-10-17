@@ -77,7 +77,7 @@ const Sidebar = (props: SidebarProp) => {
                         navigate("/explore-topics");
                         scrollToTop();
                      }}
-                     className="px-5 py-2 text-sm font-bold capitalize transition-transform duration-300 hover:scale-105 w-max whitespace-nowrap bg-accent-orange text-white-900">
+                     className="px-5 py-2 text-sm font-bold capitalize transition-transform duration-300 rounded-full hover:scale-105 w-max whitespace-nowrap bg-accent-orange text-white-900">
                      Explore more exciting topics
                   </button>
                </div>

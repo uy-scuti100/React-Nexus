@@ -4,7 +4,7 @@ import supabase from "../../lib/supabaseClient";
 import SearchInput from "./SearchInput";
 import SearchResult from "./SearchResults";
 // Interface for data returned by searchPeople
-interface SearchResult {
+interface SearchResultProp {
    // people
    id: string;
    display_name?: string;
@@ -22,7 +22,9 @@ interface SearchResult {
 const Search = () => {
    const [selectedCategory, setSelectedCategory] = useState("people");
    const [searchQuery, setSearchQuery] = useState("");
-   const [searchResults, setSearchResults] = useState<Array<SearchResult>>([]);
+   const [searchResults, setSearchResults] = useState<Array<SearchResultProp>>(
+      []
+   );
    let searchTimeout: NodeJS.Timeout | undefined;
 
    const debouncedSearch = (category: string, query: string) => {

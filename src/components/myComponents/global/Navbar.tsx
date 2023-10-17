@@ -314,14 +314,14 @@ const Navbar = () => {
 
          <nav className="fixed z-40 flex items-center justify-between  max-w-[1440px] px-6 w-full h-[57px] bg-white border-b border-black/20 dark:bg-background ">
             <div className="flex items-center gap-5">
-               <p
+               <h2
                   className="text-3xl cursor-pointer md:text-4xl logo"
                   onClick={() => {
                      navigate("/posts");
                      scrollToTop();
                   }}>
                   Nexus
-               </p>
+               </h2>
 
                <TooltipProvider>
                   <Tooltip>

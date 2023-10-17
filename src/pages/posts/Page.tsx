@@ -6,35 +6,40 @@ import HomeCard from "./HomeCard";
 import supabase from "../../lib/supabaseClient";
 import { usePost } from "../../hooks/usePost";
 import { Post } from "../../../types";
+import TopicSlider from "../../components/myComponents/global/TopicSlider";
+import PostCardSkeleton from "../../components/myComponents/skeletons/PostCardSkeleton";
+import { calculateReadTime } from "../../lib/readTime";
+import PostCard from "./PostCard";
 
 const page = () => {
    const [isFetching, setIsFetching] = useState(false);
    const [totalPosts, setTotalPosts] = useState<number | null>(0);
-   const { posts: initialPosts, isLoading } = usePost();
-   const [error, setError] = useState(false);
+   const { posts, isLoading } = usePost();
    const [blogPosts, setBlogPosts] = useState<Post[] | null>([]);
+   const [error, setError] = useState(false);
+   const FROM = Number(blogPosts?.length);
 
    useEffect(() => {
-      setBlogPosts(initialPosts);
-   });
-   //  Function to fetch the total number of posts
-   const fetchTotalPosts = async () => {
-      try {
-         const { count, error } = await supabase
-            .from("posts")
-            .select("count", { count: "exact" });
+      setBlogPosts(posts);
+   }, []);
 
-         if (!error) {
-            setTotalPosts(count); // Set the total number of posts
-         } else {
+   //  Function to fetch the total number of posts
+   useEffect(() => {
+      const fetchTotalPosts = async () => {
+         try {
+            const { count, error } = await supabase
+               .from("posts")
+               .select("count", { count: "exact" });
+
+            if (!error) {
+               setTotalPosts(count); // Set the total number of posts
+            } else {
+               console.log(error);
+            }
+         } catch (error) {
             console.log(error);
          }
-      } catch (error) {
-         console.log(error);
-      }
-   };
-
-   useEffect(() => {
+      };
       fetchTotalPosts();
    }, []);
 
@@ -44,22 +49,23 @@ const page = () => {
          return; // If already fetching, do nothing
       }
       setIsFetching(true);
+
       try {
-         const from = blogPosts ? blogPosts.length : 0;
-         console.log("Fetching from:", from); // Log the 'from' value
+         console.log("Fetching from:", FROM); // Log the 'from' value
+
          const { data, error } = await supabase
             .from("posts")
             .select("*")
-            .range(from, from + 9)
+            .range(FROM, FROM + 9)
             .order("created_at", { ascending: false });
+
          console.log("Fetched data:", data); // Log the fetched data
          console.log("Fetch error:", error); // Log any errors
 
-         if (!error) {
-            if (data && data.length > 0) {
-               setBlogPosts((prevPosts) => [...(prevPosts || []), ...data]);
-            } else {
-               setError(true);
+         if (data && data.length > 0) {
+            if (blogPosts !== null) {
+               // Check if blogPosts is not null before concatenating
+               setBlogPosts(blogPosts.concat(data));
             }
          } else {
             setError(true);
@@ -70,32 +76,74 @@ const page = () => {
          setIsFetching(false);
       }
    };
-
    const handleLoadMoreClick = () => {
       fetchMorePosts();
    };
+   const skeletonElements = Array.from(
+      { length: totalPosts || 5 },
+      (_, index) => <PostCardSkeleton key={index} />
+   );
    return (
       <main className="relative">
          <Navbar />
          <section className="px-6 pt-16 ">
-            <div className="gap-10 pt-5 mb-5 md:flex md:px-20">
-               <div className="md:basis-3/5 lg:basis-3/4 md:px-0 lg:px-24">
-                  {/* posts */}
-                  <HomeCard
-                     blogPosts={blogPosts}
-                     isLoading={isLoading}
-                     totalPosts={totalPosts}
-                  />
+            <div className="grid-cols-5 gap-10 pt-5 mb-5 lg:grid md:px-20">
+               <div className="overflow-x-hidden lg:col-span-3 md:px-0 lg:px-12">
+                  <TopicSlider />
+                  {blogPosts?.map((post: Post) => {
+                     const {
+                        author,
+                        id,
+                        image,
+                        snippet,
+                        title,
+                        created_at,
+                        profile_id,
+                        author_image,
+                        bookmark_count,
+                        likes_count,
+                        comment_count,
+                        category_Ids,
+                        content,
+                     } = post;
+                     const readTime = calculateReadTime(content);
+
+                     return (
+                        <PostCard
+                           key={id}
+                           author={author}
+                           id={id}
+                           image={image}
+                           snippet={snippet}
+                           title={title}
+                           author_image={author_image}
+                           bookmark_count={bookmark_count}
+                           created_at={created_at}
+                           likes_count={likes_count}
+                           comment_count={comment_count}
+                           profile_id={profile_id}
+                           category_Ids={category_Ids}
+                           readTime={readTime}
+                           content={content}
+                        />
+                     );
+                  })}
+                  {isLoading && (
+                     <div className="flex flex-col w-full">
+                        {skeletonElements}
+                     </div>
+                  )}
+
                   {totalPosts !== null &&
-                     blogPosts !== null &&
-                     totalPosts > (blogPosts ? blogPosts.length : 0) && (
+                     posts !== null &&
+                     totalPosts > (posts ? posts.length : 0) && (
                         <div className="my-10">
                            <button
                               disabled={isFetching}
                               onClick={handleLoadMoreClick}
                               className={`${
                                  isFetching && "bg-wh-300 animate-bounce"
-                              } w-full px-5 py-2 mt-5 font-semibold md:w-auto bg-accent-red hover-bg-wh-500 text-black`}>
+                              } w-full px-5 py-2 mt-5 font-semibold md:w-auto bg-accent-red  rounded-full hover-bg-wh-500 text-black`}>
                               {isFetching ? "Loading More..." : "Load More"}
                            </button>
                         </div>
@@ -113,11 +161,13 @@ const page = () => {
                   )}
 
                   {totalPosts === 0 && (
-                     <div className="pb-10">No Posts to fetch</div>
+                     <div className="flex flex-col w-full">
+                        {skeletonElements}
+                     </div>
                   )}
                </div>
 
-               <div className="md:pl-8 md:border-l md:basis-2/5 lg:basis1/4 border-foreground/40 lg:px-6">
+               <div className="md:pl-8 md:border-l lg:col-span-2 border-foreground/40 lg:px-6">
                   <Sidebar type="home" />
                </div>
             </div>

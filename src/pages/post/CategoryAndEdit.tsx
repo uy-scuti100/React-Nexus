@@ -114,16 +114,16 @@ const CategoryAndEdit = ({
                {isEditable ? (
                   <div className="flex justify-between gap-3">
                      <button onClick={handleCancelEdit}>
-                        <X className="w-6 h-6 cursor-pointer text-accent-red" />
+                        <X className="w-6 h-6 cursor-pointer" />
                      </button>
                   </div>
                ) : (
                   <div className="flex items-center gap-8 pb-8">
                      <button onClick={handleEnableEdit}>
-                        <PencilLine className="w-6 h-6 cursor-pointer text-accent-red" />
+                        <PencilLine className="w-6 h-6 cursor-pointer" />
                      </button>
                      <div onClick={handleShowDialog}>
-                        <Trash2 className="w-6 h-6 text-red-700 cursor-pointer" />
+                        <Trash2 className="w-6 h-6 cursor-pointer" />
                      </div>
                      {showDialog && (
                         <div className="fixed inset-0 z-50 h-screen mx-5 backdrop-blur">

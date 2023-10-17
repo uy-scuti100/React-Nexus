@@ -10,6 +10,7 @@ import Topics from "./pages/explore-topics/Page";
 import SubSubTopic from "./pages/subsubtopic/Page";
 import Topic from "./pages/subtopic/Page";
 import Tag from "./pages/tag/Page";
+import Mytags from "./pages/topic/Page";
 
 const Layout = () => {
    return (
@@ -63,6 +64,10 @@ const router = createBrowserRouter([
          {
             path: "/subsubtopic/:id",
             element: <SubSubTopic />,
+         },
+         {
+            path: "/topic/:id",
+            element: <Mytags />,
          },
       ],
    },

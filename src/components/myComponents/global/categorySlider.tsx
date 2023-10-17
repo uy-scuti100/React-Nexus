@@ -16,7 +16,7 @@ const CategorySlider = ({
          <Link
             to={`/explore-topics`}
             className="flex items-center p-2 text-xs font-normal text-white transition-transform duration-300 bg-black rounded-full md:px-6 hover:scale-105 w-max whitespace-nowrap dark:bg-white dark:text-black">
-            <span className="md:mr-2 ">
+            <span className="">
                <svg viewBox="0 0 24 24" fill="none" height="24" width="24">
                   <circle cx="12" cy="12" r="10" stroke="currentColor"></circle>
                   <path
@@ -32,7 +32,7 @@ const CategorySlider = ({
             const { id, name } = topic;
 
             return (
-               <Link to={`/${channel}/${id}`}>
+               <Link to={`/${channel}/${id}`} key={id}>
                   <button className="flex items-center px-6 py-2 text-sm font-normal text-white transition-transform duration-300 bg-black rounded-full hover:scale-105 w-max whitespace-nowrap dark:bg-white dark:text-black">
                      {name}
                   </button>

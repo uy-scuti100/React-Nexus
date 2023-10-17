@@ -1,5 +1,3 @@
-import { Button } from "../../ui/button";
-import { Plus } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { useCategory } from "../../../hooks/useCategory";
 

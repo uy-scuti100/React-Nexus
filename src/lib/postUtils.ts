@@ -6,7 +6,7 @@ export async function fetchPosts(): Promise<Post[] | null> {
       const { data: posts, error } = await supabase
          .from("posts")
          .select("*")
-         .range(0, 9) // Adjust the range as needed for initial loading
+         .range(0, 3) // Adjust the range as needed for initial loading
          .order("created_at", { ascending: false });
 
       if (posts && !error) {

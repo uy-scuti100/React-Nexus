@@ -277,29 +277,30 @@ const PostForm = () => {
       }
    }, 1000);
 
-   const debouncedHandleCategoryInputChanger = debounce(async (inputValue) => {
-      // Fetch category suggestions from Supabase
-      if (inputValue) {
-         const { data: categories, error } = await supabase
-            .from("categories")
-            .select("id, name")
-            .ilike("name", `%${inputValue}%`)
-            .limit(5); // Limit the number of suggestions
+   // const debouncedHandleCategoryInputChanger = debounce(async (inputValue) => {
+   //    // Fetch category suggestions from Supabase
+   //    if (inputValue) {
+   //       const { data: categories, error } = await supabase
+   //          .from("categories")
+   //          .select("id, name")
+   //          .ilike("name", `%${inputValue}%`)
+   //          .limit(5); // Limit the number of suggestions
 
-         if (error) {
-            console.error(
-               "Error fetching category suggestions:",
-               error.message
-            );
-         } else {
-            setCategorySuggestions(categories);
-         }
-      } else {
-         setCategorySuggestions([]);
-      }
-   }, 1000);
+   //       if (error) {
+   //          console.error(
+   //             "Error fetching category suggestions:",
+   //             error.message
+   //          );
+   //       } else {
+   //          setCategorySuggestions(categories);
+   //       }
+   //    } else {
+   //       setCategorySuggestions([]);
+   //    }
+   // }, 1000);
 
    // Function to handle category input changes and fetch suggestions
+
    const handleCategoryInputChange = async (
       e: React.ChangeEvent<HTMLInputElement>
    ) => {

@@ -31,6 +31,7 @@ interface PostCardProp {
    profile_id: string;
    category_Ids: string[];
    readTime: number;
+   content: string;
 }
 
 const PostCard = ({
@@ -47,6 +48,7 @@ const PostCard = ({
    comment_count,
    category_Ids,
    readTime,
+   content,
 }: PostCardProp) => {
    const { theme } = useTheme();
    const [isAuthorized, setIsAuthorized] = useState<boolean | undefined>(
@@ -442,7 +444,7 @@ const PostCard = ({
          </div>
          <div className="text-xs">{readTime} mins read</div>
          <div className="flex flex-wrap items-center gap-4 py-5">
-            {postCategories.slice(0, 3).map((cat, key) => {
+            {postCategories.slice(0, 1).map((cat, key) => {
                let type;
 
                if (cat.type === "Topic") {

@@ -1,14 +1,13 @@
 import { Post } from "../../types";
 import supabase from "./supabaseClient";
 
-export async function fetchCategoryPosts(categoryId: string): Promise<Post[] | null> {
+export async function fetchCategoryPosts(paramsId: string): Promise<Post[] | null> {
    try {
       const { data: posts, error } = await supabase
          .from("posts")
          .select("*")
-         .range(0, 9)
-         .contains("category_Ids", [categoryId]) // Use contains to check if the categoryId is in the array
-         .order("created_at", { ascending: false });
+         .contains("category_Ids", [paramsId]) // Use contains to check if the categoryId is in the array
+         .range(0, 2)
 
       if (posts && !error) {
          return posts;
