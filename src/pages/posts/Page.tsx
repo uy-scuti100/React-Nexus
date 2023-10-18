@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
-import Category from "../../components/myComponents/global/Category";
 import Navbar from "../../components/myComponents/global/Navbar";
 import Sidebar from "../../components/myComponents/global/Sidebar";
-import HomeCard from "./HomeCard";
 import supabase from "../../lib/supabaseClient";
 import { usePost } from "../../hooks/usePost";
 import { Post } from "../../../types";
@@ -10,18 +8,30 @@ import TopicSlider from "../../components/myComponents/global/TopicSlider";
 import PostCardSkeleton from "../../components/myComponents/skeletons/PostCardSkeleton";
 import { calculateReadTime } from "../../lib/readTime";
 import PostCard from "./PostCard";
+import RecommendedPosts from "./RecommendedPosts";
+// import { useFetchUser } from "../../hooks/useFetchUser";
 
 const page = () => {
    const [isFetching, setIsFetching] = useState(false);
+   // const { user } = useFetchUser();
+   // const userId = user?.id;
    const [totalPosts, setTotalPosts] = useState<number | null>(0);
+   // console.log(totalPosts);
    const { posts, isLoading } = usePost();
-   const [blogPosts, setBlogPosts] = useState<Post[] | null>([]);
+   const [blogPosts, setBlogPosts] = useState<Post[] | null | undefined>([]);
    const [error, setError] = useState(false);
    const FROM = Number(blogPosts?.length);
 
+   // useEffect(() => {
+   //    if (posts !== null) {
+   //       setBlogPosts(posts);
+   //    }
+   // }, []);
    useEffect(() => {
-      setBlogPosts(posts);
-   }, []);
+      if (typeof window !== "undefined" && posts !== null) {
+         setBlogPosts(posts);
+      }
+   }, [posts]);
 
    //  Function to fetch the total number of posts
    useEffect(() => {
@@ -65,7 +75,7 @@ const page = () => {
          if (data && data.length > 0) {
             if (blogPosts !== null) {
                // Check if blogPosts is not null before concatenating
-               setBlogPosts(blogPosts.concat(data));
+               setBlogPosts(blogPosts?.concat(data));
             }
          } else {
             setError(true);
@@ -89,7 +99,15 @@ const page = () => {
          <section className="px-6 pt-16 ">
             <div className="grid-cols-5 gap-10 pt-5 mb-5 lg:grid md:px-20">
                <div className="overflow-x-hidden lg:col-span-3 md:px-0 lg:px-12">
+                  <div className="flex flex-col gap-2 py-5">
+                     <p className="text-2xl font-bold ">Recent Articles</p>
+                     <p className="pb-5 text-sm">
+                        Explore the latest publications from authors covering a
+                        wide range of subjects
+                     </p>
+                  </div>
                   <TopicSlider />
+                  <RecommendedPosts />
                   {blogPosts?.map((post: Post) => {
                      const {
                         author,
@@ -148,19 +166,28 @@ const page = () => {
                            </button>
                         </div>
                      )}
-                  {error && (
-                     <div className="fixed inset-0 flex items-center justify-center bg-white">
-                        <div className="relative w-full md:w-[500px] h-[500px]">
-                           <img
-                              src="/internalerror.svg"
-                              alt="loading-image"
-                              className="object-cover"
-                           />
+                  {blogPosts === null ||
+                     (Array.isArray(blogPosts) && blogPosts.length === 0 && (
+                        <div className="flex flex-col w-full">
+                           {skeletonElements}
                         </div>
-                     </div>
-                  )}
+                        // <div>
+                        //    <div className="flex items-center justify-center">
+                        //       <div className="relative w-full md:w-[500px] h-[500px]">
+                        //          <img
+                        //             src="/No data-amico.png"
+                        //             alt="loading-image"
+                        //             className="object-cover"
+                        //          />
+                        //       </div>
+                        //    </div>
+                        //    <div className="pb-10 text-2xl font-bold text-center">
+                        //       No Article from this topic
+                        //    </div>
+                        // </div>
+                     ))}
 
-                  {totalPosts === 0 && (
+                  {isLoading && (
                      <div className="flex flex-col w-full">
                         {skeletonElements}
                      </div>

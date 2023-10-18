@@ -40,7 +40,8 @@ const Sidebar = (props: SidebarProp) => {
          <div className="hidden md:block">
             <div>
                <div className="pb-10 text-lg font-bold">
-                  Explore the World of Knowledge, One Byte at a Time
+                  Explore the World of Knowledge,
+                  <br /> One Byte at a Time
                </div>
                <div className="flex flex-wrap items-center gap-6">
                   {hashtags
@@ -77,7 +78,7 @@ const Sidebar = (props: SidebarProp) => {
                         navigate("/explore-topics");
                         scrollToTop();
                      }}
-                     className="px-5 py-2 text-sm font-bold capitalize transition-transform duration-300 rounded-full hover:scale-105 w-max whitespace-nowrap bg-accent-orange text-white-900">
+                     className="px-5 py-2 text-sm font-bold capitalize transition-transform duration-300 rounded-full hover:scale-105 w-max whitespace-nowrap bg-accent-orange text-black">
                      Explore more exciting topics
                   </button>
                </div>
@@ -85,7 +86,7 @@ const Sidebar = (props: SidebarProp) => {
 
             <div className="pb-5">
                <img
-                  src="/public/Purple Gradient Consistency Success Motivational Word Banner (1).webp"
+                  src="/Purple Gradient Consistency Success Motivational Word Banner (1).webp"
                   alt=""
                />
             </div>

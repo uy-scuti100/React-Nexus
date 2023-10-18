@@ -639,7 +639,7 @@ const Account = () => {
          <div className="px-3 mt-32 mb-8">
             {currentUserId === paramsId && (
                <button
-                  className="w-full px-5 py-2 mt-5 font-semibold md:hidden md:w-auto bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black "
+                  className="w-full px-5 py-2 mt-5 font-semibold text-black rounded-full md:hidden md:w-auto bg-accent-red "
                   onClick={handleShowSettings}>
                   Edit profile
                </button>
@@ -650,14 +650,13 @@ const Account = () => {
                currentUserId !== paramsId && (
                   <button
                      onClick={handleFollow}
-                     className="w-full px-5 py-2 mt-5 font-semibold md:hidden md:w-auto bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black">
+                     className="w-full px-5 py-2 mt-5 font-semibold text-black rounded-full md:hidden md:w-auto bg-accent-red">
                      {isFollowing ? "Unfollow" : "Follow"}
                   </button>
                )
             ) : (
                <a href="/">
-                  {/* Replace "/" with the desired redirect URL */}
-                  <button className="w-full px-5 py-2 mt-5 font-semibold md:hidden md:w-auto bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black">
+                  <button className="w-full px-5 py-2 mt-5 font-semibold text-black rounded-full md:hidden md:w-auto bg-accent-red">
                      Follow
                   </button>
                </a>
@@ -682,7 +681,7 @@ const Account = () => {
 
                {currentUserId === paramsId && (
                   <button
-                     className="hidden w-full px-5 py-2 mt-5 font-semibold md:w-auto bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black md:block"
+                     className="hidden w-full px-5 py-2 mt-5 font-semibold text-black rounded-full md:w-auto bg-accent-red md:block"
                      onClick={handleShowSettings}>
                      Edit profile
                   </button>
@@ -691,7 +690,7 @@ const Account = () => {
                {paramsId && currentUserId !== paramsId && (
                   <button
                      onClick={currentUserId ? handleFollow : goHome}
-                     className="hidden w-full px-5 py-2 mt-5 font-semibold md:w-auto bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black md:block">
+                     className="hidden w-full px-5 py-2 mt-5 font-semibold text-black rounded-full md:w-auto bg-accent-red md:block">
                      {isFollowing ? "Unfollow" : "Follow"}
                   </button>
                )}
@@ -823,7 +822,7 @@ const Account = () => {
                                              <div>
                                                 {currentUserId !== id && (
                                                    <button
-                                                      className="w-full px-3 py-2 text-xs font-semibold text-black md:px-5 md:w-auto bg-accent-red hover-bg-wh-500"
+                                                      className="w-full px-3 py-2 text-xs font-semibold text-black rounded-full md:px-5 md:w-auto bg-accent-red hover-bg-wh-500"
                                                       onClick={() =>
                                                          handleFollowUnfollowForMutualFollowers(
                                                             id as string,
@@ -921,7 +920,7 @@ const Account = () => {
                                              <div>
                                                 {currentUserId !== id && (
                                                    <button
-                                                      className="w-full px-3 py-2 text-xs font-semibold text-black md:px-5 md:w-auto bg-accent-red hover-bg-wh-500"
+                                                      className="w-full px-3 py-2 text-xs font-semibold text-black rounded-full md:px-5 md:w-auto bg-accent-red hover-bg-wh-500"
                                                       onClick={() =>
                                                          handleFollowUnfollowForMutualFollowing(
                                                             id as string,
@@ -1280,7 +1279,7 @@ const Account = () => {
                            onClick={fetchMorePosts}
                            className={`${
                               isFetching && "bg-wh-300 animate-bounce"
-                           } w-full px-5 py-2 mt-5 font-semibold md:w-auto bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black`}>
+                           } w-full px-5 py-2 mt-5 font-semibold md:w-auto bg-accent-red text-black`}>
                            {isFetching ? "Loading More..." : " Load More"}
                         </button>
                      </div>

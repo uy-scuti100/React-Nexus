@@ -154,7 +154,7 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
    const [isBookmarked, setIsBookmarked] = useState(false);
    const [isLiked, setIsLiked] = useState(false);
    const [tempPostImage, setTempPostImage] = useState<string | File | null>(
-      post?.image
+      null
    );
    const [postImage, setPostImage] = useState<string | File | null>(
       post?.image
@@ -192,6 +192,7 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
                setLikeCount(post.likes_count as number);
                setCommentCount(post.comment_count as number);
                setCategory_Ids(post.category_Ids);
+               setTempPostImage(post.image);
             }
 
             if (category_Ids && category_Ids.length > 0) {
@@ -367,7 +368,9 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
       setTitle(e.target.value);
    };
 
-   const handleOnChangeSnippet = (e: React.ChangeEvent<HTMLInputElement>) => {
+   const handleOnChangeSnippet = (
+      e: React.ChangeEvent<HTMLTextAreaElement>
+   ) => {
       if (snippet) setSnippetError("");
       setSnippet(e.target.value);
    };
@@ -669,10 +672,6 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
       <>
          {post ? (
             <div className="w-full max-w-full mb-10 prose">
-               {/* BREADCRUMBS */}
-               {/* <h5 className="pb-5 capitalize text-wh-300">{`Home > ${
-                  postCategories?.[0]?.name
-               }> ${post?.title.substring(0, 20)}`}</h5> */}
                {/* CATEGORY AND EDIT */}
                <CategoryAndEdit
                   isEditable={isEditable}
@@ -724,9 +723,8 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
                   {/* SNIPPET */}
                   {isEditable ? (
                      <div>
-                        <input
-                           type="text"
-                           className="w-full p-3 mb-3 border-2 rounded-md bg-wh-50 dark:bg-black"
+                        <textarea
+                           className="w-full h-24 p-3 mb-3 border-2 rounded-md resize-none bg-wh-50 dark:bg-black"
                            placeholder="Snippet"
                            onChange={handleOnChangeSnippet}
                            value={snippet}
@@ -916,7 +914,7 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
                            disabled={isEditing}
                            className={` ${
                               isEditing ?? "bg-wh-500"
-                           } px-5 py-2 my-20 font-semibold bg-accent-red flex gap-1 items-center hover:bg-wh-500 text-wh-10 dark:text-black`}>
+                           } px-5 py-2 my-20 font-semibold bg-accent-red flex gap-1 items-center rounded-full text-black`}>
                            {isEditing && (
                               <Disc3 className="w-5 h-5 mr-3 animate-spin" />
                            )}
@@ -1065,7 +1063,7 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
                      <div className="flex justify-end w-full">
                         <button
                            type="submit"
-                           className="w-full px-5 py-2 mt-5 font-semibold text-black md:w-auto bg-accent-red hover:bg-wh-500 dark:text-black">
+                           className="w-full px-5 py-2 mt-5 font-semibold text-black rounded-full md:w-auto bg-accent-red hover:bg-wh-500 dark:text-black">
                            POST
                         </button>
                      </div>

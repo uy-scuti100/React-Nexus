@@ -1,13 +1,14 @@
 import useSWR from "swr";
-import { fetchPosts } from "../lib/postUtils";
 import { Post } from "../../types";
+import { fetchRecommendedPosts } from "../lib/recommendedPostsUtil";
 
-export const usePost = (): {
-  posts: Post[] | null | undefined;
+export const useRecommendedPost = (): {
+  posts: Post[] | null;
   isLoading: boolean;
   isError: boolean;
 } => {
-  const { data, error } = useSWR("posts", fetchPosts, {
+
+  const { data, error } = useSWR("recommendedposts", () => fetchRecommendedPosts(), {
     revalidateOnMount: true,
   });
 

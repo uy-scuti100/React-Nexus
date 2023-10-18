@@ -11,6 +11,8 @@ import TopicSlider from "../../components/myComponents/global/TopicSlider";
 import PostCard from "../posts/PostCard";
 import { calculateReadTime } from "../../lib/readTime";
 import PostCardSkeleton from "../../components/myComponents/skeletons/PostCardSkeleton";
+import PostSlider from "../../components/myComponents/global/PostSlider";
+import RecommendedPosts from "../posts/RecommendedPosts";
 
 const Page = () => {
    const { id } = useParams();
@@ -20,13 +22,14 @@ const Page = () => {
    const [categoryPosts, setCategoryPosts] = useState<
       Post[] | null | undefined
    >([]);
-   const [totalCount, setTotalCount] = useState<number | null>(null);
+   const [totalCount, setTotalCount] = useState<number | null>(0);
+   // console.log(totalCount);
    const [isFetching, setIsFetching] = useState<boolean>(false);
    const from = Number(categoryPosts?.length);
 
    useEffect(() => {
       setCategoryPosts(posts);
-   }, [paramsId]);
+   }, [paramsId, posts]);
 
    useEffect(() => {
       // Fetch the total count of posts for the category
@@ -43,7 +46,7 @@ const Page = () => {
 
             const totalCount = data.length;
             setTotalCount(totalCount);
-            // console.log(totalCount);
+            console.log(totalCount);
          } catch (error) {
             console.error(error);
          }
@@ -81,13 +84,17 @@ const Page = () => {
    // }, [id]);
 
    const fetchMorePosts = async () => {
+      if (isFetching) {
+         return; // If already fetching, do nothing
+      }
       setIsFetching(true);
       try {
          const { data, error } = await supabase
             .from("posts")
             .select()
-            .range(from, from + 10)
-            .contains("category_Ids", [paramsId]); // Adjust the column name and condition as needed
+            .contains("category_Ids", [paramsId])
+            .range(from, from + 4)
+            .order("created_at", { ascending: false });
 
          if (error) {
             throw new Error("Failed to fetch more posts");
@@ -110,9 +117,9 @@ const Page = () => {
             <div className="gap-10 pt-5 mb-5 md:flex md:px-20">
                <div className="overflow-x-hidden md:basis-3/5 lg:basis-3/4 md:px-0 lg:px-24 ">
                   <TopicSlider />
-
+                  {/* <RecommendedPosts /> */}
                   <div className="flex flex-col w-full gap-5">
-                     {posts?.map((post: Post, i: number) => {
+                     {categoryPosts?.map((post: Post, i: number) => {
                         const {
                            author,
                            id,
@@ -160,14 +167,16 @@ const Page = () => {
                   {categoryPosts &&
                      totalCount !== null &&
                      categoryPosts.length < totalCount && (
-                        <button
-                           disabled={isFetching}
-                           onClick={fetchMorePosts}
-                           className={`${
-                              isFetching && "bg-wh-300 animate-bounce"
-                           } w-full px-5 py-2 mt-5 font-semibold md:w-auto bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black`}>
-                           {isFetching ? "Loading More..." : " Load More"}
-                        </button>
+                        <div className="py-10">
+                           <button
+                              disabled={isFetching}
+                              onClick={fetchMorePosts}
+                              className={`${
+                                 isFetching && "bg-wh-300 animate-bounce"
+                              } w-full px-5 py-2 mt-5 font-semibold md:w-auto bg-accent-red text-black rounded-full`}>
+                              {isFetching ? "Loading More..." : " Load More"}
+                           </button>
+                        </div>
                      )}
 
                   {categoryPosts === null ||
@@ -189,7 +198,7 @@ const Page = () => {
                            </div>
                         ))}
                </div>
-               <div className="pl-8 border-l md:basis-2/5 lg:basis1/4 border-foreground/40 lg:px-6">
+               <div className="pl-8 md:border-l md:basis-2/5 lg:basis1/4 border-foreground/40 lg:px-6">
                   <Sidebar type="home" />
                </div>
             </div>

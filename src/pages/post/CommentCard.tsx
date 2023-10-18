@@ -272,12 +272,12 @@ const CommentCard = ({
                            <div className="flex items-center justify-end ">
                               <button
                                  onClick={handleRevertClick}
-                                 className="px-5 py-2 mt-5 mr-3 font-semibold text-black bg-accent-red hover:bg-wh-500 dark:text-black ">
+                                 className="px-5 py-2 mt-5 mr-3 font-semibold text-black rounded-full bg-accent-red hover:bg-wh-500 dark:text-black">
                                  Revert
                               </button>
                               <button
                                  onClick={handleSaveClick}
-                                 className="px-5 py-2 mt-5 font-semibold text-black bg-accent-red hover:bg-wh-500 dark:text-black">
+                                 className="px-5 py-2 mt-5 font-semibold text-black rounded-full bg-accent-red hover:bg-wh-500 dark:text-black">
                                  Save
                               </button>
                            </div>
@@ -366,13 +366,13 @@ const CommentCard = ({
                      <div className="flex justify-end">
                         <button
                            type="button"
-                           className="px-5 py-2 mt-5 mr-3 font-semibold bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black"
+                           className="px-5 py-2 mt-5 mr-3 font-semibold rounded-full bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black"
                            onClick={toggleReplyForm}>
                            Cancel
                         </button>
                         <button
                            type="submit"
-                           className="px-5 py-2 mt-5 font-semibold bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black">
+                           className="px-5 py-2 mt-5 font-semibold rounded-full bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black">
                            Post Reply
                         </button>
                      </div>

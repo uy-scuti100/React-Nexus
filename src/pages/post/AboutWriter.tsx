@@ -38,7 +38,9 @@ const AboutWriter = ({
 }: WriterProp) => {
    const theme = useTheme();
    const [followersCount, setFollowersCount] = useState<number | null>(null);
-   const [recommendedPosts, setRecommendedPosts] = useState<Array<Post>>([]);
+   const [recommendedPosts, setRecommendedPosts] = useState<Array<Post> | null>(
+      []
+   );
    const [authorPosts, setAuthorPosts] = useState<Array<Post>>([]);
    // console.log("recommended posts:", recommendedPosts);
    // console.log("recommended catId:", categoryIds);
@@ -103,78 +105,6 @@ const AboutWriter = ({
 
       fetchMorePosts();
    }, [profile_id, postId]);
-   // Toggle the bookmark for moreposts from author
-   const toggleBookmark = async (postId: string) => {
-      const post = authorPosts.find((p) => p.id === postId);
-      if (!post) return;
-
-      if (postStatus[post.id]?.isBookmarked) {
-         // Remove the bookmark
-         await supabase
-            .from("bookmarks")
-            .delete()
-            .eq("profile_id", currentUserId)
-            .eq("post_id", postId);
-
-         setPostStatus((prevStatus) => ({
-            ...prevStatus,
-            [postId]: { ...prevStatus[postId], isBookmarked: false },
-         }));
-
-         // Decrement the bookmark_count
-      } else {
-         // Add the bookmark
-         await supabase.from("bookmarks").insert([
-            {
-               profile_id: currentUserId,
-               post_id: postId,
-            },
-         ]);
-
-         setPostStatus((prevStatus) => ({
-            ...prevStatus,
-            [postId]: { ...prevStatus[postId], isBookmarked: true },
-         }));
-
-         // Increment the bookmark_count
-      }
-   };
-   // Toggle the like for moreposts from author
-   const toggleLike = async (postId: string) => {
-      const post = authorPosts.find((p) => p.id === postId);
-      if (!post) return;
-
-      if (postStatus[post.id]?.isLiked) {
-         // Remove the like
-         await supabase
-            .from("likes")
-            .delete()
-            .eq("profile_id", currentUserId)
-            .eq("post_id", postId);
-
-         setPostStatus((prevStatus) => ({
-            ...prevStatus,
-            [postId]: { ...prevStatus[postId], isLiked: false },
-         }));
-
-         // Decrement the like_count (if you have it)
-      } else {
-         // Add the like
-         await supabase.from("likes").insert([
-            {
-               profile_id: currentUserId,
-               post_id: postId,
-            },
-         ]);
-
-         setPostStatus((prevStatus) => ({
-            ...prevStatus,
-            [postId]: { ...prevStatus[postId], isLiked: true },
-         }));
-
-         // Increment the like_count (if you have it)
-      }
-   };
 
    const goHome = () => {
       navigate("/");
@@ -182,31 +112,24 @@ const AboutWriter = ({
    // Fetch recommended posts based on currentPost's category_ids
    useEffect(() => {
       // Fetch recommended posts based on currentPost's category_ids
-      if (categoryIds) {
-         // Query recommended posts based on category_ids of the current post
-         const fetchRecommendedPosts = async () => {
+      const fetchRecommendedPosts = async () => {
+         if (categoryIds) {
             const { data, error } = await supabase
                .from("posts")
                .select("*")
-               .contains("category_Ids", categoryIds)
+               .contains("category_Ids", [categoryIds])
                .limit(4)
                .order("created_at", { ascending: false });
 
-            if (error) {
-               console.error(
-                  "Error fetching recommended posts:",
-                  error.message
-               );
-               return [];
+            if (data) {
+               const filteredPosts = data.filter((post) => post.id !== postId);
+               setRecommendedPosts(filteredPosts);
             }
-            const filteredPosts = data.filter((post) => post.id !== postId);
+         }
+      };
 
-            setRecommendedPosts(filteredPosts);
-         };
-
-         fetchRecommendedPosts();
-      }
-   }, [categoryIds]);
+      fetchRecommendedPosts(); // Call the function once to load recommended posts on component mount.
+   }, [categoryIds, postId]);
 
    return (
       <section>
@@ -310,7 +233,9 @@ const AboutWriter = ({
                      {authorPosts?.map((post: Post, i: number) => {
                         const readTime = calculateReadTime(post.content);
                         return (
-                           <div className="flex flex-col md:h-[360px] ">
+                           <div
+                              className="flex flex-col md:h-[360px] "
+                              key={post.id}>
                               <Link
                                  to={`/post/${post.id}`}
                                  key={i}
@@ -343,111 +268,6 @@ const AboutWriter = ({
                                     </p>
                                  </div>
                               </Link>
-                              <div className="flex items-center justify-between pt-5 md:justify-normal md:gap-20">
-                                 <div className="flex items-center gap-1">
-                                    <button
-                                       onClick={() =>
-                                          user
-                                             ? toggleBookmark(post.id)
-                                             : goHome
-                                       }>
-                                       {postStatus[post.id]?.isBookmarked ? (
-                                          // Bookmarked
-                                          <svg
-                                             width="24"
-                                             height="24"
-                                             viewBox="0 0 24 24"
-                                             fill="none"
-                                             className="ut">
-                                             <title>unbookmark</title>
-                                             <path
-                                                d="M7.5 3.75a2 2 0 0 0-2 2v14a.5.5 0 0 0 .8.4l5.7-4.4 5.7 4.4a.5.5 0 0 0 .8-.4v-14a2 2 0 0 0-2-2h-9z"
-                                                fill="currentcolor"></path>
-                                          </svg>
-                                       ) : (
-                                          // Not bookmarked
-                                          <svg
-                                             width="24"
-                                             height="24"
-                                             viewBox="0 0 24 24"
-                                             fill={
-                                                // @ts-ignore
-                                                theme === "dark"
-                                                   ? "#ffffff"
-                                                   : "#000"
-                                             }
-                                             className="no">
-                                             <title>bookmark</title>
-                                             <path
-                                                d="M17.5 1.25a.5.5 0 0 1 1 0v2.5H21a.5.5 0 0 1 0 1h-2.5v2.5a.5.5 0 0 1-1 0v-2.5H15a.5.5 0 0 1 0-1h2.5v-2.5zm-11 4.5a1 1 0 0 1 1-1H11a.5.5 0 0 0 0-1H7.5a2 2 0 0 0-2 2v14a.5.5 0 0 0 .8.4l5.7-4.4 5.7 4.4a.5.5 0 0 0 .8-.4v-8.5a.5.5 0 0 0-1 0v7.48l-5.2-4a.5.5 0 0 0-.6 0l-5.2 4V5.75z"
-                                                fill="currentcolor"></path>
-                                          </svg>
-                                       )}
-                                    </button>
-                                    <p>
-                                       <p>
-                                          {post.bookmark_count > 0 ? (
-                                             <p>{post.bookmark_count}</p>
-                                          ) : (
-                                             ""
-                                          )}
-                                       </p>
-                                    </p>
-                                 </div>
-                                 <Link
-                                    to={user ? `/post/${post.id}` : "/"}
-                                    onClick={scrollToTop}>
-                                    <div className="flex items-center gap-1">
-                                       <MessageCircle className="w-6 h-6 opacity-70" />
-                                       <p>
-                                          <p>
-                                             {post.comment_count > 0 ? (
-                                                <p>{post.comment_count}</p>
-                                             ) : (
-                                                ""
-                                             )}
-                                          </p>
-                                       </p>
-                                    </div>
-                                 </Link>
-                                 <div className="flex items-center gap-1">
-                                    <button
-                                       onClick={() =>
-                                          user ? toggleLike(post.id) : goHome
-                                       }>
-                                       {postStatus[post.id]?.isLiked ? (
-                                          <svg
-                                             aria-label="Unlike"
-                                             className="x1lliihq x1n2onr6"
-                                             color="rgb(255, 48, 64)"
-                                             fill={
-                                                // @ts-ignore
-                                                theme === "dark"
-                                                   ? "#ffffff"
-                                                   : "#000"
-                                             }
-                                             height="20"
-                                             role="img"
-                                             viewBox="0 0 48 48"
-                                             width="20">
-                                             <title>Unlike</title>
-                                             <path d="M34.6 3.1c-4.5 0-7.9 1.8-10.6 5.6-2.7-3.7-6.1-5.5-10.6-5.5C6 3.1 0 9.6 0 17.6c0 7.3 5.4 12 10.6 16.5.6.5 1.3 1.1 1.9 1.7l2.3 2c4.4 3.9 6.6 5.9 7.6 6.5.5.3 1.1.5 1.6.5s1.1-.2 1.6-.5c1-.6 2.8-2.2 7.8-6.8l2-1.8c.7-.6 1.3-1.2 2-1.7C42.7 29.6 48 25 48 17.6c0-8-6-14.5-13.4-14.5z"></path>
-                                          </svg>
-                                       ) : (
-                                          <Heart className="w-6 h-6 opacity-70" />
-                                       )}
-                                    </button>
-                                    <p>
-                                       <p>
-                                          {post.likes_count > 0 ? (
-                                             <p>{post.likes_count}</p>
-                                          ) : (
-                                             ""
-                                          )}
-                                       </p>
-                                    </p>
-                                 </div>
-                              </div>
                               <div className="w-full py-4 mb-8 border-b md:hidden border-black/10 dark:border-white/10" />
                            </div>
                         );
@@ -460,13 +280,13 @@ const AboutWriter = ({
          <div className="flex items-center justify-center mt-10">
             <Link to={`/account/${profile_id}`}>
                <button
-                  className="w-full px-4 py-3 transition-colors duration-300 border md:w-auto hover:bg-accent-red hover:border-none whitespace-nowrap"
+                  className="w-full px-4 py-3 transition-colors duration-300 border rounded-full md:w-auto hover:bg-accent-red hover:border-none whitespace-nowrap"
                   onClick={scrollToTop}>
                   See all articles from {author}
                </button>
             </Link>
          </div>
-         {recommendedPosts.length > 0 && (
+         {recommendedPosts && (
             <div className="py-20 ">
                <h1 className="py-20 text-xl font-bold text-center md:text-left md:text-3xl">
                   Recommendations from Nexus.
@@ -476,7 +296,9 @@ const AboutWriter = ({
                   {recommendedPosts?.map((post: Post, i: number) => {
                      const readTime = calculateReadTime(post.content);
                      return (
-                        <div className="flex flex-col md:h-[360px] ">
+                        <div
+                           className="flex flex-col md:h-[360px]"
+                           key={post.id}>
                            <Link
                               to={`/post/${post.id}`}
                               key={i}
@@ -487,6 +309,18 @@ const AboutWriter = ({
                                  alt="post-image"
                                  className="w-full h-[200px] mb-5 object-cover"
                               />
+                              <Link
+                                 to={`/account/${post.profile_id}`}
+                                 className="flex items-center gap-4 pb-4">
+                                 <div>
+                                    <img
+                                       src={post.author_image}
+                                       alt="author image"
+                                       className="rounded-full w-[2.75rem] h-[2.75rem] object-cover"
+                                    />
+                                 </div>
+                                 <p className="font-semibold ">{post.author}</p>
+                              </Link>
                               <p className="mb-2 text-xl font-bold capitalize">
                                  {post.title.substring(0, 40)}...
                               </p>
@@ -509,110 +343,8 @@ const AboutWriter = ({
                                  </p>
                               </div>
                            </Link>
-                           <div className="flex items-center justify-between pt-5 md:justify-normal md:gap-20">
-                              <div className="flex items-center gap-1">
-                                 <button
-                                    onClick={() =>
-                                       user ? toggleBookmark(post.id) : goHome
-                                    }>
-                                    {postStatus[post.id]?.isBookmarked ? (
-                                       // Bookmarked
-                                       <svg
-                                          width="24"
-                                          height="24"
-                                          viewBox="0 0 24 24"
-                                          fill="none"
-                                          className="ut">
-                                          <title>unbookmark</title>
-                                          <path
-                                             d="M7.5 3.75a2 2 0 0 0-2 2v14a.5.5 0 0 0 .8.4l5.7-4.4 5.7 4.4a.5.5 0 0 0 .8-.4v-14a2 2 0 0 0-2-2h-9z"
-                                             fill="currentcolor"></path>
-                                       </svg>
-                                    ) : (
-                                       // Not bookmarked
-                                       <svg
-                                          width="24"
-                                          height="24"
-                                          viewBox="0 0 24 24"
-                                          fill={
-                                             // @ts-ignore
-                                             theme === "dark"
-                                                ? "#ffffff"
-                                                : "#000"
-                                          }
-                                          className="no">
-                                          <title>bookmark</title>
-                                          <path
-                                             d="M17.5 1.25a.5.5 0 0 1 1 0v2.5H21a.5.5 0 0 1 0 1h-2.5v2.5a.5.5 0 0 1-1 0v-2.5H15a.5.5 0 0 1 0-1h2.5v-2.5zm-11 4.5a1 1 0 0 1 1-1H11a.5.5 0 0 0 0-1H7.5a2 2 0 0 0-2 2v14a.5.5 0 0 0 .8.4l5.7-4.4 5.7 4.4a.5.5 0 0 0 .8-.4v-8.5a.5.5 0 0 0-1 0v7.48l-5.2-4a.5.5 0 0 0-.6 0l-5.2 4V5.75z"
-                                             fill="currentcolor"></path>
-                                       </svg>
-                                    )}
-                                 </button>
-                                 <p>
-                                    <p>
-                                       {post.bookmark_count > 0 ? (
-                                          <p>{post.bookmark_count}</p>
-                                       ) : (
-                                          ""
-                                       )}
-                                    </p>
-                                 </p>
-                              </div>
-                              <Link
-                                 to={user ? `/post/${post.id}` : "/"}
-                                 onClick={scrollToTop}>
-                                 <div className="flex items-center gap-1">
-                                    <MessageCircle className="w-6 h-6 opacity-70" />
-                                    <p>
-                                       <p>
-                                          {post.comment_count > 0 ? (
-                                             <p>{post.comment_count}</p>
-                                          ) : (
-                                             ""
-                                          )}
-                                       </p>
-                                    </p>
-                                 </div>
-                              </Link>
-                              <div className="flex items-center gap-1">
-                                 <button
-                                    onClick={() =>
-                                       user ? toggleLike(post.id) : goHome
-                                    }>
-                                    {postStatus[post.id]?.isLiked ? (
-                                       <svg
-                                          aria-label="Unlike"
-                                          className="x1lliihq x1n2onr6"
-                                          color="rgb(255, 48, 64)"
-                                          fill={
-                                             // @ts-ignore
-                                             theme === "dark"
-                                                ? "#ffffff"
-                                                : "#000"
-                                          }
-                                          height="20"
-                                          role="img"
-                                          viewBox="0 0 48 48"
-                                          width="20">
-                                          <title>Unlike</title>
-                                          <path d="M34.6 3.1c-4.5 0-7.9 1.8-10.6 5.6-2.7-3.7-6.1-5.5-10.6-5.5C6 3.1 0 9.6 0 17.6c0 7.3 5.4 12 10.6 16.5.6.5 1.3 1.1 1.9 1.7l2.3 2c4.4 3.9 6.6 5.9 7.6 6.5.5.3 1.1.5 1.6.5s1.1-.2 1.6-.5c1-.6 2.8-2.2 7.8-6.8l2-1.8c.7-.6 1.3-1.2 2-1.7C42.7 29.6 48 25 48 17.6c0-8-6-14.5-13.4-14.5z"></path>
-                                       </svg>
-                                    ) : (
-                                       <Heart className="w-6 h-6 opacity-70" />
-                                    )}
-                                 </button>
-                                 <p>
-                                    <p>
-                                       {post.likes_count > 0 ? (
-                                          <p>{post.likes_count}</p>
-                                       ) : (
-                                          ""
-                                       )}
-                                    </p>
-                                 </p>
-                              </div>
-                           </div>
-                           <div className="w-full py-4 mb-8 border-b md:hidden border-black/10 dark:border-white/10" />
+
+                           <div className="w-full mb-8 border-b md:hidden border-black/10 dark:border-white/10" />
                         </div>
                      );
                   })}

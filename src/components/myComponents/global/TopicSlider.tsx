@@ -52,16 +52,38 @@ export default function TopicSlider() {
                   Recommended
                </button>
             </Link>
-            {topics?.map((topic) => (
-               <Link to={`/topic/${topic.topic_id}`} key={topic.id}>
-                  <button
-                     className={`  ${
-                        para === topic?.topic_id && "bg-accent-orange"
-                     } px-2 py-2 text-sm text-black dark:text-white rounded-full transition-transform duration-300 hover:scale-105 w-max whitespace-nowrap`}>
-                     {topic?.topicname}
-                  </button>
-               </Link>
-            ))}
+            {topics?.map((topic) => {
+               const {
+                  user_id,
+                  type,
+                  topic_id,
+                  subsubtopic_id,
+                  subtopic_id,
+                  id,
+                  topicname,
+               } = topic;
+
+               let link = "";
+
+               if (type === "Topic") {
+                  link = topic_id?.toString() || "";
+               } else if (type === "Subtopic") {
+                  link = subtopic_id?.toString() || "";
+               } else {
+                  link = subsubtopic_id?.toString() || "";
+               }
+
+               return (
+                  <Link to={`/topic/${link}`} key={link}>
+                     <button
+                        className={`  ${
+                           para === link && "bg-accent-orange"
+                        } px-2 py-2 text-sm text-black dark:text-white rounded-full transition-transform duration-300 hover:scale-105 w-max whitespace-nowrap`}>
+                        {topicname}
+                     </button>
+                  </Link>
+               );
+            })}
          </div>
       </main>
    );

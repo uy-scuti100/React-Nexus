@@ -57,9 +57,7 @@ export const FollowerNotification = ({
          <div
             onClick={() => deleteNotification(notification.id)}
             className="flex flex-col gap-2">
-            <button className="w-full px-3 py-2 text-xs font-semibold md:px-5 md:w-auto bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black">
-               Mark as Read
-            </button>
+            <button>Mark as Read</button>
             <p suppressHydrationWarning className="text-[12px]">
                {dayjs().diff(notification.created_at, "seconds", true) < 30
                   ? "just now"
@@ -95,7 +93,7 @@ export const PostNotification = ({
                   className="w-[50px] h-[50px] rounded-full"
                />
             )}
-            <div className=" flex flex-col gap-1 ml-3">
+            <div className="flex flex-col gap-1 ml-3 ">
                <p className="text-sm md:text-base">{notification.content}</p>
                <p suppressHydrationWarning className="text-[12px] opacity-50">
                   {dayjs().diff(notification.created_at, "seconds", true) < 30
@@ -107,9 +105,7 @@ export const PostNotification = ({
          <div
             onClick={() => deletePostNotification(notification.id)}
             className="self-baseline">
-            <button className="w-max px-3 py-2 text-xs font-semibold md:px-5 md:w-auto bg-accent-red hover:bg-wh-500 text-wh-10 dark:text-black">
-               Mark as Read
-            </button>
+            <button>Mark as Read</button>
          </div>
       </div>
    );

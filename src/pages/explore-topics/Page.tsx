@@ -9,11 +9,6 @@ import { GiInspiration } from "react-icons/gi";
 import Topics from "./Topics";
 import LargeDScreenTopicComp from "./LargeDScreenTopicComp";
 
-interface Category {
-   id: string;
-   created_at: Date;
-   name: string;
-}
 interface SuggestionProp {
    id: string;
    name: string;

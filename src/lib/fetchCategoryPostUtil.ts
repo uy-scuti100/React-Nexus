@@ -6,7 +6,7 @@ export async function fetchCategoryPosts(paramsId: string): Promise<Post[] | nul
       const { data: posts, error } = await supabase
          .from("posts")
          .select("*")
-         .contains("category_Ids", [paramsId]) // Use contains to check if the categoryId is in the array
+         .contains("category_Ids", [paramsId])
          .range(0, 2)
 
       if (posts && !error) {
