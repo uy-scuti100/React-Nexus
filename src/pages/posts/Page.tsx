@@ -9,24 +9,18 @@ import PostCardSkeleton from "../../components/myComponents/skeletons/PostCardSk
 import { calculateReadTime } from "../../lib/readTime";
 import PostCard from "./PostCard";
 import RecommendedPosts from "./RecommendedPosts";
-// import { useFetchUser } from "../../hooks/useFetchUser";
+import debounce from "lodash.debounce";
 
 const page = () => {
    const [isFetching, setIsFetching] = useState(false);
-   // const { user } = useFetchUser();
-   // const userId = user?.id;
+   const [scrollPosition, setScrollPosition] = useState(0);
    const [totalPosts, setTotalPosts] = useState<number | null>(0);
-   // console.log(totalPosts);
+
    const { posts, isLoading } = usePost();
    const [blogPosts, setBlogPosts] = useState<Post[] | null | undefined>([]);
    const [error, setError] = useState(false);
    const FROM = Number(blogPosts?.length);
 
-   // useEffect(() => {
-   //    if (posts !== null) {
-   //       setBlogPosts(posts);
-   //    }
-   // }, []);
    useEffect(() => {
       if (typeof window !== "undefined" && posts !== null) {
          setBlogPosts(posts);
@@ -61,21 +55,18 @@ const page = () => {
       setIsFetching(true);
 
       try {
-         console.log("Fetching from:", FROM); // Log the 'from' value
+         console.log("Fetching from:", FROM);
 
          const { data, error } = await supabase
             .from("posts")
             .select("*")
-            .range(FROM, FROM + 9)
+            .range(FROM, FROM + 4)
             .order("created_at", { ascending: false });
-
-         console.log("Fetched data:", data); // Log the fetched data
-         console.log("Fetch error:", error); // Log any errors
 
          if (data && data.length > 0) {
             if (blogPosts !== null) {
-               // Check if blogPosts is not null before concatenating
                setBlogPosts(blogPosts?.concat(data));
+               console.log(data.length);
             }
          } else {
             setError(true);
@@ -86,18 +77,39 @@ const page = () => {
          setIsFetching(false);
       }
    };
-   const handleLoadMoreClick = () => {
-      fetchMorePosts();
-   };
+
    const skeletonElements = Array.from(
       { length: totalPosts || 5 },
       (_, index) => <PostCardSkeleton key={index} />
    );
+
+   useEffect(() => {
+      const handleScroll = () => {
+         const currentPosition = window.scrollY;
+
+         const viewportHeight = window.innerHeight;
+         const scrollThreshold = 0.7 * viewportHeight;
+
+         if (currentPosition - scrollPosition > scrollThreshold) {
+            fetchMorePosts();
+            setScrollPosition(currentPosition);
+         }
+      };
+
+      const debouncedHandleScroll = debounce(handleScroll, 200);
+
+      window.addEventListener("scroll", debouncedHandleScroll);
+
+      return () => {
+         window.removeEventListener("scroll", debouncedHandleScroll);
+      };
+   }, [scrollPosition, fetchMorePosts]);
+
    return (
       <main className="relative">
          <Navbar />
-         <section className="px-6 pt-16 ">
-            <div className="grid-cols-5 gap-10 pt-5 mb-5 lg:grid md:px-20">
+         <section className="px-6 pt-[5.625rem]">
+            <div className="grid-cols-5 gap-10 pt-5 mb-5 lg:grid md:px-28">
                <div className="overflow-x-hidden lg:col-span-3 md:px-0 lg:px-12">
                   <div className="flex flex-col gap-2 py-5">
                      <p className="text-2xl font-bold ">Recent Articles</p>
@@ -152,7 +164,7 @@ const page = () => {
                      </div>
                   )}
 
-                  {totalPosts !== null &&
+                  {/* {totalPosts !== null &&
                      posts !== null &&
                      totalPosts > (posts ? posts.length : 0) && (
                         <div className="my-10">
@@ -165,7 +177,7 @@ const page = () => {
                               {isFetching ? "Loading More..." : "Load More"}
                            </button>
                         </div>
-                     )}
+                     )} */}
                   {blogPosts === null ||
                      (Array.isArray(blogPosts) && blogPosts.length === 0 && (
                         <div className="flex flex-col w-full">

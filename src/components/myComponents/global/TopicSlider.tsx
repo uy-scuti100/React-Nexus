@@ -38,6 +38,7 @@ export default function TopicSlider() {
                   // @ts-ignore
                   class="hi hj hk"
                   className="cursor-pointer">
+                  <title>Discover</title>
                   <path
                      d="M9 9H3v1h6v6h1v-6h6V9h-6V3H9v6z"
                      fill="currentcolor"></path>
@@ -49,7 +50,16 @@ export default function TopicSlider() {
                      path === "posts" && "bg-accent-orange"
                   } px-2 py-2 transition-transform duration-300 hover:scale-105 w-max whitespace-nowrap text-black dark:text-white text-sm rounded-full`}>
                   {" "}
-                  Recommended
+                  For you
+               </button>
+            </Link>
+            <Link to={`/following`}>
+               <button
+                  className={` ${
+                     path === "posts" && ""
+                  } px-2 py-2 transition-transform duration-300 hover:scale-105 w-max whitespace-nowrap text-black dark:text-white text-sm rounded-full`}>
+                  {" "}
+                  Following
                </button>
             </Link>
             {topics?.map((topic) => {

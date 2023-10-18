@@ -19,6 +19,7 @@ const CategorySlider = ({
             <span className="">
                <svg viewBox="0 0 24 24" fill="none" height="24" width="24">
                   <circle cx="12" cy="12" r="10" stroke="currentColor"></circle>
+                  <title>Discover topics</title>
                   <path
                      fill-rule="evenodd"
                      clip-rule="evenodd"

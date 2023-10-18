@@ -11,6 +11,7 @@ import SubSubTopic from "./pages/subsubtopic/Page";
 import Topic from "./pages/subtopic/Page";
 import Tag from "./pages/tag/Page";
 import Mytags from "./pages/topic/Page";
+import Following from "./pages/following/Page";
 
 const Layout = () => {
    return (
@@ -68,6 +69,10 @@ const router = createBrowserRouter([
          {
             path: "/topic/:id",
             element: <Mytags />,
+         },
+         {
+            path: "/following",
+            element: <Following />,
          },
       ],
    },

@@ -54,7 +54,7 @@ function RecommendedPosts() {
                return (
                   <SwiperSlide
                      key={post.id}
-                     className="flex items-center flex-col justify-center w-full h-[250px] md:h-[300px] mt-6 mb-10">
+                     className="flex items-center flex-col justify-center w-full h-[300px] md:h-[400px] mt-6 mb-10">
                      <div
                         onClick={() => navigateAndRefresh(post.id)}
                         className="relative w-full h-full cursor-pointer ">
@@ -63,7 +63,7 @@ function RecommendedPosts() {
                            alt={`${post.title}'s image`}
                            className="absolute inset-0 object-cover w-full h-full -z-20"
                         />
-                        <div className="z-50 absolute left-3 right-3 top-[60%] md:top-[50%] text-white">
+                        <div className="z-50 absolute left-3 right-3 top-[60%] md:top-[70%] text-white">
                            <p className="pb-3 text-2xl font-bold capitalize md:text-3xl">
                               {post.title.substring(0, 20)}...
                            </p>

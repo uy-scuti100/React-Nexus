@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import supabase from "../../lib/supabaseClient";
 import { BiChevronUp } from "react-icons/bi";
 import { Link } from "react-router-dom";
@@ -12,6 +12,9 @@ const Topics = () => {
          expanded: boolean;
       }>
    >([]);
+   const scrollToTop = () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+   };
 
    useEffect(() => {
       const fetchData = async () => {
@@ -72,6 +75,7 @@ const Topics = () => {
                      <div>
                         <Link
                            to={`/tag/${topic.id}`}
+                           onClick={scrollToTop}
                            className="pl-6 text-lg font-semibold hover:underline">
                            {topic.name}
                         </Link>
@@ -96,6 +100,9 @@ const Subtopics = ({ parentId }: { parentId: string }) => {
          expanded: boolean;
       }>
    >([]);
+   const scrollToTop = () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+   };
 
    useEffect(() => {
       const fetchSubtopics = async () => {
@@ -153,7 +160,7 @@ const Subtopics = ({ parentId }: { parentId: string }) => {
                   />
                </div>
                {subtopic.expanded && (
-                  <Link to={`/subtopic/${subtopic.id}`}>
+                  <Link to={`/subtopic/${subtopic.id}`} onClick={scrollToTop}>
                      <h1 className="pl-6 text-sm hover:underline ">
                         {subtopic.name}
                      </h1>
@@ -192,11 +199,16 @@ const SubSubtopics = ({ parentId }: { parentId: string }) => {
 
       fetchSubSubtopics();
    }, [parentId]);
-
+   const scrollToTop = () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+   };
    return (
       <div className="pl-6">
          {subsubtopics.map((subsubtopic) => (
-            <Link to={`/subsubtopic/${subsubtopic.id}`} key={subsubtopic.id}>
+            <Link
+               to={`/subsubtopic/${subsubtopic.id}`}
+               key={subsubtopic.id}
+               onClick={scrollToTop}>
                <h1 className="py-3 text-sm hover:underline">
                   {subsubtopic.name}
                </h1>

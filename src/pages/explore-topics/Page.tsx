@@ -116,6 +116,7 @@ export default function Page() {
                   fill="none"
                   aria-label="Search"
                   className="cursor-pointer">
+                  <title>Search</title>
                   <path
                      fill-rule="evenodd"
                      clip-rule="evenodd"

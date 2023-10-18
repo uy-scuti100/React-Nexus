@@ -85,6 +85,9 @@ const Subtopics = ({ parentId }: { parentId: string }) => {
          expanded: boolean;
       }>
    >([]);
+   const scrollToTop = () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+   };
 
    useEffect(() => {
       const fetchSubtopics = async () => {
@@ -114,17 +117,6 @@ const Subtopics = ({ parentId }: { parentId: string }) => {
       fetchSubtopics();
    }, [parentId]);
 
-   //    const toggleSubtopic = (subtopicId: string) => {
-   //       setSubtopics((prevSubtopics) =>
-   //          prevSubtopics.map((subtopic) => {
-   //             if (subtopic.id === subtopicId) {
-   //                return { ...subtopic, expanded: !subtopic.expanded };
-   //             }
-   //             return { ...subtopic, expanded: false };
-   //          })
-   //       );
-   //    };
-
    return (
       <div className="pl-6">
          {subtopics.map((subtopic) => (
@@ -133,7 +125,7 @@ const Subtopics = ({ parentId }: { parentId: string }) => {
                   <h1 className="text-lg font-semibold">{subtopic.name}</h1>
                </div>
                <div>
-                  <Link to={`/subtopic/${subtopic.id}`}>
+                  <Link to={`/subtopic/${subtopic.id}`} onClick={scrollToTop}>
                      <h1 className="pl-6 text-sm hover:underline">
                         {subtopic.name}
                      </h1>
@@ -151,7 +143,9 @@ const SubSubtopics = ({ parentId }: { parentId: string }) => {
    const [subsubtopics, setSubSubtopics] = useState<
       Array<{ name: string; description: string; id: string }>
    >([]);
-
+   const scrollToTop = () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+   };
    useEffect(() => {
       const fetchSubSubtopics = async () => {
          try {
@@ -177,7 +171,10 @@ const SubSubtopics = ({ parentId }: { parentId: string }) => {
    return (
       <div className="pl-6">
          {subsubtopics.map((subsubtopic) => (
-            <Link to={`/subtopic/${subsubtopic.id}`} key={subsubtopic.id}>
+            <Link
+               to={`/subtopic/${subsubtopic.id}`}
+               key={subsubtopic.id}
+               onClick={scrollToTop}>
                <h1 className="py-3 text-sm hover:underline">
                   {subsubtopic.name}
                </h1>
