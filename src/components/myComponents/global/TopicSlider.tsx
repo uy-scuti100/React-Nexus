@@ -56,7 +56,7 @@ export default function TopicSlider() {
             <Link to={`/following`}>
                <button
                   className={` ${
-                     path === "posts" && ""
+                     path === "following" && "bg-accent-orange"
                   } px-2 py-2 transition-transform duration-300 hover:scale-105 w-max whitespace-nowrap text-black dark:text-white text-sm rounded-full`}>
                   {" "}
                   Following
