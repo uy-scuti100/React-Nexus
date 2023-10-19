@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useFetchCategoryPost } from "../../hooks/useFetchCategoryPost";
-import CategoryCard from "./Categories";
-import Subscribe from "../../components/myComponents/global/Subscribe";
 import Sidebar from "../../components/myComponents/global/Sidebar";
 import { Post } from "../../../types";
 import Navbar from "../../components/myComponents/global/Navbar";
@@ -11,8 +9,7 @@ import TopicSlider from "../../components/myComponents/global/TopicSlider";
 import PostCard from "../posts/PostCard";
 import { calculateReadTime } from "../../lib/readTime";
 import PostCardSkeleton from "../../components/myComponents/skeletons/PostCardSkeleton";
-import PostSlider from "../../components/myComponents/global/PostSlider";
-import RecommendedPosts from "../posts/RecommendedPosts";
+import debounce from "lodash.debounce";
 
 const Page = () => {
    const { id } = useParams();
@@ -23,9 +20,9 @@ const Page = () => {
       Post[] | null | undefined
    >([]);
    const [totalCount, setTotalCount] = useState<number | null>(0);
-   // console.log(totalCount);
-   const [isFetching, setIsFetching] = useState<boolean>(false);
    const from = Number(categoryPosts?.length);
+   const [scrollPosition, setScrollPosition] = useState(0);
+   const [isFetching, setIsFetching] = useState<boolean>(false);
 
    useEffect(() => {
       setCategoryPosts(posts);
@@ -54,38 +51,14 @@ const Page = () => {
 
       fetchTotalCount();
    }, [paramsId]);
-   // useEffect(() => {
-   //    const fetchTopicPosts = async () => {
-   //       setIsLoading(true);
-   //       try {
-   //          const { data, error } = await supabase
-   //             .from("posts")
-   //             .select("*")
-   //             .contains("category_Ids", [path]);
 
-   //          if (error) {
-   //             console.error("Error fetching posts:", error);
-   //             return;
-   //          }
-
-   //          if (data && data.length > 0) {
-   //             setCategoryPosts(data);
-   //          } else {
-   //             console.error("No post found for the given ID.");
-   //          }
-   //       } catch (e) {
-   //          console.error("An unexpected error occurred:", e);
-   //       } finally {
-   //          setIsLoading(false);
-   //       }
-   //    };
-
-   //    fetchTopicPosts();
-   // }, [id]);
+   const skeletonElements = Array.from({ length: 5 }, (_, index) => (
+      <PostCardSkeleton key={index} />
+   ));
 
    const fetchMorePosts = async () => {
       if (isFetching) {
-         return; // If already fetching, do nothing
+         return;
       }
       setIsFetching(true);
       try {
@@ -107,9 +80,29 @@ const Page = () => {
          setIsFetching(false);
       }
    };
-   const skeletonElements = Array.from({ length: 5 }, (_, index) => (
-      <PostCardSkeleton key={index} />
-   ));
+
+   useEffect(() => {
+      const handleScroll = () => {
+         const currentPosition = window.scrollY;
+
+         const viewportHeight = window.innerHeight;
+         const scrollThreshold = 1 * viewportHeight;
+
+         if (currentPosition - scrollPosition > scrollThreshold) {
+            fetchMorePosts();
+            setScrollPosition(currentPosition);
+         }
+      };
+
+      const debouncedHandleScroll = debounce(handleScroll, 300);
+
+      window.addEventListener("scroll", debouncedHandleScroll);
+
+      return () => {
+         window.removeEventListener("scroll", debouncedHandleScroll);
+      };
+   }, [scrollPosition, fetchMorePosts]);
+
    return (
       <main className="relative">
          <Navbar />
@@ -164,7 +157,7 @@ const Page = () => {
                         {skeletonElements}
                      </div>
                   )}
-                  {categoryPosts &&
+                  {/* {categoryPosts &&
                      totalCount !== null &&
                      categoryPosts.length < totalCount && (
                         <div className="py-10">
@@ -177,7 +170,7 @@ const Page = () => {
                               {isFetching ? "Loading More..." : " Load More"}
                            </button>
                         </div>
-                     )}
+                     )} */}
 
                   {categoryPosts === null ||
                      (Array.isArray(categoryPosts) &&

@@ -3,6 +3,7 @@ import supabase from "../../lib/supabaseClient";
 import { useParams } from "react-router-dom";
 import Navbar from "../../components/myComponents/global/Navbar";
 import CategorySlider from "../../components/myComponents/global/categorySlider";
+import debounce from "lodash.debounce";
 import PostCard from "../posts/PostCard";
 import { calculateReadTime } from "../../lib/readTime";
 import { Post } from "../../../types";
@@ -41,6 +42,9 @@ const Page = () => {
    const [isFollowing, setIsFollowing] = useState(false);
    const [followersCount, setFollowersCount] = useState<number | null>(null);
    const [postCount, setPostCount] = useState<number | null | undefined>(null);
+   const [scrollPosition, setScrollPosition] = useState(0);
+   const [isFetching, setIsFetching] = useState<boolean>(false);
+   const from = Number(posts?.length);
 
    useEffect(() => {
       const fetchSubSubtopics = async () => {
@@ -208,6 +212,54 @@ const Page = () => {
       };
       fetchFollowCount();
    }, [id]);
+
+   const fetchMorePosts = async () => {
+      if (isFetching) {
+         return;
+      }
+      setIsFetching(true);
+      try {
+         const { data, error } = await supabase
+            .from("posts")
+            .select()
+            .contains("category_Ids", [id])
+            .range(from, from + 4)
+            .order("created_at", { ascending: false });
+
+         if (error) {
+            throw new Error("Failed to fetch more posts");
+         }
+
+         setPosts((prevPosts) => [...(prevPosts || []), ...data]);
+      } catch (error) {
+         console.error(error);
+      } finally {
+         setIsFetching(false);
+      }
+   };
+
+   useEffect(() => {
+      const handleScroll = () => {
+         const currentPosition = window.scrollY;
+
+         const viewportHeight = window.innerHeight;
+         const scrollThreshold = 1 * viewportHeight;
+
+         if (currentPosition - scrollPosition > scrollThreshold) {
+            fetchMorePosts();
+            setScrollPosition(currentPosition);
+         }
+      };
+
+      const debouncedHandleScroll = debounce(handleScroll, 300);
+
+      window.addEventListener("scroll", debouncedHandleScroll);
+
+      return () => {
+         window.removeEventListener("scroll", debouncedHandleScroll);
+      };
+   }, [scrollPosition, fetchMorePosts]);
+
    return (
       <main>
          <div>
@@ -265,7 +317,7 @@ const Page = () => {
 
                return (
                   <PostCard
-                  content={content}
+                     content={content}
                      key={id}
                      author={author}
                      id={id}

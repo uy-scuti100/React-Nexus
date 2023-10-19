@@ -9,6 +9,7 @@ import PostCard from "../posts/PostCard";
 import PostCardSkeleton from "../../components/myComponents/skeletons/PostCardSkeleton";
 import toast from "react-hot-toast";
 import { useFetchUser } from "../../hooks/useFetchUser";
+import debounce from "lodash.debounce";
 
 export interface TopicProp {
    name: string | null;
@@ -44,6 +45,9 @@ const Page = () => {
    const { user } = useFetchUser();
    const userId = user?.id;
    const [isFollowing, setIsFollowing] = useState(false);
+   const [scrollPosition, setScrollPosition] = useState(0);
+   const [isFetching, setIsFetching] = useState<boolean>(false);
+   const from = Number(posts?.length);
 
    useEffect(() => {
       const fetchParentId = async () => {
@@ -164,6 +168,53 @@ const Page = () => {
 
       checkIsFollowing();
    }, [userId, id]);
+
+   const fetchMorePosts = async () => {
+      if (isFetching) {
+         return;
+      }
+      setIsFetching(true);
+      try {
+         const { data, error } = await supabase
+            .from("posts")
+            .select()
+            .contains("category_Ids", [id])
+            .range(from, from + 4)
+            .order("created_at", { ascending: false });
+
+         if (error) {
+            throw new Error("Failed to fetch more posts");
+         }
+
+         setPosts((prevPosts) => [...(prevPosts || []), ...data]);
+      } catch (error) {
+         console.error(error);
+      } finally {
+         setIsFetching(false);
+      }
+   };
+
+   useEffect(() => {
+      const handleScroll = () => {
+         const currentPosition = window.scrollY;
+
+         const viewportHeight = window.innerHeight;
+         const scrollThreshold = 1 * viewportHeight;
+
+         if (currentPosition - scrollPosition > scrollThreshold) {
+            fetchMorePosts();
+            setScrollPosition(currentPosition);
+         }
+      };
+
+      const debouncedHandleScroll = debounce(handleScroll, 300);
+
+      window.addEventListener("scroll", debouncedHandleScroll);
+
+      return () => {
+         window.removeEventListener("scroll", debouncedHandleScroll);
+      };
+   }, [scrollPosition, fetchMorePosts]);
 
    async function followTopic(type: string) {
       try {

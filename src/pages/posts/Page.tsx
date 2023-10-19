@@ -88,7 +88,7 @@ const page = () => {
          const currentPosition = window.scrollY;
 
          const viewportHeight = window.innerHeight;
-         const scrollThreshold = 0.7 * viewportHeight;
+         const scrollThreshold = 1 * viewportHeight;
 
          if (currentPosition - scrollPosition > scrollThreshold) {
             fetchMorePosts();
@@ -96,7 +96,7 @@ const page = () => {
          }
       };
 
-      const debouncedHandleScroll = debounce(handleScroll, 200);
+      const debouncedHandleScroll = debounce(handleScroll, 300);
 
       window.addEventListener("scroll", debouncedHandleScroll);
 

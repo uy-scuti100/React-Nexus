@@ -1,3 +1,4 @@
+import debounce from "lodash.debounce";
 import { useEffect, useState } from "react";
 import supabase from "../../lib/supabaseClient";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -98,6 +99,7 @@ const Account = () => {
    const [commentCount, setCommentCount] = useState<number | null | undefined>(
       null
    );
+   const [scrollPosition, setScrollPosition] = useState(0);
    const [totalCount, setTotalCount] = useState<number | null>(null);
    const [isFetching, setIsFetching] = useState<boolean>(false);
    const [error, setError] = useState<string | null>(null);
@@ -605,6 +607,29 @@ const Account = () => {
          setIsFetching(false);
       }
    };
+
+   useEffect(() => {
+      const handleScroll = () => {
+         const currentPosition = window.scrollY;
+
+         const viewportHeight = window.innerHeight;
+         const scrollThreshold = 1 * viewportHeight;
+
+         if (currentPosition - scrollPosition > scrollThreshold) {
+            fetchMorePosts();
+            setScrollPosition(currentPosition);
+         }
+      };
+
+      const debouncedHandleScroll = debounce(handleScroll, 300);
+
+      window.addEventListener("scroll", debouncedHandleScroll);
+
+      return () => {
+         window.removeEventListener("scroll", debouncedHandleScroll);
+      };
+   }, [scrollPosition, fetchMorePosts]);
+
    return (
       <main className="pt-24 ">
          <div className="relative flex justify-center max-w-5xl mx-auto h-52">
@@ -1270,7 +1295,7 @@ const Account = () => {
                   </div>
                )}
 
-               {totalCount !== null &&
+               {/* {totalCount !== null &&
                   posts !== null &&
                   totalCount > posts.length && (
                      <div className="my-10">
@@ -1283,7 +1308,7 @@ const Account = () => {
                            {isFetching ? "Loading More..." : " Load More"}
                         </button>
                      </div>
-                  )}
+                  )} */}
                {/* {isLoading && <div className="mx-2">Loading...</div>} */}
                {error && <div className="mx-2 ">Error: {error}</div>}
             </div>

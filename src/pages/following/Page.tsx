@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { useFetchCategoryPost } from "../../hooks/useFetchCategoryPost";
+import debounce from "lodash.debounce";
 import Sidebar from "../../components/myComponents/global/Sidebar";
 import { Post } from "../../../types";
 import Navbar from "../../components/myComponents/global/Navbar";
@@ -22,12 +21,10 @@ const Page = () => {
    const [followingPosts, setFollowingPosts] = useState<
       Post[] | null | undefined
    >([]);
-   // console.log("posts", followingPosts);
-   // console.log("ids", followingIds);
    const [totalCount, setTotalCount] = useState<number | null>(0);
-   console.log("total count:", totalCount);
    const [isFetching, setIsFetching] = useState<boolean>(false);
    const from = Number(followingPosts?.length);
+   const [scrollPosition, setScrollPosition] = useState(0);
 
    useEffect(() => {
       if (typeof window !== "undefined" && posts !== null) {
@@ -45,6 +42,7 @@ const Page = () => {
       };
       fetchFollowingIds();
    }, []);
+
    const fetchFollowingPostIds = async (userId: string) => {
       const { data, error } = await supabase
          .from("topicfellowship")
@@ -91,7 +89,7 @@ const Page = () => {
 
    const fetchMorePosts = async () => {
       if (isFetching) {
-         return; // If already fetching, do nothing
+         return;
       }
       setIsFetching(true);
       try {
@@ -113,9 +111,32 @@ const Page = () => {
          setIsFetching(false);
       }
    };
+
+   useEffect(() => {
+      const handleScroll = () => {
+         const currentPosition = window.scrollY;
+
+         const viewportHeight = window.innerHeight;
+         const scrollThreshold = 1 * viewportHeight;
+
+         if (currentPosition - scrollPosition > scrollThreshold) {
+            fetchMorePosts();
+            setScrollPosition(currentPosition);
+         }
+      };
+
+      const debouncedHandleScroll = debounce(handleScroll, 300);
+
+      window.addEventListener("scroll", debouncedHandleScroll);
+
+      return () => {
+         window.removeEventListener("scroll", debouncedHandleScroll);
+      };
+   }, [scrollPosition, fetchMorePosts]);
    const skeletonElements = Array.from({ length: 5 }, (_, index) => (
       <PostCardSkeleton key={index} />
    ));
+
    return (
       <main className="relative">
          <Navbar />
@@ -170,7 +191,7 @@ const Page = () => {
                         {skeletonElements}
                      </div>
                   )}
-                  {followingPosts &&
+                  {/* {followingPosts &&
                      totalCount !== null &&
                      followingPosts.length < totalCount && (
                         <div className="py-10">
@@ -183,7 +204,7 @@ const Page = () => {
                               {isFetching ? "Loading More..." : " Load More"}
                            </button>
                         </div>
-                     )}
+                     )} */}
 
                   {followingPosts === null ||
                      (Array.isArray(followingPosts) &&

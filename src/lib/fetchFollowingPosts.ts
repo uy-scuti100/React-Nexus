@@ -7,7 +7,7 @@ export async function fetchFollowingPosts(ids: string[]): Promise<Post[] | null 
          .from("posts")
          .select("*")
          .contains("category_Ids", [ids])
-         .range(0,4)
+         .range(0,19)
     
       
 

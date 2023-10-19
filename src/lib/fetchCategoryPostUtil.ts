@@ -7,7 +7,7 @@ export async function fetchCategoryPosts(paramsId: string): Promise<Post[] | nul
          .from("posts")
          .select("*")
          .contains("category_Ids", [paramsId])
-         .range(0, 2)
+         .range(0, 19)
 
       if (posts && !error) {
          return posts;
