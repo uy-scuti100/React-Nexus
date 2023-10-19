@@ -2,16 +2,10 @@ import useSWR from "swr";
 import { Post } from "../../types";
 import { fetchFollowingPosts } from "../lib/fetchFollowingPosts";
 
-export const useFetchFollowingPosts = (
-  ids: string[] | null
-): {
-  posts: Post[] | null | undefined;
-  isLoading: boolean;
-  isError: boolean;
-} => {
+export const useFetchFollowingPosts = (followingIds: string[] | null): {posts: Post[] | null | undefined; isLoading: boolean;isError: boolean; } => {
   const { data: posts, error } = useSWR(
-    ids ? `categoryPosts-${JSON.stringify(ids)}` : null,
-    () => (ids ? fetchFollowingPosts(ids) : null), // Add a type guard here
+    followingIds ? `categoryPosts-${JSON.stringify(followingIds)}` : null,
+    () => (followingIds ? fetchFollowingPosts(followingIds) : null), // Add a type guard here
     {
       revalidateOnMount: true
     }

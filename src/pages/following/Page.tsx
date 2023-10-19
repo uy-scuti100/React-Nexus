@@ -10,6 +10,7 @@ import { calculateReadTime } from "../../lib/readTime";
 import PostCardSkeleton from "../../components/myComponents/skeletons/PostCardSkeleton";
 import { useFetchFollowingPosts } from "../../hooks/useFetchFollowingPosts";
 import { useFetchUser } from "../../hooks/useFetchUser";
+import MinimalPostCard from "../../components/myComponents/global/MinimalPostCard";
 
 const Page = () => {
    const { user } = useFetchUser();
@@ -21,7 +22,10 @@ const Page = () => {
    const [followingPosts, setFollowingPosts] = useState<
       Post[] | null | undefined
    >([]);
+   console.log(followingPosts);
+   console.log(followingIds);
    const [totalCount, setTotalCount] = useState<number | null>(0);
+   console.log(totalCount);
    const [isFetching, setIsFetching] = useState<boolean>(false);
    const from = Number(followingPosts?.length);
    const [scrollPosition, setScrollPosition] = useState(0);
@@ -30,62 +34,61 @@ const Page = () => {
       if (typeof window !== "undefined" && posts !== null) {
          setFollowingPosts(posts);
       }
-   }, []);
+   }, [posts]);
 
-   useEffect(() => {
-      const fetchFollowingIds = async () => {
-         const postIds = await fetchFollowingPostIds(currentUserId as string);
+   const fetchFollowingIds = async (userId: string) => {
+      try {
+         const { data, error } = await supabase
+            .from("follow")
+            .select("following_id")
+            .eq("follower_id", userId);
 
-         if (postIds.length > 0) {
-            setFollowingIds(postIds);
+         if (error) {
+            throw new Error(error.message);
          }
-      };
-      fetchFollowingIds();
-   }, []);
 
-   const fetchFollowingPostIds = async (userId: string) => {
-      const { data, error } = await supabase
-         .from("topicfellowship")
-         .select("topic_id, subtopic_id, subsubtopic_id")
-         .eq("user_id", userId);
-
-      if (!error && data) {
-         const topicIds = data.map((row) => row.topic_id).filter(Boolean);
-         const subtopicIds = data.map((row) => row.subtopic_id).filter(Boolean);
-         const subsubtopicIds = data
-            .map((row) => row.subsubtopic_id)
-            .filter(Boolean);
-
-         const postIds = [...topicIds, ...subtopicIds, ...subsubtopicIds];
-         return postIds;
-      } else {
-         return [];
+         if (data) {
+            // Transform the data into an array of strings
+            const followingIds = data.map((item) => item.following_id);
+            setFollowingIds(followingIds);
+         } else {
+            setFollowingIds([]);
+         }
+      } catch (error) {
+         console.error(error);
       }
    };
 
    useEffect(() => {
+      fetchFollowingIds(currentUserId as string);
+   }, []);
+   useEffect(() => {
       // Fetch the total count of posts for the category
       async function fetchTotalCount() {
          try {
-            const { data, error } = await supabase
-               .from("posts")
-               .select("*")
-               .contains("category_Ids", [followingIds]);
+            if (followingIds) {
+               const { data, error } = await supabase
+                  .from("posts")
+                  .select("*")
+                  .in("profile_id", followingIds);
 
-            if (error) {
-               throw new Error(error.message);
+               if (error) {
+                  throw new Error(error.message);
+               }
+
+               const totalCount = data.length;
+               setTotalCount(totalCount);
+               console.log(totalCount);
             }
-
-            const totalCount = data.length;
-            setTotalCount(totalCount);
-            console.log(totalCount);
          } catch (error) {
             console.error(error);
          }
       }
 
-      fetchTotalCount();
-   }, []);
+      if (followingIds) {
+         fetchTotalCount();
+      }
+   }, [followingIds]);
 
    const fetchMorePosts = async () => {
       if (isFetching) {
@@ -93,18 +96,20 @@ const Page = () => {
       }
       setIsFetching(true);
       try {
-         const { data, error } = await supabase
-            .from("posts")
-            .select()
-            .contains("category_Ids", [followingIds])
-            .range(from, from + 4)
-            .order("created_at", { ascending: false });
+         if (followingIds) {
+            const { data, error } = await supabase
+               .from("posts")
+               .select("*")
+               .in("profile_id", followingIds)
+               .range(from, from + 4)
+               .order("created_at", { ascending: false });
 
-         if (error) {
-            throw new Error("Failed to fetch more posts");
+            if (error) {
+               throw new Error("Failed to fetch more posts");
+            }
+
+            setFollowingPosts((prevPosts) => [...(prevPosts || []), ...data]);
          }
-
-         setFollowingPosts((prevPosts) => [...(prevPosts || []), ...data]);
       } catch (error) {
          console.error(error);
       } finally {
@@ -133,6 +138,7 @@ const Page = () => {
          window.removeEventListener("scroll", debouncedHandleScroll);
       };
    }, [scrollPosition, fetchMorePosts]);
+
    const skeletonElements = Array.from({ length: 5 }, (_, index) => (
       <PostCardSkeleton key={index} />
    ));
@@ -145,7 +151,7 @@ const Page = () => {
                <div className="overflow-x-hidden md:basis-3/5 lg:basis-3/4 md:px-0 lg:px-24 ">
                   <TopicSlider />
                   {/* <RecommendedPosts /> */}
-                  <div className="flex flex-col w-full gap-5">
+                  <div className="flex flex-col w-full gap-5 mt-20">
                      {followingPosts?.map((post: Post, i: number) => {
                         const {
                            author,
@@ -166,7 +172,7 @@ const Page = () => {
                         const readTime = calculateReadTime(content);
 
                         return (
-                           <PostCard
+                           <MinimalPostCard
                               content={content}
                               key={id}
                               readTime={readTime}

@@ -1,12 +1,12 @@
 import { Post } from "../../types";
 import supabase from "./supabaseClient";
 
-export async function fetchFollowingPosts(ids: string[]): Promise<Post[] | null | undefined> {
+export async function fetchFollowingPosts(followingIds: string[]): Promise<Post[] | null | undefined> {
    try {
       const { data: posts, error } = await supabase
          .from("posts")
          .select("*")
-         .contains("category_Ids", [ids])
+         .in("profile_id", followingIds) 
          .range(0,19)
     
       

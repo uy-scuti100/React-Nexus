@@ -10,6 +10,7 @@ import PostCard from "../posts/PostCard";
 import { calculateReadTime } from "../../lib/readTime";
 import PostCardSkeleton from "../../components/myComponents/skeletons/PostCardSkeleton";
 import debounce from "lodash.debounce";
+import MinimalPostCard from "../../components/myComponents/global/MinimalPostCard";
 
 const Page = () => {
    const { id } = useParams();
@@ -132,7 +133,7 @@ const Page = () => {
                         const readTime = calculateReadTime(content);
 
                         return (
-                           <PostCard
+                           <MinimalPostCard
                               content={content}
                               key={id}
                               readTime={readTime}
@@ -157,20 +158,6 @@ const Page = () => {
                         {skeletonElements}
                      </div>
                   )}
-                  {/* {categoryPosts &&
-                     totalCount !== null &&
-                     categoryPosts.length < totalCount && (
-                        <div className="py-10">
-                           <button
-                              disabled={isFetching}
-                              onClick={fetchMorePosts}
-                              className={`${
-                                 isFetching && "bg-wh-300 animate-bounce"
-                              } w-full px-5 py-2 mt-5 font-semibold md:w-auto bg-accent-red text-black rounded-full`}>
-                              {isFetching ? "Loading More..." : " Load More"}
-                           </button>
-                        </div>
-                     )} */}
 
                   {categoryPosts === null ||
                      (Array.isArray(categoryPosts) &&

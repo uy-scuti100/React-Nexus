@@ -60,12 +60,12 @@ const Hover = ({
                onClick={scrollToTop}>
                <img
                   src={author_image}
-                  width={50}
-                  height={50}
+                  width={24}
+                  height={24}
                   alt="user-profile-img"
-                  className="border border-accent w-[50px] h-[50px] rounded-full cursor-pointer object-cover"
+                  className="object-cover border  w-[24px] h-[24px]  rounded-full cursor-pointer border-accent"
                />
-               {/* <div className="flex items-center gap-2 font-semibold">
+               <div className="flex items-center gap-2 text-sm">
                   <p>{author} </p>
                   <span>
                      {isAuthorized && (
@@ -77,7 +77,7 @@ const Hover = ({
                         />
                      )}
                   </span>
-               </div> */}
+               </div>
             </Link>
          </HoverCardTrigger>
          <HoverCardContent className="w-[380px]">

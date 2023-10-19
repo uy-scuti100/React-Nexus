@@ -7,15 +7,15 @@ import { Post } from "../../../types";
 import TopicSlider from "../../components/myComponents/global/TopicSlider";
 import PostCardSkeleton from "../../components/myComponents/skeletons/PostCardSkeleton";
 import { calculateReadTime } from "../../lib/readTime";
-import PostCard from "./PostCard";
+
 import RecommendedPosts from "./RecommendedPosts";
 import debounce from "lodash.debounce";
+import MinimalPostCard from "../../components/myComponents/global/MinimalPostCard";
 
 const page = () => {
    const [isFetching, setIsFetching] = useState(false);
    const [scrollPosition, setScrollPosition] = useState(0);
    const [totalPosts, setTotalPosts] = useState<number | null>(0);
-
    const { posts, isLoading } = usePost();
    const [blogPosts, setBlogPosts] = useState<Post[] | null | undefined>([]);
    const [error, setError] = useState(false);
@@ -120,44 +120,46 @@ const page = () => {
                   </div>
                   <TopicSlider />
                   <RecommendedPosts />
-                  {blogPosts?.map((post: Post) => {
-                     const {
-                        author,
-                        id,
-                        image,
-                        snippet,
-                        title,
-                        created_at,
-                        profile_id,
-                        author_image,
-                        bookmark_count,
-                        likes_count,
-                        comment_count,
-                        category_Ids,
-                        content,
-                     } = post;
-                     const readTime = calculateReadTime(content);
+                  <div className="pt-20">
+                     {blogPosts?.map((post: Post) => {
+                        const {
+                           author,
+                           id,
+                           image,
+                           snippet,
+                           title,
+                           created_at,
+                           profile_id,
+                           author_image,
+                           bookmark_count,
+                           likes_count,
+                           comment_count,
+                           category_Ids,
+                           content,
+                        } = post;
+                        const readTime = calculateReadTime(content);
 
-                     return (
-                        <PostCard
-                           key={id}
-                           author={author}
-                           id={id}
-                           image={image}
-                           snippet={snippet}
-                           title={title}
-                           author_image={author_image}
-                           bookmark_count={bookmark_count}
-                           created_at={created_at}
-                           likes_count={likes_count}
-                           comment_count={comment_count}
-                           profile_id={profile_id}
-                           category_Ids={category_Ids}
-                           readTime={readTime}
-                           content={content}
-                        />
-                     );
-                  })}
+                        return (
+                           <MinimalPostCard
+                              key={id}
+                              author={author}
+                              id={id}
+                              image={image}
+                              snippet={snippet}
+                              title={title}
+                              author_image={author_image}
+                              bookmark_count={bookmark_count}
+                              created_at={created_at}
+                              likes_count={likes_count}
+                              comment_count={comment_count}
+                              profile_id={profile_id}
+                              category_Ids={category_Ids}
+                              readTime={readTime}
+                              content={content}
+                           />
+                        );
+                     })}
+                  </div>
                   {isLoading && (
                      <div className="flex flex-col w-full">
                         {skeletonElements}

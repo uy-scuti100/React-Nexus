@@ -30,6 +30,7 @@ import { Settings } from "./Settings";
 import PostCardSkeleton from "../../components/myComponents/skeletons/PostCardSkeleton";
 import { Badge } from "../../components/ui/badge";
 import { calculateReadTime } from "../../lib/readTime";
+import MinimalPostCard from "../../components/myComponents/global/MinimalPostCard";
 interface PostCardProps {
    author: string;
    id: string;
@@ -630,8 +631,12 @@ const Account = () => {
       };
    }, [scrollPosition, fetchMorePosts]);
 
+   const skeletonElements = Array.from({ length: 5 }, (_, index) => (
+      <PostCardSkeleton key={index} />
+   ));
+
    return (
-      <main className="pt-24 ">
+      <main className="">
          <div className="relative flex justify-center max-w-5xl mx-auto h-52">
             {bannerPic ? (
                <img
@@ -1253,9 +1258,9 @@ const Account = () => {
                                  transition={{
                                     duration: 0.4,
                                     ease: [0.25, 0.25, 0, 1],
-                                    delay: index / 15, // Adjust the delay as needed
+                                    delay: index / 15,
                                  }}>
-                                 <PostCard
+                                 <MinimalPostCard
                                     key={post.id}
                                     author={post.author}
                                     id={post.id}
@@ -1294,23 +1299,11 @@ const Account = () => {
                      )}
                   </div>
                )}
-
-               {/* {totalCount !== null &&
-                  posts !== null &&
-                  totalCount > posts.length && (
-                     <div className="my-10">
-                        <button
-                           disabled={isFetching}
-                           onClick={fetchMorePosts}
-                           className={`${
-                              isFetching && "bg-wh-300 animate-bounce"
-                           } w-full px-5 py-2 mt-5 font-semibold md:w-auto bg-accent-red text-black`}>
-                           {isFetching ? "Loading More..." : " Load More"}
-                        </button>
-                     </div>
-                  )} */}
-               {/* {isLoading && <div className="mx-2">Loading...</div>} */}
-               {error && <div className="mx-2 ">Error: {error}</div>}
+               {isLoading && (
+                  <div className="flex flex-col w-full gap-5">
+                     {skeletonElements}
+                  </div>
+               )}
             </div>
          </div>
          {showSettings && (
