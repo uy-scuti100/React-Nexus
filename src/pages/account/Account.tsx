@@ -436,7 +436,8 @@ const Account = () => {
                .from("posts")
                .select("*")
                .range(0, 9)
-               .eq("profile_id", id as string);
+               .eq("profile_id", id as string)
+               .order("created_at", { ascending: false });
             if (profilePosts) {
                setPosts(profilePosts);
             } else if (error) {

@@ -103,7 +103,7 @@ interface SuggestionProp {
    name: string;
 }
 const titleMaxLength = 80;
-const snippetMaxLength = 500;
+const snippetMaxLength = 300;
 const contentMinLength = 1;
 
 type NoteFormValues = z.infer<typeof formSchema>;
@@ -117,6 +117,9 @@ const formSchema = z.object({
 // category_id:(z.string()), //
 const PostForm = () => {
    const postImageUrl = import.meta.env.VITE_REACT_SUPABASE_IMAGE_URL;
+   const [titleLength, setTitleLength] = useState(0); // State variable to track title length
+   const [snippetLength, setSnippetLength] = useState(0); // State variable to track title length
+
    const [loading, setLoading] = useState(false);
    const [drafting, setDrafing] = useState(false);
    const [cats, setCats] = useState<Category[] | null>([]);
@@ -138,6 +141,15 @@ const PostForm = () => {
    const form = useForm<NoteFormValues>({
       resolver: zodResolver(formSchema),
    });
+
+   const handleTitleInput = (e: React.FormEvent<HTMLInputElement>) => {
+      const title = e.currentTarget.value;
+      setTitleLength(title.length);
+   };
+   const handleSnippetInput = (e: React.FormEvent<HTMLTextAreaElement>) => {
+      const snippet = e.currentTarget.value;
+      setSnippetLength(snippet.length);
+   };
 
    const uploadPostImage = (e: React.ChangeEvent<HTMLInputElement>) => {
       const imageFile = e.target.files?.[0]; // Safely access the selected file
@@ -443,12 +455,19 @@ const PostForm = () => {
                            <FormItem className="flex flex-col gap-4">
                               <FormLabel>Title</FormLabel>
                               <FormControl>
-                                 <input
-                                    disabled={loading}
-                                    placeholder="Title"
-                                    {...field}
-                                    className="h-10 bg-transparent border-b outline-none placeholder:text-xs placeholder:opacity-75"
-                                 />
+                                 <>
+                                    <input
+                                       disabled={loading}
+                                       maxLength={titleMaxLength}
+                                       onInput={handleTitleInput}
+                                       placeholder="Title"
+                                       {...field}
+                                       className="h-10 bg-transparent border-b outline-none placeholder:text-xs placeholder:opacity-75"
+                                    />
+                                    <span className="flex justify-end mt-1 text-xs opacity-75">
+                                       {titleLength}/{titleMaxLength}
+                                    </span>
+                                 </>
                               </FormControl>
                               <div className="flex items-start gap-2 pb-5 md:items-center opacity-80">
                                  <p className="text-xs ">
@@ -469,12 +488,19 @@ const PostForm = () => {
                            <FormItem className="flex flex-col gap-4">
                               <FormLabel>Article snippet</FormLabel>
                               <FormControl>
-                                 <textarea
-                                    disabled={loading}
-                                    placeholder="enter your article snippet"
-                                    {...field}
-                                    className="h-10 bg-transparent border-b outline-none resize-none placeholder:text-xs placeholder:opacity-75"
-                                 />
+                                 <>
+                                    <textarea
+                                       disabled={loading}
+                                       maxLength={snippetMaxLength}
+                                       onInput={handleSnippetInput}
+                                       placeholder="enter your article snippet"
+                                       {...field}
+                                       className="h-10 bg-transparent border-b outline-none resize-none placeholder:text-xs placeholder:opacity-75"
+                                    />
+                                    <span className="flex justify-end mt-1 text-xs opacity-75">
+                                       {snippetLength}/{snippetMaxLength}
+                                    </span>
+                                 </>
                               </FormControl>
                               <div className="pb-5 text-xs opacity-80">
                                  Please provide a short and captivating snippet
@@ -487,33 +513,40 @@ const PostForm = () => {
                         )}
                      />
                      <FormLabel>Topics</FormLabel>
-                     <div className="flex flex-wrap gap-2">
-                        {selectedCategories.map((selectedCategory, index) => (
-                           <Badge
-                              onClick={clearCategorySuggestions}
-                              key={index}
-                              className="flex items-center px-3 py-2 border rounded-lg">
-                              <span>
-                                 <svg
-                                    width="24"
-                                    height="24"
-                                    viewBox="0 0 24 24">
-                                    <path
-                                       fill="currentcolor"
-                                       clip-rule="evenodd"
-                                       d="M5 21V3h14v18H5zM4.75 2a.75.75 0 0 0-.75.75v18.5c0 .41.34.75.75.75h14.5c.41 0 .75-.34.75-.75V2.75a.75.75 0 0 0-.75-.75H4.75zM8 13a.5.5 0 0 0 0 1h8a.5.5 0 0 0 0-1H8zm-.5 3.5c0-.28.22-.5.5-.5h8a.5.5 0 0 1 0 1H8a.5.5 0 0 1-.5-.5zM8.75 10h6.5c.14 0 .25-.11.25-.25v-2.5a.25.25 0 0 0-.25-.25h-6.5a.25.25 0 0 0-.25.25v2.5c0 .14.11.25.25.25z"></path>
-                                 </svg>
-                              </span>
-                              <span className="mx-2">
-                                 {selectedCategory.name}
-                              </span>
-                              <button
-                                 onClick={() => handleRemoveCategory(index)}>
-                                 <X className="w-4 h-4 " />
-                              </button>
-                           </Badge>
-                        ))}
-                     </div>
+                     {selectedCategories && (
+                        <div className="flex flex-wrap gap-2">
+                           {selectedCategories.map(
+                              (selectedCategory, index) => (
+                                 <Badge
+                                    onClick={clearCategorySuggestions}
+                                    key={index}
+                                    className="flex items-center px-3 py-1 border rounded-lg">
+                                    <span>
+                                       <svg
+                                          width="20"
+                                          height="20"
+                                          viewBox="0 0 24 24">
+                                          <path
+                                             fill="currentColor"
+                                             clipRule="evenodd" // Corrected attribute name
+                                             d="M5 21V3h14v18H5zM4.75 2a.75.75 0 0 0-.75.75v18.5c0 .41.34.75.75.75h14.5c.41 0 .75-.34.75-.75V2.75a.75.75 0 0 0-.75-.75H4.75zM8 13a.5.5 0 0 0 0 1h8a.5.5 0 0 0 0-1H8zm-.5 3.5c0-.28.22-.5.5-.5h8a.5.5 0 0 1 0 1H8a.5.5 0 0 1-.5-.5zM8.75 10h6.5c.14 0 .25-.11.25-.25v-2.5a.25.25 0 0 0-.25-.25h-6.5a.25.25 0 0 0-.25.25v2.5c0 .14.11.25.25.25z"></path>
+                                       </svg>
+                                    </span>
+                                    <span className="mx-2">
+                                       {selectedCategory.name}
+                                    </span>
+                                    <button
+                                       onClick={() =>
+                                          handleRemoveCategory(index)
+                                       }>
+                                       <X className="w-4 h-4" />
+                                    </button>
+                                 </Badge>
+                              )
+                           )}
+                        </div>
+                     )}
+
                      <input
                         type="text"
                         placeholder="Enter and select categories that best decsribe your article"

@@ -15,7 +15,7 @@ export async function fetchUser() {
          user_name: user.user_metadata?.user_name || null,
        };
  
-       console.log(user);
+      //  console.log(user);
        return userData;
      }
  

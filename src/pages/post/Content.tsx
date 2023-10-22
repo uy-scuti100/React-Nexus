@@ -12,6 +12,7 @@ import {
    Heart,
    MessageCircle,
    MoreHorizontal,
+   Pause,
    Play,
    Share,
 } from "lucide-react";
@@ -25,7 +26,7 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import ReactMarkdown from "react-markdown";
 import { Comment, Post } from "../../../types";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import ContentSkeleton from "./ContentSkeleton";
 import { Badge } from "../../components/ui/badge";
 import { calculateReadTime } from "../../lib/readTime";
@@ -668,6 +669,55 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
       }
    };
 
+   const [isSpeaking, setIsSpeaking] = useState(false);
+   const [speechSynthesisInstance, setSpeechSynthesisInstance] =
+      useState<SpeechSynthesisUtterance | null>(null);
+
+   function textToSpeech(content: string) {
+      if (isSpeaking) {
+         // If speech is currently in progress, pause it
+         window.speechSynthesis.pause();
+         setIsSpeaking(false);
+      } else {
+         if (speechSynthesisInstance) {
+            // If speech is paused, resume it
+            window.speechSynthesis.resume();
+            setIsSpeaking(true);
+         } else {
+            const text = content;
+            const instance = new SpeechSynthesisUtterance(text);
+
+            instance.onstart = () => {
+               setIsSpeaking(true);
+            };
+
+            instance.onend = () => {
+               setIsSpeaking(false);
+            };
+
+            setSpeechSynthesisInstance(instance); // Store it in the component's state
+            window.speechSynthesis.speak(instance);
+         }
+      }
+   }
+
+   // Add a listener for beforeunload event to stop speech when leaving the page
+   window.addEventListener("beforeunload", () => {
+      if (isSpeaking) {
+         window.speechSynthesis.cancel();
+      }
+   });
+   const location = useLocation();
+
+   useEffect(() => {
+      // Stop speech when navigating to a new page
+      if (speechSynthesisInstance) {
+         window.speechSynthesis.cancel();
+         setIsSpeaking(false);
+         setSpeechSynthesisInstance(null);
+      }
+   }, [location]);
+
    return (
       <>
          {post ? (
@@ -734,14 +784,14 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
                         )}
                      </div>
                   ) : (
-                     <p className="mt-[5px] mb-6 text-lg leading-6">
+                     <p className="mt-[5px] mb-6 dark:text-wh-100 md:text-lg leading-6 ">
                         {post?.snippet}
                      </p>
                   )}
 
                   {/* features== ---- audio, share and more */}
                   <div className="flex flex-col gap-3">
-                     <div className="flex items-start gap-5 pb-3">
+                     <div className="flex items-start gap-5 pb-3 flex-wrap">
                         <Hover
                            profile_id={profile_id}
                            author_image={author_image}
@@ -755,54 +805,35 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
                            joinedDate={joinedDate}
                            bio={bio}
                         />
-                        <div>
-                           <div className="flex items-center gap-3">
-                              <div className="flex items-center gap-2">
-                                 <Link to={`/account/${profile_id}`}>
-                                    <p className="">{post.author} . </p>
-                                 </Link>
-                                 {isAuthorized && (
-                                    <img
-                                       src="/bluecheck-removebg-preview.png"
-                                       alt="checkmark"
-                                       height={14}
-                                       width={14}
-                                    />
-                                 )}
-                              </div>
-                              <p className="text-sm text-[#1A8917]">
-                                 {" "}
-                                 {isFollowing ? "Following" : ""}{" "}
-                              </p>
-                           </div>
-                           {/* {!isPublished && (
-                              <p className="pt-1 text-sm opacity-75">
-                                 {" "}
-                                 Published in{" "}
-                                 <span className="font-semibold opacity-100">
-                                    Quora Digest
-                                 </span>
-                              </p>
-                           )} */}
-                           <div className="flex items-center gap-3 pt-1">
-                              <p className="text-xs">{readTime} min read.</p>{" "}
-                              <p suppressHydrationWarning className="text-xs">
-                                 {dayjs().diff(
-                                    post?.created_at,
-                                    "seconds",
-                                    true
-                                 ) < 30
-                                    ? "just now"
-                                    : dayjs(post?.created_at).fromNow()}
-                              </p>
-                           </div>
+
+                        <div className="flex items-center gap-3">
+                           <p className="text-sm text-[#1A8917]">
+                              {" "}
+                              {isFollowing ? "Following" : ""}{" "}
+                           </p>
+                        </div>
+
+                        <div className="flex items-center gap-3 pt-1">
+                           <p className="text-xs">{readTime} min read.</p>{" "}
+                           <p suppressHydrationWarning className="text-xs">
+                              {dayjs().diff(post?.created_at, "seconds", true) <
+                              30
+                                 ? "just now"
+                                 : dayjs(post?.created_at).fromNow()}
+                           </p>
                         </div>
                      </div>
                      <div className="flex items-center gap-6 pb-16 opacity-70">
-                        <p className="flex items-center gap-2 px-4 py-2 text-xs border rounded-full cursor-pointer border-foreground/20">
+                        <p
+                           onClick={() => textToSpeech(content)}
+                           className="flex items-center gap-2 px-4 py-2 text-xs border rounded-full cursor-pointer border-foreground/20">
                            {" "}
-                           <Play className="w-4 h-4 " />
-                           Listen
+                           {!isSpeaking ? (
+                              <Play className="w-4 h-4 " />
+                           ) : (
+                              <Pause className="w-4 h-4 " />
+                           )}
+                           {!isSpeaking ? "Play" : "Pause"}
                         </p>
                         <p className="flex items-center gap-2 px-4 py-2 text-xs border rounded-full cursor-pointer border-foreground/20">
                            <Share className="w-4 h-4 " /> Share

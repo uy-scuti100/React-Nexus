@@ -88,13 +88,20 @@ export default function SideNav({
                      <span>Profile</span>
                   </li>
                </Link>
-               <Link to={`/`}>
-                  <li className="flex items-center gap-4 cursor-pointer hover:opacity-75">
-                     <Mail className="w-6 h-6 opacity-60 " />
-                     <span>Messages</span>
-                  </li>
-               </Link>
-               <Link to="/search" onClick={toggleSideNav}>
+
+               <li
+                  className="flex items-center gap-4 cursor-pointer hover:opacity-75"
+                  onClick={() => alert("comng soon")}>
+                  <Mail className="w-6 h-6 opacity-60 " />
+                  <span>Messages</span>
+               </li>
+
+               <Link
+                  to="/search"
+                  onClick={() => {
+                     toggleSideNav();
+                     scrollToTop();
+                  }}>
                   <li className="flex items-center gap-4 cursor-pointer hover:opacity-75">
                      <Search className="w-6 h-6 cursor-pointer opacity-70" />
                      <span>Search</span>
@@ -102,8 +109,11 @@ export default function SideNav({
                </Link>
 
                <Link
-                  to={user ? `/bookmarks/${userId}` : "/"}
-                  onClick={toggleSideNav}>
+                  to={user ? "/bookmarks" : "/"}
+                  onClick={() => {
+                     toggleSideNav();
+                     scrollToTop();
+                  }}>
                   <li className="flex items-center gap-4 cursor-pointer hover:opacity-75">
                      <svg
                         width="24"
@@ -124,8 +134,11 @@ export default function SideNav({
                </Link>
 
                <Link
-                  to={user ? `/liked-posts/${userId}` : "/"}
-                  onClick={toggleSideNav}>
+                  to={user ? "/liked" : "/"}
+                  onClick={() => {
+                     toggleSideNav();
+                     scrollToTop();
+                  }}>
                   <li className="flex items-center gap-4 cursor-pointer hover:opacity-75">
                      <svg
                         width="24"

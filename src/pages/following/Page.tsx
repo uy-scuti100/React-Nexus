@@ -197,20 +197,6 @@ const Page = () => {
                         {skeletonElements}
                      </div>
                   )}
-                  {/* {followingPosts &&
-                     totalCount !== null &&
-                     followingPosts.length < totalCount && (
-                        <div className="py-10">
-                           <button
-                              disabled={isFetching}
-                              onClick={fetchMorePosts}
-                              className={`${
-                                 isFetching && "bg-wh-300 animate-bounce"
-                              } w-full px-5 py-2 mt-5 font-semibold md:w-auto bg-accent-red text-black rounded-full`}>
-                              {isFetching ? "Loading More..." : " Load More"}
-                           </button>
-                        </div>
-                     )} */}
 
                   {followingPosts === null ||
                      (Array.isArray(followingPosts) &&

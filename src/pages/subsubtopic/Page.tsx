@@ -326,7 +326,7 @@ const Page = () => {
          <div className="px-6 mt-20 mb-10 ">
             <p className="font-bold">Recommended Posts</p>
          </div>
-         <section className="grid-cols-3 gap-10 px-12 md:grid">
+         <section className="grid-cols-3 gap-10 px-6 md:grid">
             {posts?.map((post: Post, index: number) => {
                const {
                   author,

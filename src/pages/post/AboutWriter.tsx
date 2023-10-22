@@ -42,11 +42,6 @@ const AboutWriter = ({
       []
    );
    const [authorPosts, setAuthorPosts] = useState<Array<Post>>([]);
-   // console.log("recommended posts:", recommendedPosts);
-   // console.log("recommended catId:", categoryIds);
-   const [postStatus, setPostStatus] = useState<{
-      [postId: string]: { isBookmarked: boolean; isLiked: boolean };
-   }>({});
    const [bio, setBio] = useState<string | null | undefined>("");
    const { user } = useFetchUser();
    const currentUserId = user?.id;
@@ -128,7 +123,7 @@ const AboutWriter = ({
          }
       };
 
-      fetchRecommendedPosts(); // Call the function once to load recommended posts on component mount.
+      fetchRecommendedPosts();
    }, [categoryIds, postId]);
 
    return (

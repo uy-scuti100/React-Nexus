@@ -9,6 +9,7 @@ import { Pagination, Navigation } from "swiper/modules";
 import { calculateReadTime } from "../../lib/readTime";
 import { useNavigate } from "react-router-dom";
 import { useRecommendedPost } from "../../hooks/useRecommendedPosts";
+import { Badge } from "../../components/ui/badge";
 
 function shuffleArray(array: any) {
    for (let i = array.length - 1; i > 0; i--) {
@@ -63,6 +64,9 @@ function RecommendedPosts() {
                            alt={`${post.title}'s image`}
                            className="absolute inset-0 object-cover w-full h-full -z-20"
                         />
+                        <Badge className="absolute top-2 right-2">
+                           recommended
+                        </Badge>
                         <div className="z-50 absolute left-3 right-3 top-[60%] md:top-[70%] text-white">
                            <p className="pb-3 text-2xl font-bold capitalize md:text-3xl">
                               {post.title.substring(0, 20)}...

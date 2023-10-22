@@ -456,7 +456,7 @@ const MinimalPostCard = ({
                   <div className="font-bold capitalize ">{title}</div>
                </Link>
 
-               <div className="pt-3 pb-4 text-sm font-medium md:block first-letter:uppercase">
+               <div className="pt-3 pb-4 text-sm font-medium md:block first-letter:uppercase dark:text-wh-100">
                   {snippet.substring(0, 120)}...
                </div>
             </div>

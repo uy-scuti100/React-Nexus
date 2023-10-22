@@ -2,7 +2,7 @@ import { X, PencilLine, Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
 
 import { Button } from "../../components/ui/button";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useFetchUser } from "../../hooks/useFetchUser";
 import supabase from "../../lib/supabaseClient";
 import { useState } from "react";
@@ -100,30 +100,21 @@ const CategoryAndEdit = ({
 
    return (
       <div className="flex items-center justify-end">
-         {/* <Link
-            to={`/categories/${
-               postCategories.length > 0 ? postCategories[0].id : ""
-            }`}>
-            <h4 className="px-5 py-2 text-sm font-bold capitalize bg-accent-orange text-white-900">
-               {postCategories.length > 0 ? postCategories[0].name : ""}
-            </h4>
-         </Link> */}
-
          {post?.profile_id === userId && (
             <div>
                {isEditable ? (
                   <div className="flex justify-between gap-3">
                      <button onClick={handleCancelEdit}>
-                        <X className="w-6 h-6 cursor-pointer" />
+                        <X className="w-4 h-4 cursor-pointer opacity-70" />
                      </button>
                   </div>
                ) : (
                   <div className="flex items-center gap-8 pb-8">
                      <button onClick={handleEnableEdit}>
-                        <PencilLine className="w-6 h-6 cursor-pointer" />
+                        <PencilLine className="w-4 h-4 cursor-pointer opacity-70" />
                      </button>
                      <div onClick={handleShowDialog}>
-                        <Trash2 className="w-6 h-6 cursor-pointer" />
+                        <Trash2 className="w-4 h-4 cursor-pointer opacity-70" />
                      </div>
                      {showDialog && (
                         <div className="fixed inset-0 z-50 h-screen mx-5 backdrop-blur">

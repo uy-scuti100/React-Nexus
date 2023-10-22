@@ -3,6 +3,7 @@ import Navbar from "../../components/myComponents/global/Navbar";
 import supabase from "../../lib/supabaseClient";
 import SearchInput from "./SearchInput";
 import SearchResult from "./SearchResults";
+import { useNavigate } from "react-router-dom";
 // Interface for data returned by searchPeople
 interface SearchResultProp {
    // people
@@ -20,6 +21,7 @@ interface SearchResultProp {
 }
 
 const Search = () => {
+   const navigate = useNavigate();
    const [selectedCategory, setSelectedCategory] = useState("people");
    const [searchQuery, setSearchQuery] = useState("");
    const [searchResults, setSearchResults] = useState<Array<SearchResultProp>>(
@@ -129,10 +131,11 @@ const Search = () => {
                         ? "bg-accent-red"
                         : "dark:text-white"
                   }`}
-                  onClick={() => {
-                     setSelectedCategory("topics");
-                     setSearchQuery("");
-                  }}>
+                  // onClick={() => {
+                  //    setSelectedCategory("topics");
+                  //    setSearchQuery("");
+                  // }}
+                  onClick={() => navigate("/explore-topics")}>
                   Topics
                </button>
             </div>

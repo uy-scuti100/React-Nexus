@@ -1,119 +1,85 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { useFetchCategoryPost } from "../../hooks/useFetchCategoryPost";
-import Sidebar from "../../components/myComponents/global/Sidebar";
-import { Post } from "../../../types";
-import Navbar from "../../components/myComponents/global/Navbar";
-import supabase from "../../lib/supabaseClient";
-import TopicSlider from "../../components/myComponents/global/TopicSlider";
-import PostCard from "../posts/PostCard";
-import { calculateReadTime } from "../../lib/readTime";
-import PostCardSkeleton from "../../components/myComponents/skeletons/PostCardSkeleton";
-import debounce from "lodash.debounce";
 import MinimalPostCard from "../../components/myComponents/global/MinimalPostCard";
+import Navbar from "../../components/myComponents/global/Navbar";
+import Sidebar from "../../components/myComponents/global/Sidebar";
+import PostCardSkeleton from "../../components/myComponents/skeletons/PostCardSkeleton";
+import supabase from "../../lib/supabaseClient";
+import { Post } from "../../../types";
+import { useFetchUser } from "../../hooks/useFetchUser";
+import { calculateReadTime } from "../../lib/readTime";
+import FollowTopicsModal from "../../components/providers/modal/followTopicsModal";
+
+interface Likes {
+   profile_id: string;
+   post_id: string;
+}
 
 const Page = () => {
-   const { id } = useParams();
-   const paramsId = id;
-   // const pathname = window.location.pathname.split("/")[2];
-   const { posts, isLoading } = useFetchCategoryPost(paramsId as string);
-   const [categoryPosts, setCategoryPosts] = useState<
-      Post[] | null | undefined
-   >([]);
-   const [totalCount, setTotalCount] = useState<number | null>(0);
-   const from = Number(categoryPosts?.length);
-   const [scrollPosition, setScrollPosition] = useState(0);
-   const [isFetching, setIsFetching] = useState<boolean>(false);
+   const { user } = useFetchUser();
+   const currentUserId = user?.id;
+   const [bookmarkedPosts, aetBookmarkedPosts] = useState<Post[] | null>([]);
+   const [postIds, setPostIds] = useState<Likes[] | null>([]);
+   // console.log(postIds);
+   // console.log(bookmarkedPosts);
+   const [isLoading, setIsLoading] = useState(false);
 
    useEffect(() => {
-      setCategoryPosts(posts);
-   }, [paramsId, posts]);
-
-   useEffect(() => {
-      // Fetch the total count of posts for the category
-      async function fetchTotalCount() {
+      const fetchBookmarkedData = async () => {
          try {
-            const { data, error } = await supabase
-               .from("posts")
+            setIsLoading(true);
+            const { data: likesData, error: likesError } = await supabase
+               .from("bookmarks")
                .select("*")
-               .contains("category_Ids", [paramsId]);
+               .eq("profile_id", currentUserId);
 
-            if (error) {
-               throw new Error("Failed to fetch total count");
+            if (likesData && !likesError) {
+               setPostIds(likesData);
+               const postIdsArray = likesData.map((like) => like.post_id);
+
+               if (postIdsArray.length > 0) {
+                  const { data: postsData, error: postsError } = await supabase
+                     .from("posts")
+                     .select("*")
+                     .in("id", postIdsArray);
+
+                  if (postsData && !postsError) {
+                     aetBookmarkedPosts(postsData);
+                  } else {
+                     console.error(
+                        "Error fetching bookmarked posts:",
+                        postsError
+                     );
+                  }
+               }
+            } else {
+               console.error("Error fetching liked posts:", likesError);
             }
-
-            const totalCount = data.length;
-            setTotalCount(totalCount);
-            // console.log(totalCount);
          } catch (error) {
-            console.error(error);
+            console.error("An error occurred:", error);
+         } finally {
+            setIsLoading(false);
          }
-      }
+      };
 
-      fetchTotalCount();
-   }, [paramsId]);
+      fetchBookmarkedData();
+   }, [currentUserId]);
 
    const skeletonElements = Array.from({ length: 5 }, (_, index) => (
       <PostCardSkeleton key={index} />
    ));
-
-   const fetchMorePosts = async () => {
-      if (isFetching) {
-         return;
-      }
-      setIsFetching(true);
-      try {
-         const { data, error } = await supabase
-            .from("posts")
-            .select()
-            .contains("category_Ids", [paramsId])
-            .range(from, from + 4)
-            .order("created_at", { ascending: false });
-
-         if (error) {
-            throw new Error("Failed to fetch more posts");
-         }
-
-         setCategoryPosts((prevPosts) => [...(prevPosts || []), ...data]);
-      } catch (error) {
-         console.error(error);
-      } finally {
-         setIsFetching(false);
-      }
-   };
-
-   useEffect(() => {
-      const handleScroll = () => {
-         const currentPosition = window.scrollY;
-
-         const viewportHeight = window.innerHeight;
-         const scrollThreshold = 1 * viewportHeight;
-
-         if (currentPosition - scrollPosition > scrollThreshold) {
-            fetchMorePosts();
-            setScrollPosition(currentPosition);
-         }
-      };
-
-      const debouncedHandleScroll = debounce(handleScroll, 300);
-
-      window.addEventListener("scroll", debouncedHandleScroll);
-
-      return () => {
-         window.removeEventListener("scroll", debouncedHandleScroll);
-      };
-   }, [scrollPosition, fetchMorePosts]);
-
    return (
       <main className="relative">
          <Navbar />
          <section className="px-6 pt-16">
-            <div className="gap-10 pt-5 mb-5 md:flex md:px-20">
+            <h1 className="pt-5 text-xl font-bold text-center">
+               Your Bookmarked Posts
+            </h1>
+            <FollowTopicsModal />
+            <div className="gap-10 mb-5 md:flex md:px-20 md:pt-5">
                <div className="overflow-x-hidden md:basis-3/5 lg:basis-3/4 md:px-0 lg:px-24 ">
-                  <TopicSlider />
                   {/* <RecommendedPosts /> */}
-                  <div className="flex flex-col w-full gap-5 mt-10">
-                     {categoryPosts?.map((post: Post, i: number) => {
+                  <div className="flex flex-col w-full gap-5 mt-20">
+                     {bookmarkedPosts?.map((post: Post, i: number) => {
                         const {
                            author,
                            id,
@@ -159,9 +125,9 @@ const Page = () => {
                      </div>
                   )}
 
-                  {categoryPosts === null ||
-                     (Array.isArray(categoryPosts) &&
-                        categoryPosts.length === 0 && (
+                  {bookmarkedPosts === null ||
+                     (Array.isArray(bookmarkedPosts) &&
+                        bookmarkedPosts.length === 0 && (
                            <div>
                               <div className="flex items-center justify-center">
                                  <div className="relative w-full md:w-[500px] h-[500px]">

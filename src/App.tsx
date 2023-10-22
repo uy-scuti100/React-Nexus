@@ -12,6 +12,8 @@ import Topic from "./pages/subtopic/Page";
 import Tag from "./pages/tag/Page";
 import Mytags from "./pages/topic/Page";
 import Following from "./pages/following/Page";
+import Bookmarked from "./pages/bookmarks/Page";
+import Liked from "./pages/liked/Page";
 
 const Layout = () => {
    return (
@@ -73,6 +75,14 @@ const router = createBrowserRouter([
          {
             path: "/following",
             element: <Following />,
+         },
+         {
+            path: "/bookmarks",
+            element: <Bookmarked />,
+         },
+         {
+            path: "/liked",
+            element: <Liked />,
          },
       ],
    },

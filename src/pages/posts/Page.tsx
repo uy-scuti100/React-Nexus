@@ -120,6 +120,7 @@ const page = () => {
                   </div>
                   <TopicSlider />
                   <RecommendedPosts />
+
                   <div className="pt-20">
                      {blogPosts?.map((post: Post) => {
                         const {
@@ -165,40 +166,11 @@ const page = () => {
                         {skeletonElements}
                      </div>
                   )}
-
-                  {/* {totalPosts !== null &&
-                     posts !== null &&
-                     totalPosts > (posts ? posts.length : 0) && (
-                        <div className="my-10">
-                           <button
-                              disabled={isFetching}
-                              onClick={handleLoadMoreClick}
-                              className={`${
-                                 isFetching && "bg-wh-300 animate-bounce"
-                              } w-full px-5 py-2 mt-5 font-semibold md:w-auto bg-accent-red  rounded-full hover-bg-wh-500 text-black`}>
-                              {isFetching ? "Loading More..." : "Load More"}
-                           </button>
-                        </div>
-                     )} */}
                   {blogPosts === null ||
                      (Array.isArray(blogPosts) && blogPosts.length === 0 && (
                         <div className="flex flex-col w-full">
                            {skeletonElements}
                         </div>
-                        // <div>
-                        //    <div className="flex items-center justify-center">
-                        //       <div className="relative w-full md:w-[500px] h-[500px]">
-                        //          <img
-                        //             src="/No data-amico.png"
-                        //             alt="loading-image"
-                        //             className="object-cover"
-                        //          />
-                        //       </div>
-                        //    </div>
-                        //    <div className="pb-10 text-2xl font-bold text-center">
-                        //       No Article from this topic
-                        //    </div>
-                        // </div>
                      ))}
 
                   {isLoading && (
