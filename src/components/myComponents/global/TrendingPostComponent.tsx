@@ -2,15 +2,19 @@ import React from "react";
 import { LargePostsProp, PostsProp, largePosts, posts } from "../posts/posts";
 import PostCard from "../posts/postCard";
 import LargePostCard from "../posts/largePostCard";
+import { Post } from "../../../../types";
+import { usePost } from "../../../hooks/usePost";
+import { Link } from "react-router-dom";
 
 export const TrendingPostComponent = () => {
+   const { posts } = usePost();
    return (
       <div className="grid px-6 py-8 gap-x-8 gap-y-4 md:grid-cols-2 lg:grid-cols-3 place-content-between">
-         {posts?.map((post: PostsProp, i: number) => {
-            const { author, user_img, date, title, verified } = post;
+         {posts?.slice(0, 6)?.map((post: Post, i: number) => {
+            const { author, author_image, created_at, title } = post;
             const postNumber = (i + 1).toString().padStart(2, "0");
             return (
-               <div
+               <Link to={`/post/${post.id}`}
                   key={i}
                   className="flex gap-5 md:min-w-[320px] min-w-[300px]">
                   <span className="font-bold text-2xl text-foreground/30 font-[miracle] mt-5">
@@ -18,12 +22,11 @@ export const TrendingPostComponent = () => {
                   </span>
                   <PostCard
                      title={title}
-                     date={date}
-                     user_img={user_img}
+                     date={created_at}
+                     user_img={author_image}
                      author={author}
-                     verified={verified}
                   />
-               </div>
+               </Link>
             );
          })}
       </div>
@@ -31,26 +34,26 @@ export const TrendingPostComponent = () => {
 };
 
 export const LargePostComponent = () => {
+   const { posts } = usePost();
    return (
       <div className="px-6 py-8 ">
-         {largePosts.map((post: LargePostsProp, i: number) => {
-            const { author, user_img, date, title, verified, post_image } =
-               post;
-            // const postNumber = (i + 1).toString().padStart(2, "0");
+         {posts?.slice(0, 6)?.map((post: Post, i: number) => {
+            const { author, author_image, created_at, title, image } = post;
+
+            const postNumber = (i + 1).toString().padStart(2, "0");
             return (
-               <div key={i} className="w-full pb-6">
+               <Link to={`/post/${post.id}`} key={i} className="w-full pb-6">
                   {/* <span className="font-bold text-2xl text-foreground/30 font-[miracle] mt-5">
                      {postNumber}
                   </span> */}
                   <LargePostCard
                      title={title}
-                     date={date}
-                     user_img={user_img}
+                     date={created_at}
+                     user_img={author_image}
                      author={author}
-                     verified={verified}
-                     post_image={post_image}
+                     post_image={image}
                   />
-               </div>
+               </Link>
             );
          })}
       </div>

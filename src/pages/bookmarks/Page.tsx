@@ -74,7 +74,7 @@ const Page = () => {
             <h1 className="pt-5 text-xl font-bold text-center">
                Your Bookmarked Posts
             </h1>
-            <FollowTopicsModal />
+
             <div className="gap-10 mb-5 md:flex md:px-20 md:pt-5">
                <div className="overflow-x-hidden md:basis-3/5 lg:basis-3/4 md:px-0 lg:px-24 ">
                   {/* <RecommendedPosts /> */}

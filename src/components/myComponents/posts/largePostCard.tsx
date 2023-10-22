@@ -3,12 +3,15 @@ import { BadgeCheck, BookmarkPlus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
+const dateFormatter = new Intl.DateTimeFormat(undefined, {
+   dateStyle: "medium",
+});
+
 const LargePostCard: React.FC<LargePostsProp> = ({
    author,
    user_img,
    title,
    date,
-   verified,
    post_image,
 }: LargePostsProp) => {
    const [divStyles, setDivStyles] = useState({
@@ -58,12 +61,15 @@ const LargePostCard: React.FC<LargePostsProp> = ({
                   className="object-cover w-5 h-5"
                />
                <div className="text-sm logo">{author}</div>
-               {verified ? <BadgeCheck className="w-4 h-4" /> : ""}
             </div>
             <h1 className="text-lg font-bold">{title}</h1>
 
             <div className="flex items-center justify-between">
-               <p className="text-xs text-foreground/50">{date}</p>
+               <p
+                  suppressHydrationWarning
+                  className="text-xs text-foreground/50">
+                  {dateFormatter.format(Date.parse(date))}
+               </p>{" "}
                <BookmarkPlus />
             </div>
          </div>

@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import OnBoard from "../../components/myComponents/global/OnBoard";
 import supabase from "../../lib/supabaseClient";
 import HashtagForm from "../../components/providers/modal/hashtag-modal";
+import { useFetchUser } from "../../hooks/useFetchUser";
 
 interface UserHashtag {
    hashtag_id: string;
@@ -16,7 +17,7 @@ const Page = () => {
    const [loadingUserHashtags, setLoadingUserHashtags] = useState(true);
    const [loading, setLoading] = useState(false);
    const [showHashtagForm, setShowHashtagForm] = useState(false);
-   const { user, isError } = useUser();
+   const { user, isError } = useFetchUser();
    const userId = user?.id;
    const dbUsername = user?.email;
    let username: string | undefined;
@@ -26,34 +27,30 @@ const Page = () => {
       if (parts.length === 2) {
          username = parts[0];
       } else {
-         // Handle cases where the email doesn't contain exactly one '@'
          console.error("Invalid email format:", dbUsername);
-         // You might want to set a default or display an error message.
       }
    } else {
-      // Handle cases where user.email is undefined or null
       console.error("No email provided for the user.");
-      // You might want to set a default or display an error message.
    }
 
-   useEffect(() => {
-      const confirmUserHashtag = async () => {
-         const { data: userHashtagsData } = await supabase
-            .from("user_hashtags")
-            .select("hashtag_id")
-            .eq("user_id", userId);
+   // useEffect(() => {
+   //    const confirmUserHashtag = async () => {
+   //       const { data: userHashtagsData } = await supabase
+   //          .from("user_hashtags")
+   //          .select("hashtag_id")
+   //          .eq("user_id", userId);
 
-         if (userHashtagsData) {
-            setUserHashtags(userHashtagsData as UserHashtag[]);
-            setLoadingUserHashtags(false);
+   //       if (userHashtagsData) {
+   //          setUserHashtags(userHashtagsData as UserHashtag[]);
+   //          setLoadingUserHashtags(false);
 
-            if (userHashtagsData.length < 5) {
-               setShowHashtagForm(true);
-            }
-         }
-      };
-      confirmUserHashtag();
-   }, [userId]);
+   //          if (userHashtagsData.length < 5) {
+   //             setShowHashtagForm(true);
+   //          }
+   //       }
+   //    };
+   //    confirmUserHashtag();
+   // }, [userId]);
 
    useEffect(() => {
       const updateUserProfile = async () => {
@@ -100,17 +97,17 @@ const Page = () => {
    }, [userId, user]);
 
    useEffect(() => {
-      if (user && userHashtags.length >= 5) {
+      if (user) {
          navigate("/posts");
          setLoading(false);
       }
-   }, [user, userHashtags, navigate]);
+   }, [user]);
 
    if (isError) {
       return <main>Error loading user data</main>;
    }
 
-   if (loading && loadingUserHashtags) {
+   if (loading) {
       return (
          <div className="fixed inset-0 flex items-center justify-center bg-white">
             <div className="relative w-full md:w-[500px] h-[500px]">
@@ -124,9 +121,9 @@ const Page = () => {
       );
    }
 
-   if (showHashtagForm) {
-      return <HashtagForm />;
-   }
+   // if (showHashtagForm) {
+   //    return <HashtagForm />;
+   // }
 
    return <OnBoard />;
 };
