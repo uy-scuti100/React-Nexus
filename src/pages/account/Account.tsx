@@ -791,7 +791,7 @@ const Account = () => {
                            </div>
                            <div className="text-left">
                               <div className="text-lg">{name}</div>
-                              <p className="text-sm opacity-50">{username}</p>
+                              <p className="text-sm opacity-50">@{username}</p>
                               <div className="pb-2">Followers</div>
                               <div className="w-full px-6 border-b border-black/10 dark:border-white/10" />
                            </div>
@@ -874,7 +874,7 @@ const Account = () => {
                                  </div>
                               ) : (
                                  <div className="text-lg animate-pulse">
-                                    Fetching....... please wait
+                                    {name} has no followers yet
                                  </div>
                               )}
                            </div>
@@ -896,7 +896,7 @@ const Account = () => {
                            </div>
                            <div className="text-left">
                               <div className="text-xl">{name}</div>
-                              <p className="text-xs opacity-50">{username}</p>
+                              <p className="text-xs opacity-50">@{username}</p>
                               <div className="pb-2 text-sm">Following</div>
                               <div className="w-full px-6 border-b border-black/10 dark:border-white/10" />
                            </div>
@@ -1233,7 +1233,7 @@ const Account = () => {
                   </p>
                </div>
             </div>
-            <div className="col-span-2 px-3 pt-10 pb-24 mr-3 rounded bg-background">
+            <div className="col-span-2 px-3 pt-10 mx-3 rounded bg-background">
                {isLoading && (
                   <div className="flex flex-col w-full gap-5">
                      {Array.from({ length: 5 }).map((_, index) => (

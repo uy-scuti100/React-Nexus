@@ -32,6 +32,9 @@ import { Badge } from "../../components/ui/badge";
 import { calculateReadTime } from "../../lib/readTime";
 import AboutWriter from "./AboutWriter";
 import Hover from "../posts/Hover";
+import remarkGfm from "remark-gfm";
+// import remarkParse from "remark-parse";
+// import remarkRehype from 'remark-rehype'
 
 dayjs.extend(relativeTime);
 
@@ -80,11 +83,9 @@ const modules = {
          "underline",
          "italic",
          "bold",
-         "color",
          "link",
          "image",
          "video",
-         "background",
       ],
    ],
 };
@@ -100,13 +101,11 @@ const formats = [
    "strike",
    "script",
    "blockquote",
-   "background",
    "list",
    "bullet",
    "indent",
    "link",
    "image",
-   "color",
    "code-block",
    "video",
 ];
@@ -168,6 +167,11 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
       Array<{ id: string; name: string; type: string }>
    >([]);
 
+   const renderers = {
+      image: (props: any) => {
+         return <img src={props.src} alt={props.alt} />;
+      },
+   };
    // calculate read time
    useEffect(() => {
       const newReadTime = calculateReadTime(content as string);
@@ -462,10 +466,8 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
             if (postUpdateError) {
                console.error("Error updating the post:", postUpdateError);
 
-
                return;
             } else {
-
             }
          } catch (error) {
             console.error("Error updating post and image:", error);
@@ -929,6 +931,9 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
                               <ReactMarkdown
                                  // @ts-ignore
                                  rehypePlugins={[rehypeRaw]}
+                                 remarkPlugins={[[remarkGfm]]}
+                                 // @ts-ignore
+                                 // escapeHtml={false}
                                  className="text-lg leading-8 md:text-xl">
                                  {content}
                               </ReactMarkdown>
