@@ -666,11 +666,9 @@ const Account = () => {
             </div>
          </div>
 
-         <div className="px-3 mt-20 mb-8">
+         <div className="px-3 mt-20 mb-8" onClick={handleShowSettings}>
             {currentUserId === paramsId && (
-               <button
-                  className="w-full px-5 py-2 mt-5 font-semibold text-black rounded-full md:hidden md:w-auto bg-accent-red "
-                  onClick={handleShowSettings}>
+               <button className="w-full px-5 py-2 mt-5 font-semibold text-black rounded-full md:hidden md:w-auto bg-accent-red ">
                   Edit profile
                </button>
             )}
@@ -995,7 +993,7 @@ const Account = () => {
 
             <div className="flex flex-col gap-8 py-8 md:flex-row md:flex-wrap md:justify-center">
                {location ? (
-                  <div className="flex gap-4">
+                  <div className="flex gap-4 text-sm">
                      <MapPin className="w-6 h-6 opacity-75" />
                      <p>{location}</p>
                   </div>
@@ -1005,7 +1003,7 @@ const Account = () => {
                      <p className="w-1/4 h-6 mb-3 duration-300 animate-pulse bg-wh-300"></p>
                   </div>
                )}
-               <div className="flex gap-4">
+               <div className="flex gap-4 text-sm">
                   <CalendarPlus className="w-6 h-6 opacity-75" />
                   {joinedDate ? (
                      <p>
@@ -1033,7 +1031,9 @@ const Account = () => {
 
                {showEmail ? (
                   email ? (
-                     <Link to={`mailto:${email}`} className="flex gap-4">
+                     <Link
+                        to={`mailto:${email}`}
+                        className="flex gap-4 text-sm">
                         <Mail className="w-6 h-6 opacity-75" />
                         <p>{email}</p>
                      </Link>
@@ -1044,7 +1044,7 @@ const Account = () => {
                      </div>
                   )
                ) : null}
-               <div className="flex gap-4">
+               <div className="flex gap-4 text-sm">
                   <ExternalLink className="w-6 h-6 opacity-75" />
                   {website ? (
                      <a href={website as string} target="_blank">
@@ -1056,7 +1056,7 @@ const Account = () => {
                </div>
             </div>
             <div className="w-full px-6 border-b border-black/10 dark:border-white/10" />
-            <div className="flex flex-col gap-8 py-8 md:flex-row md:flex-wrap md:justify-center">
+            <div className="flex flex-col gap-8 py-8 text-sm md:flex-row md:flex-wrap md:justify-center">
                <div className="flex gap-4">
                   <User2 className="w-6 h-6 opacity-75" />
                   {pronouns ? (
@@ -1065,7 +1065,7 @@ const Account = () => {
                      <div className="w-1/4 h-6 mb-3 duration-300 animate-pulse bg-wh-300"></div>
                   )}
                </div>
-               <div className="flex gap-4">
+               <div className="flex gap-4 text-sm">
                   <Briefcase className="w-6 h-6 opacity-75" />
                   {work ? (
                      <p>{work}</p>
@@ -1073,7 +1073,7 @@ const Account = () => {
                      <div className="w-1/4 h-6 mb-3 duration-300 animate-pulse bg-wh-300"></div>
                   )}
                </div>
-               <div className="flex gap-4">
+               <div className="flex gap-4 text-sm">
                   <GraduationCap className="w-6 h-6 opacity-75" />
                   {education ? (
                      <p>{education}</p>
@@ -1085,7 +1085,7 @@ const Account = () => {
 
             {/* mobile only */}
             <div
-               className={`px-3 pt-8 mx-2 mb-4 transition-all duration-700 ease-in rounded bg-background text-foreground opacity-0 h-0 md:hidden ${
+               className={`pt-8 mx-2 mb-4 transition-all duration-700 ease-in rounded bg-background text-foreground opacity-0 h-0 md:hidden ${
                   showMoreDetails && "opacity-100 h-auto"
                }`}>
                <h3 className="font-bold">Skills/Languages: </h3>
