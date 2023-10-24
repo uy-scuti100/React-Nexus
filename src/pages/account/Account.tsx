@@ -24,8 +24,6 @@ import {
 import { fetchSingleProfile } from "../../lib/fetchSingleProfile";
 import { User } from "../../../types";
 import { useFetchUser } from "../../hooks/useFetchUser";
-import PostCard from "../posts/PostCard";
-import { motion } from "framer-motion";
 import { Settings } from "./Settings";
 import PostCardSkeleton from "../../components/myComponents/skeletons/PostCardSkeleton";
 import { Badge } from "../../components/ui/badge";
@@ -73,7 +71,7 @@ const Account = () => {
    const [email, setEmail] = useState<string | null | undefined>("");
    const [showMoreDetails, setShowMoreDetails] = useState(false);
    const [avatar, setAvatar] = useState("");
-   console.log(avatar);
+
    const [bio, setBio] = useState<string | null | undefined>("");
    const [postCount, setPostCount] = useState<number | null | undefined>(null);
    const [tagsCount, setTagsCount] = useState<number | null | undefined>(null);
