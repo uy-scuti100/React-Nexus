@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import supabase from "../../lib/supabaseClient";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Navbar from "../../components/myComponents/global/Navbar";
 import CategorySlider from "../../components/myComponents/global/categorySlider";
 import debounce from "lodash.debounce";
@@ -33,6 +33,7 @@ const initialTopic = {
 const Page = () => {
    const { id } = useParams();
    const [subSubtopics, setSusSubtopics] = useState<TopicProp[] | null>([]);
+   const navigate = useNavigate();
    const [loading, setLoading] = useState(false);
    const [fetching, setLoasetFetchingding] = useState(false);
    const [topic, setTopic] = useState<Topic>(initialTopic);
@@ -282,14 +283,16 @@ const Page = () => {
             <p>
                {postCount}{" "}
                <span className="text-[#1A8917] dark:text-accent-red">
-                  Stories{" "}
+                  Article(s){" "}
                </span>
             </p>
          </div>
          <div className="flex items-center justify-center pt-4">
             <button
                className="px-4 py-2 text-black border rounded-full border-foreground/10 bg-accent-red"
-               onClick={() => followTopic("Subtopic")}>
+               onClick={
+                  user ? () => followTopic("Subtopic") : () => navigate("/")
+               }>
                {isFollowing ? "Unfollow" : "Follow"}
             </button>
          </div>

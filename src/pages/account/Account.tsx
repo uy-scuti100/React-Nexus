@@ -73,6 +73,7 @@ const Account = () => {
    const [email, setEmail] = useState<string | null | undefined>("");
    const [showMoreDetails, setShowMoreDetails] = useState(false);
    const [avatar, setAvatar] = useState("");
+   console.log(avatar);
    const [bio, setBio] = useState<string | null | undefined>("");
    const [postCount, setPostCount] = useState<number | null | undefined>(null);
    const [tagsCount, setTagsCount] = useState<number | null | undefined>(null);
@@ -653,7 +654,7 @@ const Account = () => {
                {avatar ? (
                   <div className="w-32 h-32 overflow-hidden border-2 border-[#F5F5F5] rounded-full">
                      <img
-                        src={avatar}
+                        src={avatar as string}
                         alt={`${name}'s profile image`}
                         className="object-cover w-full h-full"
                      />

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import supabase from "../../lib/supabaseClient";
 import Navbar from "../../components/myComponents/global/Navbar";
 import CategorySlider from "../../components/myComponents/global/categorySlider";
@@ -37,7 +37,7 @@ const Page = () => {
    const [subSubtopics, setSubSubtopics] = useState<TopicProp[] | null>([]);
    const [parentId, setParentId] = useState("");
    const [loading, setLoading] = useState(false);
-   const [fetching, setLoasetFetchingding] = useState(false);
+   const navigate = useNavigate();
    const [followersCount, setFollowersCount] = useState<number | null>(null);
    const [postCount, setPostCount] = useState<number | null | undefined>(null);
    const [topic, setTopic] = useState<Topic>(initialTopic);
@@ -312,14 +312,16 @@ const Page = () => {
             <p>
                {postCount}{" "}
                <span className="text-[#1A8917] dark:text-accent-red">
-                  Stories{" "}
+                  Article(s){" "}
                </span>
             </p>
          </div>
          <div className="flex items-center justify-center pt-4">
             <button
                className="px-4 py-2 text-black border rounded-full border-foreground/10 bg-accent-red"
-               onClick={() => followTopic("Subsubtopic")}>
+               onClick={
+                  user ? () => followTopic("Subsubtopic") : () => navigate("/")
+               }>
                {isFollowing ? "Unfollow" : "Follow"}
             </button>
          </div>

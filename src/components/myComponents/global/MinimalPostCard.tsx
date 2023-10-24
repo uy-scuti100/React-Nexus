@@ -438,9 +438,9 @@ const MinimalPostCard = ({
                bio={bio}
             />
             <div className="flex items-center gap-3 text-xs font-medium text-wh-300">
-               <p suppressHydrationWarning>
+               {/* <p suppressHydrationWarning>
                   {dateFormatter.format(Date.parse(created_at))}
-               </p>{" "}
+               </p>{" "} */}
                <p suppressHydrationWarning>
                   (
                   {dayjs().diff(created_at, "seconds", true) < 30
@@ -453,12 +453,14 @@ const MinimalPostCard = ({
          <div className="flex justify-between pt-2">
             <div className="flex flex-col">
                <Link to={`/post/${id}`} onClick={scrollToTop}>
-                  <div className="font-bold capitalize ">{title}</div>
+                  <div className="font-bold capitalize text-sm md:text-base ">
+                     {title}
+                  </div>
                </Link>
 
-               <div className="pt-3 pb-4 text-sm font-medium md:block first-letter:uppercase dark:text-wh-100">
+               {/* <div className="pt-3 pb-4 text-sm font-medium md:block first-letter:uppercase dark:text-wh-100">
                   {snippet.substring(0, 120)}...
-               </div>
+               </div> */}
             </div>
             <div className="cursor-pointer" style={divStyles}>
                {image ? (

@@ -12,12 +12,6 @@ import {
    FollowerNotification,
    PostNotification,
 } from "./NotificationsComponent";
-import {
-   Tooltip,
-   TooltipContent,
-   TooltipProvider,
-   TooltipTrigger,
-} from "../../ui/tooltip";
 
 dayjs.extend(relativeTime);
 

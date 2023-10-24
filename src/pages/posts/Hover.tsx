@@ -65,7 +65,7 @@ const Hover = ({
                   alt="user-profile-img"
                   className="object-cover border  w-[24px] h-[24px]  rounded-full cursor-pointer border-accent"
                />
-               <div className="flex items-center gap-2 text-sm">
+               <div className="flex items-center gap-2 text-xs">
                   <p>{author} </p>
                   <span>
                      {isAuthorized && (
@@ -80,7 +80,7 @@ const Hover = ({
                </div>
             </Link>
          </HoverCardTrigger>
-         <HoverCardContent className="w-[380px]">
+         <HoverCardContent className="w-[328px] md:w-[380px]">
             <div className="flex space-x-4">
                <Link to={`/account/${profile_id}`} onClick={scrollToTop}>
                   <Avatar>
@@ -107,7 +107,7 @@ const Hover = ({
                   <Link to={`/account/${profile_id}`} onClick={scrollToTop}>
                      <h4 className="text-xs opacity-90">{username}</h4>
                   </Link>
-                  <p className="pt-2 text-sm">{bio}</p>
+                  <p className="pt-2 text-sm">{bio.substring(0, 70)}...</p>
                   <div className="flex gap-3 py-2 text-sm">
                      <p className="font-bold ">
                         {followersCount}{" "}
