@@ -22,8 +22,7 @@ const Page = () => {
    const [followingPosts, setFollowingPosts] = useState<
       Post[] | null | undefined
    >([]);
-   console.log(followingPosts);
-   console.log(followingIds);
+
    const [totalCount, setTotalCount] = useState<number | null>(0);
    console.log(totalCount);
    const [isFetching, setIsFetching] = useState<boolean>(false);

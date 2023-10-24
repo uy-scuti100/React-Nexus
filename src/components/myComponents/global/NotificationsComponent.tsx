@@ -57,7 +57,7 @@ export const FollowerNotification = ({
          <div
             onClick={() => deleteNotification(notification.id)}
             className="flex flex-col gap-2">
-            <button className="w-full px-5 py-2 mt-5 font-semibold text-black rounded-full md:w-auto bg-accent-red ">
+            <button className="w-full px-2 py-2 mt-5 text-xs font-semibold text-black rounded-full md:w-auto bg-accent-red whitespace-nowrap ">
                Mark as Read
             </button>
             <p suppressHydrationWarning className="text-[12px]">
@@ -107,7 +107,7 @@ export const PostNotification = ({
          <div
             onClick={() => deletePostNotification(notification.id)}
             className="self-baseline">
-            <button className="w-full px-5 py-2 mt-5 font-semibold text-black rounded-full md:w-auto bg-accent-red ">
+            <button className="w-full px-2 py-2 mt-5 text-xs font-semibold text-black rounded-full md:w-auto bg-accent-red whitespace-nowrap ">
                Mark as Read
             </button>
          </div>

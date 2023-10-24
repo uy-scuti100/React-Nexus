@@ -44,7 +44,7 @@ const Page = () => {
 
             const totalCount = data.length;
             setTotalCount(totalCount);
-            // console.log(totalCount);
+
          } catch (error) {
             console.error(error);
          }

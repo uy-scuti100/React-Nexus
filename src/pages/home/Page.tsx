@@ -23,7 +23,7 @@ const Page = () => {
          console.error("Invalid email format:", dbUsername);
       }
    } else {
-      console.error("No email provided for the user.");
+      // console.error("No email provided for the user.");
    }
 
    useEffect(() => {

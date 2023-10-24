@@ -55,8 +55,6 @@ const page = () => {
       setIsFetching(true);
 
       try {
-         console.log("Fetching from:", FROM);
-
          const { data, error } = await supabase
             .from("posts")
             .select("*")
@@ -66,7 +64,7 @@ const page = () => {
          if (data && data.length > 0) {
             if (blogPosts !== null) {
                setBlogPosts(blogPosts?.concat(data));
-               console.log(data.length);
+       
             }
          } else {
             setError(true);

@@ -666,7 +666,7 @@ const Account = () => {
             </div>
          </div>
 
-         <div className="px-3 mt-32 mb-8">
+         <div className="px-3 mt-20 mb-8">
             {currentUserId === paramsId && (
                <button
                   className="w-full px-5 py-2 mt-5 font-semibold text-black rounded-full md:hidden md:w-auto bg-accent-red "

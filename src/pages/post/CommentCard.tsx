@@ -204,7 +204,7 @@ const CommentCard = ({
             fetchComments();
             toast.success("Comment Deleted!!!");
          } else {
-            console.log("Error deleting comment:", error.message);
+
          }
       } catch (error) {
          console.error("API request error:", error);

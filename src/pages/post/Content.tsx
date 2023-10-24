@@ -461,11 +461,11 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
 
             if (postUpdateError) {
                console.error("Error updating the post:", postUpdateError);
-               console.log(postUpdateData);
+
 
                return;
             } else {
-               console.log(postUpdateData);
+
             }
          } catch (error) {
             console.error("Error updating post and image:", error);
@@ -791,7 +791,7 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
 
                   {/* features== ---- audio, share and more */}
                   <div className="flex flex-col gap-3">
-                     <div className="flex items-start gap-5 pb-3 flex-wrap">
+                     <div className="flex flex-wrap items-start gap-5 pb-3">
                         <Hover
                            profile_id={profile_id}
                            author_image={author_image}
