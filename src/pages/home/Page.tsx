@@ -11,7 +11,6 @@ const Page = () => {
    const { user, isError } = useUser();
    const { user: currentUser } = useFetchUser();
    const userId = user?.id;
-   console.log(currentUser);
    const dbUsername = user?.email;
    let username: string | undefined;
 
@@ -94,10 +93,6 @@ const Page = () => {
          </div>
       );
    }
-
-   // if (showHashtagForm) {
-   //    return <HashtagForm />;
-   // }
 
    return <OnBoard />;
 };

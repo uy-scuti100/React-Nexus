@@ -1251,33 +1251,23 @@ const Account = () => {
                         posts.map((post, index) => {
                            const readTime = calculateReadTime(post?.content);
                            return (
-                              <motion.div
+                              <MinimalPostCard
                                  key={post.id}
-                                 initial={{ opacity: 0, y: 20 }}
-                                 animate={{ opacity: 1, y: 0 }}
-                                 transition={{
-                                    duration: 0.4,
-                                    ease: [0.25, 0.25, 0, 1],
-                                    delay: index / 15,
-                                 }}>
-                                 <MinimalPostCard
-                                    key={post.id}
-                                    author={post.author}
-                                    id={post.id}
-                                    image={post.image}
-                                    snippet={post.snippet}
-                                    title={post.title}
-                                    author_image={post.author_image}
-                                    bookmark_count={post.bookmark_count}
-                                    created_at={post.created_at}
-                                    likes_count={post.likes_count}
-                                    comment_count={post.comment_count}
-                                    profile_id={post.profile_id}
-                                    category_Ids={post.category_Ids}
-                                    readTime={readTime}
-                                    content={post.content}
-                                 />
-                              </motion.div>
+                                 author={post.author}
+                                 id={post.id}
+                                 image={post.image}
+                                 snippet={post.snippet}
+                                 title={post.title}
+                                 author_image={post.author_image}
+                                 bookmark_count={post.bookmark_count}
+                                 created_at={post.created_at}
+                                 likes_count={post.likes_count}
+                                 comment_count={post.comment_count}
+                                 profile_id={post.profile_id}
+                                 category_Ids={post.category_Ids}
+                                 readTime={readTime}
+                                 content={post.content}
+                              />
                            );
                         })
                      ) : (
