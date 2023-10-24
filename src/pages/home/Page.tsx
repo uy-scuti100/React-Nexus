@@ -11,6 +11,7 @@ const Page = () => {
    const { user, isError } = useUser();
    const { user: currentUser } = useFetchUser();
    const userId = user?.id;
+   const currentUserId = currentUser?.id;
    const dbUsername = user?.email;
    let username: string | undefined;
 
@@ -70,11 +71,11 @@ const Page = () => {
    }, [userId, user]);
 
    useEffect(() => {
-      if (user) {
+      if (currentUserId) {
          navigate("/posts");
          setLoading(false);
       }
-   }, [user]);
+   }, [currentUserId]);
 
    if (isError) {
       return <main>Error loading user data</main>;
