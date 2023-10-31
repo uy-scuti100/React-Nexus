@@ -61,11 +61,10 @@ const modules = {
          "underline",
          "italic",
          "bold",
-         "color",
+
          "link",
          "image",
          "video",
-         "background",
       ],
    ],
 };
@@ -81,13 +80,13 @@ const formats = [
    "strike",
    "script",
    "blockquote",
-   "background",
+
    "list",
    "bullet",
    "indent",
    "link",
    "image",
-   "color",
+
    "code-block",
    "video",
 ];

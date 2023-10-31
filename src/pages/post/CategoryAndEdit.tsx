@@ -1,12 +1,20 @@
-import { X, PencilLine, Trash2 } from "lucide-react";
-import toast from "react-hot-toast";
-
+import { X, PencilLine, Trash2, MoreHorizontal, Pin } from "lucide-react";
+import {
+   DropdownMenu,
+   DropdownMenuContent,
+   DropdownMenuItem,
+   DropdownMenuLabel,
+   DropdownMenuTrigger,
+} from "../../components/ui/dropdown-menu";
 import { Button } from "../../components/ui/button";
+import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { useFetchUser } from "../../hooks/useFetchUser";
 import supabase from "../../lib/supabaseClient";
 import { useState } from "react";
 import { Post } from "../../../types";
+import { Toaster } from "../../components/ui/toaster";
+import { useToast } from "../../components/ui/use-toast";
 
 type Props = {
    postCategories: Array<{ id: string; name: string }>;
@@ -53,6 +61,7 @@ const CategoryAndEdit = ({
    tempPostImage,
    setTempPostImage,
 }: Props) => {
+   const { toast: toaster } = useToast();
    const navigate = useNavigate();
    const [showDialog, setShowDialog] = useState(false);
    const handleEnableEdit = () => {
@@ -99,59 +108,86 @@ const CategoryAndEdit = ({
    };
 
    return (
-      <div className="flex items-center justify-end">
-         {post?.profile_id === userId && (
-            <div>
-               {isEditable ? (
-                  <div className="flex justify-between gap-3">
-                     <button onClick={handleCancelEdit}>
-                        <X className="w-4 h-4 cursor-pointer opacity-70" />
-                     </button>
-                  </div>
-               ) : (
-                  <div className="flex items-center gap-8 pb-8">
-                     <button onClick={handleEnableEdit}>
-                        <PencilLine className="w-4 h-4 cursor-pointer opacity-70" />
-                     </button>
-                     <div onClick={handleShowDialog}>
-                        <Trash2 className="w-4 h-4 cursor-pointer opacity-70" />
+      <>
+         <Toaster />
+
+         <div className="flex items-center justify-end">
+            {post?.profile_id === userId && (
+               <div>
+                  {isEditable ? (
+                     <div className="flex justify-between gap-3">
+                        <button onClick={handleCancelEdit}>
+                           <X className="w-4 h-4 cursor-pointer opacity-70" />
+                        </button>
                      </div>
-                     {showDialog && (
-                        <div className="fixed inset-0 z-50 h-screen mx-5 backdrop-blur">
-                           <div className="fixed grid w-full max-w-lg gap-4 p-6 duration-200 transform -translate-x-1/2 -translate-y-1/2 border shadow-lg left-1/2 top-1/2 bg-background animate-in fade-in-0">
-                              <div
-                                 onClick={() => setShowDialog(false)}
-                                 className="absolute cursor-pointer right-2 top-2">
-                                 <X className="w-6 h-6" />
-                              </div>
+                  ) : (
+                     <div className="flex items-center gap-8 pb-8">
+                        {/* {userId === post?.profile_id && ( */}
+                        <DropdownMenu>
+                           <DropdownMenuTrigger asChild>
                               <div>
-                                 <div className="pt-5">
-                                    <h1 className="text-lg font-semibold leading-none tracking-tight">
-                                       Are you sure you want to delete this
-                                       post?
-                                    </h1>
-                                    <p className="pt-3 text-sm text-muted-foreground">
-                                       This action cannot be undone. This will
-                                       permanently delete your post.
-                                    </p>
+                                 <span className="sr-only">Open menu</span>
+                                 <Pin className="w-4 h-4 mr-2" />
+                              </div>
+                           </DropdownMenuTrigger>
+                           <DropdownMenuContent align="end">
+                              {/* <DropdownMenuLabel>Actions</DropdownMenuLabel> */}
+                              <DropdownMenuItem
+                                 onClick={() => {
+                                    toaster({
+                                       title: "Featured Article",
+                                       description:
+                                          "This article has been highlighted and will be prominently displayed on your profile for easy access.",
+                                    });
+                                 }}>
+                                 Pin article
+                              </DropdownMenuItem>
+                           </DropdownMenuContent>
+                        </DropdownMenu>
+                        {/* )} */}
+                        <button onClick={handleEnableEdit}>
+                           <PencilLine className="w-4 h-4 cursor-pointer opacity-70" />
+                        </button>
+                        <div onClick={handleShowDialog}>
+                           <Trash2 className="w-4 h-4 cursor-pointer opacity-70" />
+                        </div>
+                        {showDialog && (
+                           <div className="fixed inset-0 z-50 h-screen mx-5 backdrop-blur">
+                              <div className="fixed grid w-full max-w-lg gap-4 p-6 duration-200 transform -translate-x-1/2 -translate-y-1/2 border shadow-lg left-1/2 top-1/2 bg-background animate-in fade-in-0">
+                                 <div
+                                    onClick={() => setShowDialog(false)}
+                                    className="absolute cursor-pointer right-2 top-2">
+                                    <X className="w-6 h-6" />
                                  </div>
-                                 <footer className="flex justify-end pt-5">
-                                    <Button
-                                       type="button"
-                                       variant="destructive"
-                                       onClick={handleDelete}>
-                                       delete
-                                    </Button>
-                                 </footer>
+                                 <div>
+                                    <div className="pt-5">
+                                       <h1 className="text-lg font-semibold leading-none tracking-tight">
+                                          Are you sure you want to delete this
+                                          post?
+                                       </h1>
+                                       <p className="pt-3 text-sm text-muted-foreground">
+                                          This action cannot be undone. This
+                                          will permanently delete your post.
+                                       </p>
+                                    </div>
+                                    <footer className="flex justify-end pt-5">
+                                       <Button
+                                          type="button"
+                                          variant="destructive"
+                                          onClick={handleDelete}>
+                                          delete
+                                       </Button>
+                                    </footer>
+                                 </div>
                               </div>
                            </div>
-                        </div>
-                     )}
-                  </div>
-               )}
-            </div>
-         )}
-      </div>
+                        )}
+                     </div>
+                  )}
+               </div>
+            )}
+         </div>
+      </>
    );
 };
 

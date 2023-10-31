@@ -1145,7 +1145,7 @@ const Account = () => {
                      <Hash className="opacity-70" />
                      <p>
                         {tagsCount
-                           ? `${tagsCount} tags followed`
+                           ? `${tagsCount} topics followed`
                            : "Loading..."}
                      </p>
                   </p>
@@ -1227,7 +1227,7 @@ const Account = () => {
                      <Hash className="opacity-70" />
                      <p>
                         {tagsCount
-                           ? `${tagsCount} hashtags followed`
+                           ? `${tagsCount} topics followed`
                            : "Not available"}
                      </p>
                   </p>

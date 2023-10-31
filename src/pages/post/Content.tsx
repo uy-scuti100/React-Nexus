@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import rehypeKatex from "rehype-katex";
 import hljs from "highlight.js";
 import "react-quill/dist/quill.core.css";
 import "react-quill/dist/quill.snow.css";
@@ -33,6 +34,7 @@ import { calculateReadTime } from "../../lib/readTime";
 import AboutWriter from "./AboutWriter";
 import Hover from "../posts/Hover";
 import remarkGfm from "remark-gfm";
+import { Toaster } from "../../components/ui/toaster";
 // import remarkParse from "remark-parse";
 // import remarkRehype from 'remark-rehype'
 
@@ -41,7 +43,9 @@ dayjs.extend(relativeTime);
 // const dateFormatter = new Intl.DateTimeFormat(undefined, {
 //    dateStyle: "medium",
 // });
-
+function cn(...classes: string[]) {
+   return classes.filter(Boolean).join(" ");
+}
 hljs.configure({
    // optionally configure hljs
    languages: [
@@ -64,6 +68,7 @@ const modules = {
       },
    },
    clipboard: {
+      // toggle to add extra line breaks when pasting HTML:
       matchVisual: false,
    },
    toolbar: [
@@ -83,9 +88,11 @@ const modules = {
          "underline",
          "italic",
          "bold",
+         "color",
          "link",
          "image",
          "video",
+         "background",
       ],
    ],
 };
@@ -101,11 +108,13 @@ const formats = [
    "strike",
    "script",
    "blockquote",
+   "background",
    "list",
    "bullet",
    "indent",
    "link",
    "image",
+   "color",
    "code-block",
    "video",
 ];
@@ -750,8 +759,6 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
                />
                {/* POST UPDATE  */}
                <form onSubmit={handleSubmit}>
-                  {/* HEADER */}
-
                   {/* TITLE */}
                   {isEditable ? (
                      <div>
@@ -921,19 +928,14 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
                            theme="snow"
                            // style={{ height: 300 }}
                            className="h-[80vh]"
-                           value={post?.content} // or defaultValue={content}
+                           value={content} // or defaultValue={content}
                            onChange={(value) => setContent(value)}
-                           placeholder="write your note"
                         />
                      ) : (
                         <div className="ql-snow">
                            <div className="ql-editor">
                               <ReactMarkdown
-                                 // @ts-ignore
-                                 rehypePlugins={[rehypeRaw]}
-                                 remarkPlugins={[[remarkGfm]]}
-                                 // @ts-ignore
-                                 // escapeHtml={false}
+                                 rehypePlugins={[rehypeRaw, rehypeKatex]}
                                  className="text-lg leading-8 md:text-xl">
                                  {content}
                               </ReactMarkdown>

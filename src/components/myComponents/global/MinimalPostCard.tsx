@@ -1,4 +1,20 @@
-import { Heart, MessageCircle } from "lucide-react";
+import {
+   Copy,
+   Edit,
+   Heart,
+   MessageCircle,
+   MoreHorizontal,
+   MoreVertical,
+   Pin,
+   Trash,
+} from "lucide-react";
+import {
+   DropdownMenu,
+   DropdownMenuContent,
+   DropdownMenuItem,
+   DropdownMenuLabel,
+   DropdownMenuTrigger,
+} from "../../../components/ui/dropdown-menu";
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
@@ -9,6 +25,7 @@ import { useTheme } from "../../providers/theme/theme-provider";
 import { useFetchUser } from "../../../hooks/useFetchUser";
 import { Badge } from "../../ui/badge";
 import Hover from "../../../pages/posts/Hover";
+
 dayjs.extend(relativeTime);
 
 const dateFormatter = new Intl.DateTimeFormat(undefined, {
@@ -503,7 +520,7 @@ const MinimalPostCard = ({
                            key={cat.id}
                            onClick={scrollToTop}>
                            <Badge className="flex items-center px-3 py-1 text-xs font-normal capitalize border rounded-full">
-                              {cat.name}
+                              {cat.name.substring(0, 18)}
                            </Badge>
                         </Link>
                      );
@@ -543,12 +560,11 @@ const MinimalPostCard = ({
                      )}
                   </button>
                </div>
-               <Link to={user ? `/post/${postId}` : "/"} onClick={scrollToTop}>
+               {/* <Link to={user ? `/post/${postId}` : "/"} onClick={scrollToTop}>
                   <div className="flex items-center gap-1">
                      <MessageCircle className="w-5 h-5 opacity-70" />
                   </div>
-               </Link>
-
+               </Link> */}
                <div className="flex items-center gap-1">
                   <button onClick={user ? toggleLike : goHome}>
                      {isLiked ? (
@@ -568,7 +584,7 @@ const MinimalPostCard = ({
                         <Heart className="w-5 h-5 opacity-70" />
                      )}
                   </button>
-               </div>
+               </div>{" "}
             </div>
          </div>
          <div className="w-full px-6 pb-4 border-b border-black/10 dark:border-white/10" />
@@ -577,3 +593,18 @@ const MinimalPostCard = ({
 };
 
 export default MinimalPostCard;
+
+// {userId === profile_id && (
+//    <DropdownMenu>
+//       <DropdownMenuTrigger asChild>
+//          <div>
+//             <span className="sr-only">Open menu</span>
+//             <Pin className="w-4 h-4 mr-2" />
+//          </div>
+//       </DropdownMenuTrigger>
+//       <DropdownMenuContent align="end">
+//          {/* <DropdownMenuLabel>Actions</DropdownMenuLabel> */}
+//          <DropdownMenuItem>Pin article</DropdownMenuItem>
+//       </DropdownMenuContent>
+//    </DropdownMenu>
+// )}
