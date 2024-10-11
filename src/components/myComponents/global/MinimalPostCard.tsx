@@ -391,7 +391,7 @@ const MinimalPostCard = ({
 
 	const scrollToTop = () => {
 		navigate(`/post/${postId}`);
-		window.scrollTo({ top: 0, behavior: "smooth" });
+		window.scrollTo({ top: 0 });
 	};
 	const [divStyles, setDivStyles] = useState({
 		height: "100px",

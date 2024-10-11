@@ -14,7 +14,7 @@ const dateFormatter = new Intl.DateTimeFormat(undefined, {
 	dateStyle: "medium",
 });
 const scrollToTop = () => {
-	window.scrollTo({ top: 0, behavior: "smooth" });
+	window.scrollTo({ top: 0 });
 };
 
 interface PostCardProp {

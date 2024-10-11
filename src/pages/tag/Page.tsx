@@ -268,9 +268,7 @@ export default function Page() {
 
 	return (
 		<main>
-			<div>
-				<Navbar />
-			</div>
+			<div></div>
 			<div className="pt-14">
 				<CategorySlider channel="subtopic" prop={subtopics} />
 			</div>

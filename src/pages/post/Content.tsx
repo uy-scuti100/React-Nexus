@@ -141,7 +141,8 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
 	const [postImageError, setPostImageError] = useState<string | "">("");
 	const [snippet, setSnippet] = useState<string>(post?.snippet);
 	const [tempTitle, setTempTitle] = useState<string | "">(post?.title);
-	const [content, setContent] = useState<string>(marked(post?.content ?? ""));
+	const contentful = marked.parse(post?.content ?? "");
+	const [content, setContent] = useState<string>(contentful);
 	const [tempContent, setTempContent] = useState<string | "">(post?.content);
 	const [tempSnippet, setTempSnippet] = useState<string | "">(post?.snippet);
 	const userId = user?.id;
@@ -162,9 +163,7 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
 	const [likeCount, setLikeCount] = useState(0);
 	const [isBookmarked, setIsBookmarked] = useState(false);
 	const [isLiked, setIsLiked] = useState(false);
-	const [tempPostImage, setTempPostImage] = useState<string | File | null>(
-		null
-	);
+	const [tempPostImage, setTempPostImage] = useState<File | null>(null);
 	const [postImage, setPostImage] = useState<string | File | null>(post?.image);
 	const [isAuthorized, setIsAuthorized] = useState<boolean | undefined>(
 		undefined
@@ -186,7 +185,7 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
 	}, [content, postId]);
 	// scroll to top
 	const scrollToTop = () => {
-		window.scrollTo({ top: 0, behavior: "smooth" });
+		window.scrollTo({ top: 0 });
 	};
 	// navigate home
 	const goHome = () => {
@@ -204,7 +203,7 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
 					setLikeCount(post.likes_count as number);
 					setCommentCount(post.comment_count as number);
 					setCategory_Ids(post.category_Ids);
-					setTempPostImage(post.image);
+					setTempPostImage(post.image as any);
 				}
 
 				if (category_Ids && category_Ids.length > 0) {
@@ -380,19 +379,14 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
 		if (snippet) setSnippetError("");
 		setSnippet(e.target.value);
 	};
-
-	const handleOnChangePostImage = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const selectedFile = e.target.files?.[0]; // Safely access the selected file
-
-		if (selectedFile) {
-			// Reset the error when a valid image is selected
-			setPostImageError("");
-
-			// Update the imageFile state with the selected file
-			setImageFile(selectedFile);
-
-			// Set tempPostImage to the selected file
-			setTempPostImage(selectedFile);
+	const handleOnChangePostImage = (
+		event: React.ChangeEvent<HTMLInputElement>
+	) => {
+		const file = event.target.files?.[0];
+		if (file) {
+			setTempPostImage(file); // Update tempPostImage only if a new image is selected
+		} else {
+			setTempPostImage(null); // Optionally reset tempPostImage if no file is selected
 		}
 	};
 
@@ -415,46 +409,38 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
 			return;
 		}
 
-		if (!tempPostImage) {
-			setPostImageError("Image is required.");
-			return;
-		}
-
+		// Use the current image if no new image is selected
 		const currentImage = post ? post.image : "";
-		// Upload the new image if it has changed
-		if (imageFile) {
+
+		// If there's a new image, we need to upload it
+		if (tempPostImage) {
 			try {
 				setIsEditing(true);
 
 				const randomSuffix = Math.floor(
 					1000000000 + Math.random() * 9000000000
 				).toString();
+				const imageName = `${randomSuffix}-${tempPostImage.name}`;
 
-				// Append the random number to the image name
-				const imageName = `${randomSuffix}-${imageFile.name}`;
 				const { data: imageUploadData, error: imageUploadError } =
 					await supabase.storage
 						.from("post_images")
-						.upload(`${imageName}`, tempPostImage, {
+						.upload(imageName, tempPostImage, {
 							cacheControl: "3600",
 							upsert: false,
 						});
 
 				if (imageUploadError) {
 					console.error("Error uploading image:", imageUploadError);
-					// Handle the error, e.g., display an error message
-					console.log(tempPostImage, currentImage);
 					return;
-				} else {
-					// console.log("upload success", imageUploadData);
 				}
 
-				// Update the post with the new data (including the updated image URL)
+				// Update the post with the new data including the updated image URL
 				const updatedPostData = {
 					title: title,
 					snippet: snippet,
 					content: content,
-					image: `${postImageUrl}${imageUploadData.path}`,
+					image: `${postImageUrl}${imageUploadData.path}`, // Use the new image path
 				};
 
 				const { data: postUpdateData, error: postUpdateError } = await supabase
@@ -465,13 +451,10 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
 
 				if (postUpdateError) {
 					console.error("Error updating the post:", postUpdateError);
-
 					return;
-				} else {
 				}
 			} catch (error) {
 				console.error("Error updating post and image:", error);
-				// Handle the error, e.g., display an error message
 				return;
 			}
 		} else {
@@ -482,25 +465,27 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
 					title: title,
 					snippet: snippet,
 					content: content,
+					// Retain the existing image if no new image is provided
+					image: currentImage,
 				})
 				.eq("id", postId)
 				.single();
 
 			if (error) {
 				console.error("Error updating the post:", error);
-				// Handle the error, e.g., display an error message
 				return;
-			} else {
-				toast.success("Post Updated Successfully !");
-				window.location.reload();
 			}
 		}
+
+		// Final updates and state resets
 		setIsEditing(false);
 		setTitle(title || "");
 		setSnippet(snippet || "");
 		setContent(content || "");
 		setPostImage(tempPostImage || null);
 		handleIsEditable(false);
+		toast.success("Post Updated Successfully !");
+		window.location.reload();
 	};
 
 	// function to submit Comment
@@ -851,7 +836,7 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
 									<h1 className="mt-4 mb-8 text-xl font-bold text-center">
 										Change Post Image
 									</h1>
-									<label htmlFor="postImage" className="cursor-pointer ">
+									<label htmlFor="postImage" className="cursor-pointer">
 										<div className="flex items-center justify-center mb-8">
 											<Camera className="w-12 h-12" />
 										</div>
@@ -869,24 +854,23 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
 										<p className="mt-1 text-red-600">{postImageError}</p>
 									)}
 
-									{tempPostImage && (
-										<div className="flex items-center justify-center">
-											<img
-												src={
-													typeof tempPostImage === "string"
-														? `${post?.image}`
-														: URL.createObjectURL(tempPostImage)
-												}
-												alt="Preview"
-												style={{
-													objectFit: "cover",
-													width: "100%",
-													height: "350px",
-												}}
-												className="-z-20"
-											/>
-										</div>
-									)}
+									{/* Use tempPostImage for preview; if it's empty, fall back to postImage */}
+									<div className="flex items-center justify-center">
+										<img
+											src={
+												tempPostImage
+													? URL.createObjectURL(tempPostImage) // Ensure tempPostImage is a File
+													: post?.image // Use the current image if no new image is selected
+											}
+											alt="Preview"
+											style={{
+												objectFit: "cover",
+												width: "100%",
+												height: "350px",
+											}}
+											className="-z-20"
+										/>
+									</div>
 								</form>
 							</>
 						) : (
@@ -932,10 +916,10 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
 									disabled={isEditing}
 									className={` ${
 										isEditing ?? "bg-wh-500"
-									} px-5 py-2 my-20 font-semibold bg-accent-red flex gap-1 items-center rounded-full text-black`}
+									} px-5 py-2 my-20 font-semibold bg-accent-red flex gap-1 items-center rounded-full text-black hover:bg-yellow-500`}
 								>
 									{isEditing && <Disc3 className="w-5 h-5 mr-3 animate-spin" />}
-									SUBMIT
+									{isEditing ? "Updating..." : "Update Post"}
 								</button>
 							</div>
 						)}
@@ -1084,7 +1068,7 @@ const Content = ({ post, loading }: { post: Post; loading: boolean }) => {
 							<div className="flex justify-end w-full">
 								<button
 									type="submit"
-									className="w-full px-5 py-2 mt-5 font-semibold text-black rounded-full md:w-auto bg-accent-red hover:bg-wh-500 dark:text-black"
+									className="w-auto px-5 py-2 mt-5 font-semibold text-black rounded-full md:w-auto bg-accent-red hover:bg-yellow-500 dark:text-black"
 								>
 									POST
 								</button>

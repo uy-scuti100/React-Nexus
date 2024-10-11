@@ -40,7 +40,7 @@
 
 //    return (
 //       <main>
-//          <Navbar />
+//           
 //          <div className="pt-150px">
 //             <h1>Welcome!</h1>
 //             <Image
