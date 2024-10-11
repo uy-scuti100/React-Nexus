@@ -633,7 +633,7 @@ const Account = () => {
 						className="object-cover w-full"
 					/>
 				) : (
-					<div className="w-full h-full duration-1000 animate-pulse bg-wh-300"></div>
+					<div className="w-full h-full animate-pulse bg-wh-300"></div>
 				)}
 
 				<div className="absolute w-full p-4 top-32 -bottom-32 ">
@@ -646,9 +646,13 @@ const Account = () => {
 							/>
 						</div>
 					) : (
-						<div className="overflow-hidden border-4 border-black rounded-full duration-2000 animate-pulse w-36 h-36">
+						<div className="overflow-hidden border-4 rounded-full borde w-36 h-36 bg-wh-300">
 							{" "}
-							<img src="/png.png" alt="" />
+							<img
+								src="/png.png"
+								alt="alt-image"
+								className="object-contain w-full h-full"
+							/>
 						</div>
 					)}
 				</div>
@@ -656,9 +660,11 @@ const Account = () => {
 
 			<div className="px-3 mt-20 mb-8" onClick={handleShowSettings}>
 				{currentUserId === paramsId && (
-					<button className="w-full px-5 py-2 mt-5 font-semibold text-black rounded-full md:hidden md:w-auto bg-accent-red ">
-						Edit profile
-					</button>
+					<div className="flex items-center justify-between mt-5 ">
+						<Button className="w-full px-5 py-2 mt-5 font-semibold text-black rounded-full md:hidden bg-accent-red hover:bg-yellow-600 ">
+							Edit profile
+						</Button>
+					</div>
 				)}
 			</div>
 			<div className="px-3 mb-5 ">
@@ -666,7 +672,7 @@ const Account = () => {
 					currentUserId !== paramsId && (
 						<Button
 							onClick={handleFollow}
-							className="w-full px-5 py-2 font-semibold text-black rounded-full md:hidden md:w-auto bg-accent-red"
+							className="w-full px-5 py-2 font-semibold text-black rounded-full md:hidden bg-accent-red"
 						>
 							{isFollowing ? "Unfollow" : "Follow"}
 						</Button>
@@ -697,21 +703,21 @@ const Account = () => {
 					</h1>
 
 					{currentUserId === paramsId && (
-						<button
-							className="hidden w-full px-5 py-2 mt-5 font-semibold text-black rounded-full md:w-auto bg-accent-red md:block"
+						<Button
+							className="hidden w-full px-5 py-2 mt-5 font-semibold text-black rounded-full md:w-auto bg-accent-red md:block hover:bg-yellow-600"
 							onClick={handleShowSettings}
 						>
 							Edit profile
-						</button>
+						</Button>
 					)}
 
 					{paramsId && currentUserId !== paramsId && (
-						<button
+						<Button
 							onClick={currentUserId ? handleFollow : goHome}
-							className="hidden w-full px-5 py-2 mt-5 font-semibold text-black rounded-full md:w-auto bg-accent-red md:block"
+							className="hidden w-full px-5 py-2 mt-5 font-semibold text-black rounded-full md:w-auto bg-accent-red md:block hover:bg-yellow-600 "
 						>
 							{isFollowing ? "Unfollow" : "Follow"}
-						</button>
+						</Button>
 					)}
 				</div>
 				{username ? (
@@ -735,7 +741,7 @@ const Account = () => {
 						</div>
 					)
 				) : (
-					<div className="w-3/4 h-6 mb-3 duration-300 animate-pulse bg-wh-300"></div>
+					<div className="w-3/4 h-6 mb-3 rounded-lg animate-pulse bg-wh-300"></div>
 				)}
 
 				<div className="flex justify-between gap-3 py-2">
@@ -754,12 +760,12 @@ const Account = () => {
 							<span className="opacity-50 cursor-pointer">Following</span>{" "}
 						</p>
 					</div>
-					<div
+					{/* {currentUserId === paramsId} */}
+					{/* <div
 						className="relative"
 						onClick={() => setCriticalInfo((prev) => !prev)}
 					>
 						<MoreVertical className="w-6 h-6 opacity-75 cursor-pointer hover:opacity-100" />
-						{/* {currentUserId === paramsId} */}
 						{criticalInfo && currentUserId === paramsId && (
 							<Button
 								variant="outline"
@@ -769,7 +775,7 @@ const Account = () => {
 								<Trash2 className="w-6 h-6 ml-3 text-red-600" />
 							</Button>
 						)}
-					</div>
+					</div> */}
 					{/* followers */}
 					{showFollowersModal && (
 						<div className="fixed inset-0 z-50 h-screen backdrop-blur">
@@ -957,7 +963,7 @@ const Account = () => {
 				{bio ? (
 					<p className="pt-6 pb-12 text-lg leading-8 md:text-center">{bio}</p>
 				) : (
-					<div className="w-full h-20 mb-6 duration-300 animate-pulse bg-wh-300"></div>
+					<div className="w-full h-20 mb-6 rounded-lg animate-pulse bg-wh-300"></div>
 				)}
 
 				<div className="w-full px-6 border-b border-black/10 dark:border-white/10" />
@@ -971,7 +977,7 @@ const Account = () => {
 					) : (
 						<div className="flex gap-4">
 							<MapPin className="w-6 h-6 opacity-75" />
-							<p className="w-1/4 h-6 mb-3 duration-300 animate-pulse bg-wh-300"></p>
+							<p className="w-1/4 h-6 mb-3 rounded-lg animate-pulse bg-wh-300"></p>
 						</div>
 					)}
 					<div className="flex gap-4 text-sm">
@@ -991,7 +997,7 @@ const Account = () => {
 								</div>
 							</p>
 						) : (
-							<div className="w-1/4 h-6 mb-3 duration-300 animate-pulse bg-wh-300"></div>
+							<div className="w-1/4 h-6 mb-3 rounded-lg animate-pulse bg-wh-300"></div>
 						)}
 					</div>
 
@@ -1004,7 +1010,7 @@ const Account = () => {
 						) : (
 							<div className="flex gap-4">
 								<Mail className="w-6 h-6 opacity-75" />
-								<div className="w-1/4 h-6 mb-3 duration-300 animate-pulse bg-wh-300" />
+								<div className="w-1/4 h-6 mb-3 rounded-lg animate-pulse bg-wh-300" />
 							</div>
 						)
 					) : null}
@@ -1015,7 +1021,7 @@ const Account = () => {
 								{website}
 							</a>
 						) : (
-							<div className="w-1/4 h-6 mb-3 duration-300 animate-pulse bg-wh-300"></div>
+							<div className="w-1/4 h-6 mb-3 rounded-lg animate-pulse bg-wh-300"></div>
 						)}
 					</div>
 				</div>
@@ -1026,7 +1032,7 @@ const Account = () => {
 						{pronouns ? (
 							<p>{pronouns}</p>
 						) : (
-							<div className="w-1/4 h-6 mb-3 duration-300 animate-pulse bg-wh-300"></div>
+							<div className="w-1/4 h-6 mb-3 rounded-lg animate-pulse bg-wh-300"></div>
 						)}
 					</div>
 					<div className="flex gap-4 text-sm">
@@ -1034,7 +1040,7 @@ const Account = () => {
 						{work ? (
 							<p>{work}</p>
 						) : (
-							<div className="w-1/4 h-6 mb-3 duration-300 animate-pulse bg-wh-300"></div>
+							<div className="w-1/4 h-6 mb-3 rounded-lg animate-pulse bg-wh-300"></div>
 						)}
 					</div>
 					<div className="flex gap-4 text-sm">
@@ -1042,7 +1048,7 @@ const Account = () => {
 						{education ? (
 							<p>{education}</p>
 						) : (
-							<div className="w-1/4 h-6 mb-3 duration-300 animate-pulse bg-wh-300"></div>
+							<div className="w-1/4 h-6 mb-3 rounded-lg animate-pulse bg-wh-300"></div>
 						)}
 					</div>
 				</div>
@@ -1059,7 +1065,7 @@ const Account = () => {
 							{skills}
 						</div>
 					) : (
-						<div className="w-3/4 h-6 mb-3 duration-300 animate-pulse bg-wh-300"></div>
+						<div className="w-3/4 h-6 mb-3 rounded-lg animate-pulse bg-wh-300"></div>
 					)}
 
 					<h3 className="font-bold">Currently learning: </h3>
@@ -1068,7 +1074,7 @@ const Account = () => {
 							{learning}
 						</div>
 					) : (
-						<div className="w-3/4 h-6 mb-3 duration-300 animate-pulse bg-wh-300"></div>
+						<div className="w-3/4 h-6 mb-3 rounded-lg animate-pulse bg-wh-300"></div>
 					)}
 
 					<h3 className="font-bold">Currently building</h3>

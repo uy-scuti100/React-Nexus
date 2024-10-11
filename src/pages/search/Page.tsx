@@ -1,9 +1,10 @@
 import { useState } from "react";
-import Navbar from "../../components/myComponents/global/Navbar";
 import supabase from "../../lib/supabaseClient";
 import SearchInput from "./SearchInput";
 import SearchResult from "./SearchResults";
 import { useNavigate } from "react-router-dom";
+import { Button } from "../../components/ui/button";
+// import Button from ""
 // Interface for data returned by searchPeople
 interface SearchResultProp {
 	// people
@@ -100,7 +101,7 @@ const Search = () => {
 			{" "}
 			<section className="px-6 pt-24">
 				<div className="flex items-center gap-10 pb-10">
-					<button
+					<Button
 						className={`w-full px-5 py-2 mt-5 font-semibold md:w-auto  dark:text-black ${
 							selectedCategory === "people"
 								? "bg-accent-red"
@@ -112,8 +113,8 @@ const Search = () => {
 						}}
 					>
 						People
-					</button>
-					<button
+					</Button>
+					<Button
 						className={`w-full px-5 py-2 mt-5 font-semibold md:w-auto  dark:text-black ${
 							selectedCategory === "posts"
 								? "bg-accent-red"
@@ -125,21 +126,17 @@ const Search = () => {
 						}}
 					>
 						Posts
-					</button>
-					<button
+					</Button>
+					<Button
 						className={`w-full px-5 py-2 mt-5 font-semibold md:w-auto  dark:text-black ${
 							selectedCategory === "topics"
 								? "bg-accent-red"
 								: "dark:text-white"
 						}`}
-						// onClick={() => {
-						//    setSelectedCategory("topics");
-						//    setSearchQuery("");
-						// }}
 						onClick={() => navigate("/explore-topics")}
 					>
 						Topics
-					</button>
+					</Button>
 				</div>
 				<div className="flex items-center gap-3">
 					{selectedCategory === "people" && (
@@ -183,3 +180,8 @@ const Search = () => {
 };
 
 export default Search;
+
+// onClick={() => {
+//    setSelectedCategory("topics");
+//    setSearchQuery("");
+// }}
