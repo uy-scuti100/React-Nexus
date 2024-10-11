@@ -157,7 +157,7 @@ const page = () => {
 								);
 							})}
 						</div>
-						{isLoading && (
+						{!isLoading && (
 							<div className="flex flex-col w-full">{skeletonElements}</div>
 						)}
 						{blogPosts === null ||

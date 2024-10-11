@@ -39,7 +39,7 @@ const Navbar = () => {
 	const [sidenav, setSidenav] = useState(false);
 	const navigate = useNavigate();
 	const sidenavRef = useRef(null);
-	const { user } = useFetchUser();
+	const { user, isLoading } = useFetchUser();
 	const userId = user?.id;
 	const [combinedNotifications, setCombinedNotifications] = useState<
 		(NotificationProp | PostNotificationProp)[]
@@ -186,31 +186,6 @@ const Navbar = () => {
 		setSidenav((prev) => !prev);
 	};
 
-	const closeSideNav = () => {
-		setSidenav(false);
-	};
-
-	// useEffect(() => {
-	// 	// const handleOutsideClick = (event: MouseEvent) => {
-	// 	// 	// @ts-ignore
-	// 	// 	if (sidenavRef.current && !sidenavRef.current.contains(event.target)) {
-	// 	// 		closeSideNav();
-	// 	// 	}
-	// 	// };
-
-	// 	const handleScroll = () => {
-	// 		closeSideNav();
-	// 	};
-
-	// 	document.addEventListener("mousedown", handleOutsideClick);
-	// 	window.addEventListener("scroll", handleScroll);
-
-	// 	return () => {
-	// 		document.removeEventListener("mousedown", handleOutsideClick);
-	// 		window.removeEventListener("scroll", handleScroll);
-	// 	};
-	// }, []);
-
 	return (
 		<>
 			{showNotificationsModal && (
@@ -348,13 +323,24 @@ const Navbar = () => {
 						/>
 					</div>
 				)}
-				{!user && (
+				{isLoading ? ( // Conditional rendering based on loading state
+					<div className="rounded-full border bg-[#E2E8F0] dark:bg-[#1E293B] w-[40px] h-[40px]  transition animate-pulse duration-500 cursor-pointer object-cover" />
+				) : !user ? (
 					<Link
 						to="/"
-						className={`${buttonVariants} px-4 text-lg transition-colors duration-300  border bg-black dark:bg-white text-white dark:text-black hover:text-black hover:bg-white hover:dark:text-white hover:dark:bg-black rounded-full `}
+						className={`${buttonVariants} px-4 text-lg transition-colors duration-300 border bg-black dark:bg-white text-white dark:text-black hover:text-black hover:bg-white hover:dark:text-white hover:dark:bg-black rounded-full `}
 					>
 						Sign in
 					</Link>
+				) : (
+					<div className="flex items-center gap-7">
+						<SideNav
+							className={`${sidenav ? "right-0" : "-right-full"}`}
+							toggleSideNav={toggleSideNav}
+						/>
+
+						{/* User profile image and other user related links */}
+					</div>
 				)}
 				{user && (
 					<div className="flex items-center gap-7">
@@ -452,23 +438,7 @@ const Navbar = () => {
 								className="rounded-full border border-accent w-[40px] h-[40px]  hover:scale-110 transition duration-300 cursor-pointer object-cover"
 								onClick={handleProfileClick}
 							/>
-							{/* {user && !sidenav ? (
-								<ChevronDown
-									className={`${
-										sidenav ? "rotate-180" : "rotate-0"
-									}  transition-transform duration-500 cursor-pointer ml-4 ${
-										sidenav && "hidden"
-									}`}
-									onClick={() => setSidenav(true)}
-								/>
-							) : (
-								<ChevronUp
-									className={`transition-transform duration-500 cursor-pointer ml-4 ${
-										!sidenav && "hidden"
-									}`}
-									onClick={() => setSidenav(false)}
-								/>
-							)} */}
+							{/* Other user-related elements */}
 						</div>
 					</div>
 				)}
